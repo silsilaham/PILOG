@@ -7,7 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Aplikasi EMKL PILOG</title>
-    <!-- Tailwind CSS for styling -->
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <!-- Tailwind CSS for styling (Note: For production, install Tailwind CSS locally) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -36,6 +38,8 @@
         .sidebar-item {
             position: relative;
             overflow: hidden;
+            cursor: pointer;
+            text-decoration: none;
         }
         .sidebar-item::before {
             content: '';
@@ -43,24 +47,35 @@
             left: 0;
             top: 0;
             height: 100%;
-            width: 4px;
+            width: 3px;
             background: linear-gradient(180deg, #3b82f6, #06b6d4);
             transform: scaleY(0);
             transition: transform 0.3s ease;
+            border-radius: 0 3px 3px 0;
         }
         .sidebar-item:hover {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent);
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.12), transparent);
             color: #60a5fa;
-            transform: translateX(4px);
+            transform: translateX(2px);
+        }
+        .sidebar-item:hover i {
+            transform: scale(1.1);
+            color: #60a5fa;
         }
         .sidebar-item.active {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.05));
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.18), rgba(59, 130, 246, 0.05));
             color: #3b82f6;
             font-weight: 600;
-            border-left: 4px solid #3b82f6;
         }
         .sidebar-item.active::before {
             transform: scaleY(1);
+        }
+        .sidebar-item.active i {
+            color: #3b82f6;
+            transform: scale(1.05);
+        }
+        .sidebar-item i {
+            transition: all 0.2s ease;
         }
 
         /* Page Transitions */
@@ -134,6 +149,31 @@
         /* Badge Animations */
         .badge {
             animation: fadeIn 0.3s ease;
+        }
+
+        /* Prevent overflow globally */
+        * {
+            max-width: 100%;
+        }
+        
+        img, svg, video, canvas, audio, iframe, embed, object {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Ensure text doesn't overflow */
+        h1, h2, h3, h4, h5, h6, p, span, div {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Prevent horizontal scroll on body */
+        body {
+            overflow-x: hidden;
+        }
+        
+        main {
+            overflow-x: hidden;
         }
 
         /* Loading Spinner */
@@ -215,27 +255,29 @@
 
         /* Mobile Hamburger Menu */
         .hamburger {
-            display: none;
+            display: flex;
             flex-direction: column;
+            justify-content: center;
             cursor: pointer;
-            padding: 8px;
+            padding: 0.5rem;
+            gap: 4px;
         }
         .hamburger span {
-            width: 25px;
-            height: 3px;
+            width: 24px;
+            height: 2.5px;
             background: white;
-            margin: 3px 0;
-            border-radius: 3px;
-            transition: 0.3s;
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .hamburger.active span:nth-child(1) {
-            transform: rotate(-45deg) translate(-5px, 6px);
+            transform: rotate(-45deg) translate(-6px, 6px);
         }
         .hamburger.active span:nth-child(2) {
             opacity: 0;
+            transform: translateX(-10px);
         }
         .hamburger.active span:nth-child(3) {
-            transform: rotate(45deg) translate(-5px, -6px);
+            transform: rotate(45deg) translate(-6px, -6px);
         }
 
         /* Mobile Sidebar */
@@ -404,8 +446,23 @@
             z-index: 100;
             background: linear-gradient(135deg, #1e40af, #3b82f6);
             padding: 0.875rem 1rem;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             height: 60px;
+        }
+        
+        .mobile-header button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .mobile-header button:active {
+            transform: scale(0.9);
         }
         
         @media (max-width: 768px) {
@@ -416,7 +473,7 @@
             }
             
             body {
-                padding-top: 0;
+                padding-top: 60px;
             }
         }
 
@@ -432,36 +489,45 @@
         
         @media (max-width: 768px) {
             .mobile-nav-tabs {
-                display: flex;
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
                 position: fixed;
                 bottom: 0;
                 left: 0;
                 right: 0;
-                background: white;
-                border-top: 1px solid #e2e8f0;
+                background: linear-gradient(to top, #ffffff, #f8fafc);
+                border-top: 2px solid #e2e8f0;
                 z-index: 100;
-                padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom));
-                box-shadow: 0 -4px 16px rgba(0,0,0,0.12);
+                padding: 0.25rem 0 calc(0.25rem + env(safe-area-inset-bottom));
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
             }
             
             .mobile-nav-tabs button {
-                flex: 1;
-                padding: 0.5rem 0.25rem;
+                padding: 0.625rem 0.25rem;
                 border: none;
                 background: transparent;
                 color: #64748b;
-                font-size: 0.7rem;
                 font-weight: 500;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 0.25rem;
-                transition: all 0.2s ease;
+                transition: all 0.25s ease;
                 cursor: pointer;
+                position: relative;
+            }
+            
+            .mobile-nav-tabs button::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #3b82f6, #06b6d4);
+                border-radius: 0 0 3px 3px;
+                transition: width 0.3s ease;
             }
             
             .mobile-nav-tabs button:active {
-                transform: scale(0.95);
+                transform: scale(0.92);
             }
             
             .mobile-nav-tabs button.active {
@@ -469,18 +535,28 @@
                 font-weight: 600;
             }
             
+            .mobile-nav-tabs button.active::before {
+                width: 60%;
+            }
+            
             .mobile-nav-tabs button.active i {
-                transform: scale(1.1);
+                transform: scale(1.15);
+                color: #2563eb;
             }
             
             .mobile-nav-tabs button i {
-                font-size: 1.375rem;
-                transition: transform 0.2s ease;
+                transition: all 0.25s ease;
+                margin-bottom: 2px;
+            }
+            
+            .mobile-nav-tabs button span {
+                font-size: 0.7rem;
+                line-height: 1;
             }
             
             /* Add padding to main content for bottom nav */
             main {
-                padding-bottom: calc(5rem + env(safe-area-inset-bottom)) !important;
+                padding-bottom: calc(5.5rem + env(safe-area-inset-bottom)) !important;
             }
         }
         
@@ -841,8 +917,13 @@
             <span></span>
             <span></span>
         </div>
-        <h1 class="text-white font-bold text-lg">EMKL Pro</h1>
-        <div class="w-8"></div>
+        <h1 class="text-white font-bold text-lg flex items-center gap-2">
+            <i class="fas fa-ship"></i>
+            <span>EMKL Pro</span>
+        </h1>
+        <button id="logout-btn-mobile" class="text-white hover:text-red-300 transition-colors">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </button>
     </div>
     
     <!-- Mobile Overlay -->
@@ -851,107 +932,276 @@
     <div class="flex h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-slate-300 flex flex-col shadow-2xl">
-            <div class="p-6 border-b border-slate-700 bg-gradient-to-r from-blue-600 to-cyan-600">
+            <!-- Logo & Brand -->
+            <div class="p-5 border-b border-slate-700 bg-gradient-to-r from-blue-600 to-cyan-600">
                 <div class="flex items-center justify-center gap-3 mb-2">
-                    <div class="bg-white p-2 rounded-lg shadow-lg">
+                    <div class="bg-white p-2.5 rounded-xl shadow-lg">
                         <i class="fas fa-ship text-2xl text-blue-600"></i>
                     </div>
                 </div>
-                <h1 class="text-2xl font-bold text-white text-center tracking-wide">EMKL Pro</h1>
-                <p class="text-xs text-center text-blue-100 mt-1">PT. Pasir Indah Logistik</p>
+                <h1 class="text-xl font-bold text-white text-center tracking-wide">EMKL Pro</h1>
+                <p class="text-xs text-center text-blue-100 mt-1 opacity-90">PT. Pasir Indah Logistik</p>
             </div>
-            <nav class="flex-1 p-3 space-y-2 overflow-y-auto">
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="dashboard"><i class="fas fa-tachometer-alt w-7"></i><span>Dashboard</span></a>
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="job-order-list"><i class="fas fa-list-alt w-7"></i><span>Daftar Job Order</span></a>
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="add-job-order"><i class="fas fa-plus-circle w-7"></i><span>Input Job Order Baru</span></a>
-                <div class="pt-2 mt-2 border-t border-slate-700"></div>
-                <h3 class="px-3 pt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Master Data</h3>
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="customer-list"><i class="fas fa-users w-7"></i><span>Data Pelanggan</span></a>
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="driver-list"><i class="fas fa-id-card-alt w-7"></i><span>Data Sopir</span></a>
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="item-biaya-list"><i class="fas fa-money-check-alt w-7"></i><span>Data Item Biaya</span></a>
-                <div class="pt-2 mt-2 border-t border-slate-700"></div>
-                <h3 class="px-3 pt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Keuangan</h3>
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="pembayaran-invoice"><i class="fas fa-cash-register w-7"></i><span>Pembayaran Invoice</span></a>
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="piutang-list"><i class="fas fa-file-invoice-dollar w-7"></i><span>Laporan Piutang</span></a>
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="operational-costs"><i class="fas fa-money-bill-wave w-7"></i><span>Biaya Operasional</span></a>
-                 <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="laporan-pembayaran"><i class="fas fa-receipt w-7"></i><span>Laporan Pembayaran</span></a>
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="laporan-sopir"><i class="fas fa-truck-moving w-7"></i><span>Laporan Sopir</span></a>
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="laporan"><i class="fas fa-chart-pie w-7"></i><span>Laporan Laba/Rugi</span></a>
-                <div class="pt-2 mt-2 border-t border-slate-700"></div>
-                 <h3 class="px-3 pt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Sistem</h3>
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="pengaturan"><i class="fas fa-cog w-7"></i><span>Pengaturan</span></a>
-                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="backup-restore"><i class="fas fa-database w-7"></i><span>Backup & Restore</span></a>
+            
+            <!-- Navigation Menu -->
+            <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+                <!-- Dashboard -->
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="dashboard">
+                    <i class="fas fa-home w-5 text-center"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <!-- Job Order Section -->
+                <div class="pt-3 mt-2 border-t border-slate-700"></div>
+                <h3 class="px-3 pt-2 pb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">Job Order</h3>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="add-job-order">
+                    <i class="fas fa-plus-circle w-5 text-center"></i>
+                    <span>Buat Job Order</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="job-order-list">
+                    <i class="fas fa-list-alt w-5 text-center"></i>
+                    <span>Daftar Job Order</span>
+                </a>
+                
+                <!-- Master Data Section -->
+                <div class="pt-3 mt-2 border-t border-slate-700"></div>
+                <h3 class="px-3 pt-2 pb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">Master Data</h3>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="customer-list">
+                    <i class="fas fa-users w-5 text-center"></i>
+                    <span>Pelanggan</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="driver-list">
+                    <i class="fas fa-id-card w-5 text-center"></i>
+                    <span>Sopir</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="item-biaya-list">
+                    <i class="fas fa-tags w-5 text-center"></i>
+                    <span>Item Biaya</span>
+                </a>
+                
+                <!-- Finance Section -->
+                <div class="pt-3 mt-2 border-t border-slate-700"></div>
+                <h3 class="px-3 pt-2 pb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">Keuangan</h3>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="pembayaran-invoice">
+                    <i class="fas fa-cash-register w-5 text-center"></i>
+                    <span>Pembayaran</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="operational-costs">
+                    <i class="fas fa-money-bill-wave w-5 text-center"></i>
+                    <span>Biaya Operasional</span>
+                </a>
+                
+                <!-- Reports Section -->
+                <div class="pt-3 mt-2 border-t border-slate-700"></div>
+                <h3 class="px-3 pt-2 pb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">Laporan</h3>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="laporan">
+                    <i class="fas fa-chart-line w-5 text-center"></i>
+                    <span>Laba/Rugi</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="piutang-list">
+                    <i class="fas fa-file-invoice-dollar w-5 text-center"></i>
+                    <span>Piutang</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="laporan-pembayaran">
+                    <i class="fas fa-receipt w-5 text-center"></i>
+                    <span>Pembayaran</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="laporan-sopir">
+                    <i class="fas fa-truck w-5 text-center"></i>
+                    <span>Sopir</span>
+                </a>
+                
+                <!-- Settings Section -->
+                <div class="pt-3 mt-2 border-t border-slate-700"></div>
+                <h3 class="px-3 pt-2 pb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">Sistem</h3>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="pengaturan">
+                    <i class="fas fa-cog w-5 text-center"></i>
+                    <span>Pengaturan</span>
+                </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="backup-restore">
+                    <i class="fas fa-database w-5 text-center"></i>
+                    <span>Backup & Restore</span>
+                </a>
             </nav>
+            
+            <!-- Logout Button in Sidebar (Desktop) -->
+            <div class="p-3 border-t border-slate-700 hidden md:block">
+                <button id="logout-btn-sidebar" class="w-full flex items-center gap-3 p-3 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors">
+                    <i class="fas fa-sign-out-alt w-5 text-center"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 p-6 lg:p-8 overflow-y-auto">
+        <main class="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
             <!-- PAGE: Dashboard -->
             <div id="dashboard" class="page">
-                <div class="mb-4 md:mb-8">
-                    <h2 class="text-2xl md:text-4xl font-bold text-slate-800 mb-1 md:mb-2">Dashboard</h2>
-                    <p class="text-sm md:text-base text-slate-500">Ringkasan aktivitas dan performa bisnis Anda</p>
+                <!-- Header Section -->
+                <div class="mb-6">
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-2">Dashboard</h2>
+                    <p class="text-sm text-slate-600">Ringkasan aktivitas dan performa bisnis Anda</p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 stats-grid">
-                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-2xl shadow-xl card-hover text-white">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="bg-white bg-opacity-20 p-3 rounded-lg">
-                                <i class="fas fa-file-alt text-2xl"></i>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <!-- Total Job Orders -->
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg card-hover transform transition-all hover:scale-105">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="bg-white bg-opacity-20 p-2.5 rounded-lg">
+                                    <i class="fas fa-file-alt text-xl text-white"></i>
+                                </div>
+                                <div class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full text-white">
+                                    <i class="fas fa-chart-line text-xs"></i> All
+                                </div>
                             </div>
-                            <i class="fas fa-arrow-up text-sm opacity-75"></i>
+                            <h3 class="text-xs font-medium text-blue-100 mb-1">Total Job Order</h3>
+                            <p id="total-jobs" class="text-3xl font-bold text-white mb-1">0</p>
+                            <p class="text-xs text-blue-100 opacity-80">Semua transaksi</p>
                         </div>
-                        <h3 class="text-sm font-medium opacity-90 mb-1">Total Job Order</h3>
-                        <p id="total-jobs" class="text-4xl font-bold">0</p>
                     </div>
-                    <div class="bg-gradient-to-br from-green-500 to-emerald-600 p-6 rounded-2xl shadow-xl card-hover text-white">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="bg-white bg-opacity-20 p-3 rounded-lg">
-                                <i class="fas fa-wallet text-2xl"></i>
+                    
+                    <!-- Total Revenue -->
+                    <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg card-hover transform transition-all hover:scale-105">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="bg-white bg-opacity-20 p-2.5 rounded-lg">
+                                    <i class="fas fa-wallet text-xl text-white"></i>
+                                </div>
+                                <div class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full text-white">
+                                    <i class="fas fa-arrow-up text-xs"></i> Income
+                                </div>
                             </div>
-                            <i class="fas fa-arrow-up text-sm opacity-75"></i>
+                            <h3 class="text-xs font-medium text-green-100 mb-1">Total Pendapatan</h3>
+                            <p id="total-revenue" class="text-2xl md:text-3xl font-bold text-white mb-1">Rp 0</p>
+                            <p class="text-xs text-green-100 opacity-80">Revenue keseluruhan</p>
                         </div>
-                        <h3 class="text-sm font-medium opacity-90 mb-1">Total Pendapatan</h3>
-                        <p id="total-revenue" class="text-4xl font-bold">Rp 0</p>
                     </div>
-                    <div class="bg-gradient-to-br from-red-500 to-pink-600 p-6 rounded-2xl shadow-xl card-hover text-white">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="bg-white bg-opacity-20 p-3 rounded-lg">
-                                <i class="fas fa-money-bill-wave text-2xl"></i>
+                    
+                    <!-- Total Cost -->
+                    <div class="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-lg card-hover transform transition-all hover:scale-105">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="bg-white bg-opacity-20 p-2.5 rounded-lg">
+                                    <i class="fas fa-money-bill-wave text-xl text-white"></i>
+                                </div>
+                                <div class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full text-white">
+                                    <i class="fas fa-arrow-down text-xs"></i> Cost
+                                </div>
                             </div>
-                            <i class="fas fa-arrow-down text-sm opacity-75"></i>
+                            <h3 class="text-xs font-medium text-orange-100 mb-1">Total Biaya</h3>
+                            <p id="total-cost" class="text-2xl md:text-3xl font-bold text-white mb-1">Rp 0</p>
+                            <p class="text-xs text-orange-100 opacity-80">Biaya operasional</p>
                         </div>
-                        <h3 class="text-sm font-medium opacity-90 mb-1">Total Biaya</h3>
-                        <p id="total-cost" class="text-4xl font-bold">Rp 0</p>
                     </div>
-                    <div class="bg-gradient-to-br from-purple-500 to-indigo-600 p-6 rounded-2xl shadow-xl card-hover text-white">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="bg-white bg-opacity-20 p-3 rounded-lg">
-                                <i class="fas fa-chart-line text-2xl"></i>
+                    
+                    <!-- Net Profit -->
+                    <div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-lg card-hover transform transition-all hover:scale-105">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="bg-white bg-opacity-20 p-2.5 rounded-lg">
+                                    <i class="fas fa-chart-line text-xl text-white"></i>
+                                </div>
+                                <div class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full text-white">
+                                    <i class="fas fa-trophy text-xs"></i> Profit
+                                </div>
                             </div>
-                            <i class="fas fa-check text-sm opacity-75"></i>
+                            <h3 class="text-xs font-medium text-purple-100 mb-1">Laba Bersih</h3>
+                            <p id="net-profit" class="text-2xl md:text-3xl font-bold text-white mb-1">Rp 0</p>
+                            <p class="text-xs text-purple-100 opacity-80">Keuntungan bersih</p>
                         </div>
-                        <h3 class="text-sm font-medium opacity-90 mb-1">Laba Bersih</h3>
-                        <p id="net-profit" class="text-4xl font-bold">Rp 0</p>
                     </div>
                 </div>
-                 <div class="mt-8 bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <h3 class="text-2xl font-bold text-slate-800">Job Order Terbaru</h3>
-                            <p class="text-sm text-slate-500 mt-1">5 transaksi terakhir</p>
+                
+                <!-- Analytics Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
+                    <!-- Profit Margin Card -->
+                    <div class="bg-white rounded-xl shadow-md p-5 border border-slate-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-slate-700">Profit Margin</h3>
+                            <div class="bg-purple-100 p-2 rounded-lg">
+                                <i class="fas fa-percentage text-purple-600 text-sm"></i>
+                            </div>
                         </div>
-                        <div class="bg-blue-50 p-3 rounded-lg">
-                            <i class="fas fa-history text-blue-600 text-xl"></i>
+                        <p id="profit-margin" class="text-2xl font-bold text-slate-800 mb-1">0%</p>
+                        <p class="text-xs text-slate-500">Rasio keuntungan</p>
+                        <div class="mt-3 bg-slate-100 rounded-full h-2">
+                            <div id="profit-margin-bar" class="bg-gradient-to-r from-purple-500 to-indigo-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Status Card -->
+                    <div class="bg-white rounded-xl shadow-md p-5 border border-slate-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-slate-700">Status Pembayaran</h3>
+                            <div class="bg-green-100 p-2 rounded-lg">
+                                <i class="fas fa-check-circle text-green-600 text-sm"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-slate-600">Lunas</span>
+                                <span id="paid-count" class="text-sm font-bold text-green-600">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-slate-600">Sebagian</span>
+                                <span id="partial-count" class="text-sm font-bold text-blue-600">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-slate-600">Belum Bayar</span>
+                                <span id="unpaid-count" class="text-sm font-bold text-red-600">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Job Type Distribution -->
+                    <div class="bg-white rounded-xl shadow-md p-5 border border-slate-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-slate-700">Tipe Job Order</h3>
+                            <div class="bg-blue-100 p-2 rounded-lg">
+                                <i class="fas fa-chart-pie text-blue-600 text-sm"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-slate-600">PPN</span>
+                                <span id="ppn-count" class="text-sm font-bold text-blue-600">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-slate-600">Non-PPN</span>
+                                <span id="non-ppn-count" class="text-sm font-bold text-cyan-600">0</span>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex gap-1">
+                            <div id="ppn-bar" class="bg-blue-500 h-2 rounded-l-full transition-all duration-500" style="width: 50%"></div>
+                            <div id="non-ppn-bar" class="bg-cyan-500 h-2 rounded-r-full transition-all duration-500" style="width: 50%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Jobs Table -->
+                <div class="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden">
+                    <div class="p-5 md:p-6 border-b border-slate-200">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">Job Order Terbaru</h3>
+                                <p class="text-xs text-slate-500 mt-1">5 transaksi terakhir</p>
+                            </div>
+                            <div class="bg-blue-50 px-3 py-2 rounded-lg">
+                                <i class="fas fa-history text-blue-600 text-sm mr-2"></i>
+                                <span class="text-xs font-semibold text-blue-600">Recent Activity</span>
+                            </div>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
-                            <thead>
-                                <tr class="border-b-2 border-slate-200">
-                                    <th class="p-4 font-semibold text-slate-700 text-sm uppercase tracking-wide">No. Job</th>
-                                    <th class="p-4 font-semibold text-slate-700 text-sm uppercase tracking-wide">Pelanggan</th>
-                                    <th class="p-4 font-semibold text-slate-700 text-sm uppercase tracking-wide">Tanggal</th>
-                                    <th class="p-4 font-semibold text-slate-700 text-sm uppercase tracking-wide">Status</th>
+                            <thead class="bg-slate-50">
+                                <tr class="border-b border-slate-200">
+                                    <th class="p-3 md:p-4 font-semibold text-slate-700 text-xs uppercase tracking-wide whitespace-nowrap">No. Job</th>
+                                    <th class="p-3 md:p-4 font-semibold text-slate-700 text-xs uppercase tracking-wide whitespace-nowrap">Pelanggan</th>
+                                    <th class="p-3 md:p-4 font-semibold text-slate-700 text-xs uppercase tracking-wide whitespace-nowrap">Tanggal</th>
+                                    <th class="p-3 md:p-4 font-semibold text-slate-700 text-xs uppercase tracking-wide whitespace-nowrap">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="recent-jobs-table" class="divide-y divide-slate-100"></tbody>
@@ -1207,11 +1457,6 @@
                 <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-red-500"><h3 class="text-xl font-semibold mb-4 text-red-700">Restore Data</h3><p class="text-slate-600 mb-4"><strong>Peringatan:</strong> Memulihkan data dari file akan <strong class="text-red-600">MENGGANTI SEMUA DATA</strong> yang ada saat ini. Pastikan Anda telah mem-backup data terbaru jika diperlukan.</p><div class="flex items-center gap-4"><input type="file" id="restore-file-input" accept=".json" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/><button id="restore-btn" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 whitespace-nowrap"><i class="fas fa-upload mr-2"></i>Restore Data</button></div></div>
             </div>
         </main>
-        
-        <!-- Logout Button -->
-        <button id="logout-btn" class="fixed bottom-4 right-4 md:bottom-8 md:right-8 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-red-700 z-40">
-            <i class="fas fa-sign-out-alt mr-2"></i>Logout
-        </button>
     </div>
     </div><!-- End of main-app -->
 
@@ -1230,25 +1475,25 @@
     
     <!-- Mobile Bottom Navigation -->
     <div class="mobile-nav-tabs">
-        <button data-page="dashboard">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
+        <button data-page="dashboard" class="flex flex-col items-center justify-center">
+            <i class="fas fa-home text-lg"></i>
+            <span class="text-xs mt-1">Home</span>
         </button>
-        <button data-page="add-job-order">
-            <i class="fas fa-plus-circle"></i>
-            <span>Buat</span>
+        <button data-page="add-job-order" class="flex flex-col items-center justify-center">
+            <i class="fas fa-plus-circle text-lg"></i>
+            <span class="text-xs mt-1">Buat</span>
         </button>
-        <button data-page="job-order-list">
-            <i class="fas fa-list"></i>
-            <span>Job</span>
+        <button data-page="job-order-list" class="flex flex-col items-center justify-center">
+            <i class="fas fa-list-alt text-lg"></i>
+            <span class="text-xs mt-1">Job</span>
         </button>
-        <button data-page="laporan">
-            <i class="fas fa-chart-bar"></i>
-            <span>Laporan</span>
+        <button data-page="laporan" class="flex flex-col items-center justify-center">
+            <i class="fas fa-chart-line text-lg"></i>
+            <span class="text-xs mt-1">Laporan</span>
         </button>
-        <button id="mobile-menu-btn">
-            <i class="fas fa-bars"></i>
-            <span>Menu</span>
+        <button id="mobile-menu-btn" class="flex flex-col items-center justify-center">
+            <i class="fas fa-ellipsis-h text-lg"></i>
+            <span class="text-xs mt-1">Lainnya</span>
         </button>
     </div>
     
@@ -1304,7 +1549,7 @@ if (validateSupabaseConfig()) {
 
 // Login Credentials (hanya 1 akun untuk akses aplikasi)
 const VALID_USERNAME = 'admin';
-const VALID_PASSWORD = 'pilog2024';
+const VALID_PASSWORD = 'pilog2025';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Check if already logged in
@@ -1341,13 +1586,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 800);
     });
     
-    // Logout Handler
-    document.getElementById('logout-btn').addEventListener('click', () => {
+    // Logout Handler (multiple buttons)
+    const handleLogout = () => {
         if (confirm('Apakah Anda yakin ingin logout?')) {
             sessionStorage.removeItem('emklLoggedIn');
             location.reload();
         }
-    });
+    };
+    
+    // Logout button di sidebar (desktop)
+    const logoutBtnSidebar = document.getElementById('logout-btn-sidebar');
+    if (logoutBtnSidebar) {
+        logoutBtnSidebar.addEventListener('click', handleLogout);
+    }
+    
+    // Logout button di mobile header
+    const logoutBtnMobile = document.getElementById('logout-btn-mobile');
+    if (logoutBtnMobile) {
+        logoutBtnMobile.addEventListener('click', handleLogout);
+    }
     
     function showMainApp() {
         document.getElementById('login-screen').classList.add('hidden');
@@ -1738,6 +1995,47 @@ document.addEventListener('DOMContentLoaded', () => {
         animateValue(document.getElementById('total-cost'), 0, totalCost, 1000, false);
         animateValue(document.getElementById('net-profit'), 0, netProfit, 1000, false);
 
+        // Calculate analytics
+        const profitMarginPercent = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : 0;
+        
+        // Payment status count
+        let paidCount = 0, partialCount = 0, unpaidCount = 0;
+        state.jobs.forEach(job => {
+            const paymentInfo = getPaymentStatus(job);
+            if (paymentInfo.status === 'paid') paidCount++;
+            else if (paymentInfo.status === 'partial') partialCount++;
+            else unpaidCount++;
+        });
+
+        // Job type count
+        const ppnJobs = state.jobs.filter(job => job.id.startsWith('JO-PPN')).length;
+        const nonPpnJobs = state.jobs.filter(job => job.id.startsWith('JO-NP')).length;
+        const totalJobTypes = ppnJobs + nonPpnJobs;
+        const ppnPercent = totalJobTypes > 0 ? Math.round((ppnJobs / totalJobTypes) * 100) : 50;
+        const nonPpnPercent = 100 - ppnPercent;
+
+        // Update analytics UI with null checks
+        const profitMarginEl = document.getElementById('profit-margin');
+        const profitMarginBarEl = document.getElementById('profit-margin-bar');
+        if (profitMarginEl) profitMarginEl.textContent = profitMarginPercent + '%';
+        if (profitMarginBarEl) profitMarginBarEl.style.width = Math.max(0, Math.min(100, profitMarginPercent)) + '%';
+        
+        const paidCountEl = document.getElementById('paid-count');
+        const partialCountEl = document.getElementById('partial-count');
+        const unpaidCountEl = document.getElementById('unpaid-count');
+        if (paidCountEl) paidCountEl.textContent = paidCount;
+        if (partialCountEl) partialCountEl.textContent = partialCount;
+        if (unpaidCountEl) unpaidCountEl.textContent = unpaidCount;
+        
+        const ppnCountEl = document.getElementById('ppn-count');
+        const nonPpnCountEl = document.getElementById('non-ppn-count');
+        const ppnBarEl = document.getElementById('ppn-bar');
+        const nonPpnBarEl = document.getElementById('non-ppn-bar');
+        if (ppnCountEl) ppnCountEl.textContent = ppnJobs;
+        if (nonPpnCountEl) nonPpnCountEl.textContent = nonPpnJobs;
+        if (ppnBarEl) ppnBarEl.style.width = ppnPercent + '%';
+        if (nonPpnBarEl) nonPpnBarEl.style.width = nonPpnPercent + '%';
+
         const recentJobsTable = document.getElementById('recent-jobs-table');
         recentJobsTable.innerHTML = '';
         // Sort by createdAt date descending, then take last 5
@@ -1748,7 +2046,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             recentJobs.forEach(job => {
                 const row = document.createElement('tr');
-                row.className = 'border-b';
+                row.className = 'border-b hover:bg-slate-50 cursor-pointer transition-colors';
+                row.onclick = () => {
+                    navigate('job-order-list');
+                };
                 const paymentInfo = getPaymentStatus(job);
                 row.innerHTML = `
                     <td class="p-4">${job.id}</td>
@@ -2599,7 +2900,7 @@ document.addEventListener('DOMContentLoaded', () => {
         detailsModal.classList.add('hidden');
     });
 
-    // PDF GENERATION
+    // PDF GENERATION - DOT MATRIX STYLE
     const handlePrintDotMatrixInvoice = (e) => {
         const jobId = e.currentTarget.dataset.id;
         const job = state.jobs.find(j => j.id === jobId);
@@ -2610,87 +2911,160 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.setFont('Courier', 'normal');
-        doc.setFontSize(10);
-
-        let y = 15;
-        const line = (text) => {
-            doc.text(text, 14, y);
-            y += 5; // line height
-        };
-        const centerLine = (text) => {
-             doc.text(text, doc.internal.pageSize.getWidth() / 2, y, { align: 'center' });
-             y += 5;
-        }
-        const repeatChar = (char, count) => char.repeat(count);
-
-        doc.setFontSize(30); // Set larger font size for main title
-        doc.setFont('Courier', 'bold');
-        centerLine('PT PASIR INDAH LOGISTIK');
-        doc.setFontSize(10); // Reset to default size
-        doc.setFont('Courier', 'normal');
-        y+=2;
-        centerLine(`No. Invoice: INV/${job.id}`);
-        centerLine(`Tanggal: ${new Date().toLocaleDateString('id-ID')}`);
-        y += 5;
-
-        line(`Kepada Yth:`);
-        line(job.customerName);
-        y += 5;
-
-        line('Detail Pengiriman:');
-        line(`- Kapal/Voyage: ${job.vesselVoyage || 'N/A'}`);
-        line(`- Rute        : ${job.pol || 'N/A'} - ${job.pod || 'N/A'}`);
-        y += 5;
-
-        line('Kontainer:');
-        line(repeatChar('-', 70));
-        line('No. Kontainer      | Jenis/Ukuran      | Seal');
-        line(repeatChar('-', 70));
-        job.containers.forEach(c => {
-            const no = (c.number || '-').padEnd(18);
-            const type = (c.type || '-').padEnd(19);
-            const seal = (c.seal || '-');
-            line(`${no}| ${type}| ${seal}`);
-        });
-        line(repeatChar('-', 70));
-        y += 5;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 15;
+        const maxWidth = pageWidth - (margin * 2);
         
-        line('Rincian Biaya:');
-        line(repeatChar('-', 70));
-        line('Deskripsi'.padEnd(30) + 'Qty'.padStart(5) + 'Harga'.padStart(17) + 'Jumlah'.padStart(17));
-        line(repeatChar('-', 70));
-        job.invoice.items.forEach(item => {
-            const desc = item.description.length > 28 ? item.description.substring(0, 28) + '..' : item.description;
-            const ppnText = item.ppnStatus === 'ppn_dibebaskan' ? `(${getPPNStatusText(item.ppnStatus)})` : '';
-            const qty = item.qty.toString().padStart(5);
-            const price = formatCurrency(item.price).padStart(17);
-            const total = formatCurrency(item.total).padStart(17);
-            line(desc.padEnd(30) + qty + price + total);
-            if (ppnText) {
-                line('  ' + ppnText);
+        doc.setFont('Courier', 'normal');
+        doc.setFontSize(9);
+
+        let y = 20;
+        const lineHeight = 4;
+        
+        // Helper functions
+        const line = (text, size = 9, bold = false) => {
+            doc.setFontSize(size);
+            doc.setFont('Courier', bold ? 'bold' : 'normal');
+            doc.text(text, margin, y);
+            y += lineHeight;
+        };
+        
+        const centerLine = (text, size = 9, bold = false) => {
+            doc.setFontSize(size);
+            doc.setFont('Courier', bold ? 'bold' : 'normal');
+            doc.text(text, pageWidth / 2, y, { align: 'center' });
+            y += lineHeight;
+        };
+        
+        const separator = (char = '=', length = 80) => {
+            line(char.repeat(length));
+        };
+        
+        const formatRupiah = (amount) => {
+            return 'Rp ' + amount.toLocaleString('id-ID');
+        };
+
+        // HEADER SECTION
+        y += 3;
+        centerLine('PT PASIR INDAH LOGISTIK', 14, true);
+        y += 1;
+        centerLine('INVOICE PENGIRIMAN', 11, true);
+        y += 2;
+        separator('=', 80);
+        y += 2;
+        
+        // Invoice Info
+        line(`No. Invoice    : INV/${job.id}`, 9, true);
+        line(`Tanggal        : ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}`);
+        line(`Kepada Yth     : ${job.customerName}`, 9, true);
+        y += 2;
+        separator('-', 80);
+        y += 2;
+        
+        // SHIPPING DETAILS
+        line('DETAIL PENGIRIMAN:', 9, true);
+        y += 1;
+        line(`  Kapal/Voyage : ${job.vesselVoyage || '-'}`);
+        line(`  Rute         : ${job.pol || '-'} >>> ${job.pod || '-'}`);
+        y += 2;
+        
+        // CONTAINER SECTION
+        line('DAFTAR KONTAINER:', 9, true);
+        y += 1;
+        separator('-', 80);
+        line('  No. Kontainer          Jenis/Ukuran           No. Seal');
+        separator('-', 80);
+        
+        job.containers.forEach((c, idx) => {
+            const no = `${idx + 1}. ${c.number || '-'}`;
+            const type = (c.type || '-');
+            const seal = (c.seal || '-');
+            
+            // Format with proper spacing
+            const containerLine = `  ${no.padEnd(24)} ${type.padEnd(22)} ${seal}`;
+            line(containerLine);
+        });
+        separator('-', 80);
+        y += 2;
+        
+        // INVOICE ITEMS
+        line('RINCIAN BIAYA:', 9, true);
+        y += 1;
+        separator('=', 80);
+        line('  Deskripsi                      Qty      Harga           Total');
+        separator('-', 80);
+        
+        job.invoice.items.forEach((item, idx) => {
+            // Truncate description if too long
+            let desc = item.description;
+            if (desc.length > 28) {
+                desc = desc.substring(0, 25) + '...';
+            }
+            
+            const qty = item.qty.toString();
+            const price = formatRupiah(item.price);
+            const total = formatRupiah(item.total);
+            
+            // Format line dengan alignment yang tepat
+            const itemLine = `  ${(idx + 1) + '. ' + desc.padEnd(28)} ${qty.padStart(3)}  ${price.padStart(14)}  ${total.padStart(14)}`;
+            line(itemLine);
+            
+            // Add PPN status if applicable
+            if (item.ppnStatus === 'ppn_dibebaskan') {
+                line(`     (${getPPNStatusText(item.ppnStatus)})`, 8);
             }
         });
-        line(repeatChar('-', 70));
         
-        line('Subtotal'.padStart(53) + formatCurrency(job.invoice.subtotal).padStart(17));
-        line('PPN 11%'.padStart(53) + formatCurrency(job.invoice.ppn).padStart(17));
-        line(repeatChar('-', 70));
-        doc.setFont('Courier', 'bold');
-        line('Grand Total'.padStart(53) + formatCurrency(job.invoice.total).padStart(17));
-        doc.setFont('Courier', 'normal');
-        line(repeatChar('=', 70));
-        y += 5;
-
-        line('Terbilang:');
-        const terbilangText = `# ${terbilang(job.invoice.total)} #`;
+        separator('=', 80);
+        y += 1;
+        
+        // TOTALS
+        const subtotalLine = 'Subtotal'.padStart(58) + formatRupiah(job.invoice.subtotal).padStart(22);
+        const ppnLine = 'PPN 11%'.padStart(58) + formatRupiah(job.invoice.ppn).padStart(22);
+        const grandTotalLine = 'GRAND TOTAL'.padStart(58) + formatRupiah(job.invoice.total).padStart(22);
+        
+        line(subtotalLine);
+        line(ppnLine);
+        separator('-', 80);
+        line(grandTotalLine, 10, true);
+        separator('=', 80);
+        y += 2;
+        
+        // TERBILANG
+        line('Terbilang:', 9, true);
+        const terbilangText = `  # ${terbilang(job.invoice.total)} #`;
         doc.setFont('Courier', 'bolditalic');
-        line(terbilangText);
-        doc.setFont('Courier', 'normal');
-        y += 5;
+        doc.setFontSize(9);
         
+        // Word wrap for terbilang
+        const words = terbilangText.split(' ');
+        let currentLine = '';
+        words.forEach(word => {
+            const testLine = currentLine + word + ' ';
+            const testWidth = doc.getTextWidth(testLine);
+            if (testWidth > maxWidth - 10 && currentLine !== '') {
+                doc.text(currentLine.trim(), margin, y);
+                y += lineHeight;
+                currentLine = word + ' ';
+            } else {
+                currentLine = testLine;
+            }
+        });
+        if (currentLine.trim() !== '') {
+            doc.text(currentLine.trim(), margin, y);
+            y += lineHeight;
+        }
+        
+        doc.setFont('Courier', 'normal');
+        y += 2;
+        
+        // PAYMENT INFO
         if (state.banks.length > 0) {
-            line('Informasi Pembayaran:');
+            separator('-', 80);
+            y += 1;
+            line('INFORMASI PEMBAYARAN:', 9, true);
+            y += 1;
+            
             let banksToDisplay = [];
             if (job.selectedBankId && job.selectedBankId !== 'all') {
                 const selectedBank = state.banks.find((b, index) => index.toString() === job.selectedBankId);
@@ -2698,10 +3072,22 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 banksToDisplay = state.banks;
             }
-            banksToDisplay.forEach(bank => {
-                line(`- ${bank.name}: ${bank.number} (a.n. ${bank.holder})`);
+            
+            banksToDisplay.forEach((bank, idx) => {
+                line(`  ${idx + 1}. ${bank.name}`);
+                line(`     No. Rek: ${bank.number}`);
+                line(`     A/N: ${bank.holder}`);
+                if (idx < banksToDisplay.length - 1) y += 1;
             });
+            
+            y += 2;
+            separator('=', 80);
         }
+        
+        // FOOTER
+        y += 3;
+        centerLine('Terima kasih atas kepercayaan Anda', 8);
+        centerLine('PT Pasir Indah Logistik', 8);
         
         doc.save(`Invoice-DotMatrix-${job.id}.pdf`);
         showToast('Invoice berhasil diunduh!');
