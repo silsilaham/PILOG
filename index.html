@@ -1,0 +1,3752 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Aplikasi EMKL PILOG</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f8fafc; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, #3b82f6, #2563eb); 
+            border-radius: 5px; 
+            border: 2px solid #f8fafc;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #2563eb, #1d4ed8); }
+
+        /* Smooth Transitions */
+        * {
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Sidebar Styling */
+        .sidebar-item {
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, #3b82f6, #06b6d4);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        .sidebar-item:hover {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent);
+            color: #60a5fa;
+            transform: translateX(4px);
+        }
+        .sidebar-item.active {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.05));
+            color: #3b82f6;
+            font-weight: 600;
+            border-left: 4px solid #3b82f6;
+        }
+        .sidebar-item.active::before {
+            transform: scaleY(1);
+        }
+
+        /* Page Transitions */
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        /* Card Hover Effects */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Button Animations */
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn-primary:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Table Row Hover */
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+        tbody tr:hover {
+            background-color: #f1f5f9 !important;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Input Focus Effects */
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: scale(1.01);
+        }
+
+        /* Badge Animations */
+        .badge {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Pulse Animation for Stats */
+        .stat-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Improved Modal */
+        #details-modal {
+            backdrop-filter: blur(4px);
+        }
+
+        /* Status Badge Glow */
+        .status-badge {
+            animation: glow 2s ease-in-out infinite;
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: #1e293b;
+            color: white;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            animation: fadeIn 0.2s;
+        }
+
+        /* Mobile Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 8px;
+        }
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 3px 0;
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+
+        /* Mobile Sidebar */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+            
+            aside {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                height: 100vh;
+                width: 280px;
+                z-index: 1000;
+                transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s;
+                box-shadow: none;
+            }
+            
+            aside.mobile-open {
+                left: 0;
+                box-shadow: 8px 0 24px rgba(0,0,0,0.3);
+            }
+            
+            .mobile-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 999;
+                backdrop-filter: blur(3px);
+                opacity: 0;
+                transition: opacity 0.35s ease;
+            }
+            
+            .mobile-overlay.active {
+                display: block;
+                opacity: 1;
+            }
+            
+            main {
+                width: 100%;
+                padding: 0.75rem !important;
+                padding-top: 70px !important;
+            }
+            
+            /* Mobile Stats Cards */
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 0.75rem !important;
+            }
+            
+            /* Mobile Table Scroll */
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin: 0 -0.75rem;
+                padding: 0 0.75rem;
+                scrollbar-width: thin;
+            }
+            
+            .table-container::-webkit-scrollbar {
+                height: 6px;
+            }
+            
+            .table-container::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 3px;
+            }
+            
+            table {
+                min-width: 800px;
+                font-size: 0.875rem;
+            }
+            
+            table th, table td {
+                padding: 0.5rem 0.75rem !important;
+                white-space: nowrap;
+            }
+            
+            /* Mobile Form */
+            .form-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
+            }
+            
+            /* Mobile Buttons */
+            .btn-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .btn-group button {
+                width: 100%;
+            }
+            
+            /* Larger tap targets for mobile */
+            button, a, input, select, textarea {
+                min-height: 48px;
+                font-size: 16px !important;
+            }
+            
+            input[type="checkbox"],
+            input[type="radio"] {
+                min-height: 20px;
+                width: 20px;
+                height: 20px;
+            }
+            
+            /* Mobile Modal */
+            #details-modal {
+                padding: 0.5rem;
+            }
+            
+            #details-modal > div {
+                width: 100% !important;
+                max-width: 100% !important;
+                max-height: 92vh !important;
+                margin: 0 !important;
+                border-radius: 16px;
+            }
+            
+            #details-modal #modal-content {
+                padding: 1rem !important;
+                font-size: 0.875rem;
+            }
+            
+            #details-modal .grid {
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
+            }
+            
+            #modal-title {
+                font-size: 1.125rem !important;
+            }
+            
+            /* Mobile Toast */
+            #toast {
+                bottom: 5.5rem !important;
+                left: 0.75rem;
+                right: 0.75rem;
+                font-size: 0.875rem;
+                padding: 0.75rem 1rem;
+            }
+            
+            #toast i {
+                font-size: 1.25rem;
+            }
+            
+            /* Hide text on small screens, show icons only */
+            .mobile-hide-text {
+                display: none;
+            }
+        }
+
+        /* Mobile Header */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            padding: 0.875rem 1rem;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+            height: 60px;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            body {
+                padding-top: 0;
+            }
+        }
+
+        /* Swipeable */
+        .swipe-container {
+            touch-action: pan-y;
+        }
+
+        /* Mobile Navigation Tabs */
+        .mobile-nav-tabs {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-nav-tabs {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                border-top: 1px solid #e2e8f0;
+                z-index: 100;
+                padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom));
+                box-shadow: 0 -4px 16px rgba(0,0,0,0.12);
+            }
+            
+            .mobile-nav-tabs button {
+                flex: 1;
+                padding: 0.5rem 0.25rem;
+                border: none;
+                background: transparent;
+                color: #64748b;
+                font-size: 0.7rem;
+                font-weight: 500;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.25rem;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+            
+            .mobile-nav-tabs button:active {
+                transform: scale(0.95);
+            }
+            
+            .mobile-nav-tabs button.active {
+                color: #3b82f6;
+                font-weight: 600;
+            }
+            
+            .mobile-nav-tabs button.active i {
+                transform: scale(1.1);
+            }
+            
+            .mobile-nav-tabs button i {
+                font-size: 1.375rem;
+                transition: transform 0.2s ease;
+            }
+            
+            /* Add padding to main content for bottom nav */
+            main {
+                padding-bottom: calc(5rem + env(safe-area-inset-bottom)) !important;
+            }
+        }
+        
+        /* Tablet Optimization (769px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            aside {
+                width: 220px;
+            }
+            
+            main {
+                margin-left: 220px;
+                padding: 1.5rem;
+            }
+            
+            .sidebar-item {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            table th, table td {
+                padding: 0.75rem;
+            }
+        }
+        
+        /* Better responsive grid system */
+        @media (min-width: 640px) and (max-width: 768px) {
+            .grid.grid-cols-1.md\\:grid-cols-2,
+            .grid.grid-cols-1.sm\\:grid-cols-2 {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        
+        /* Responsive typography */
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 1.5rem !important;
+            }
+            
+            h2 {
+                font-size: 1.25rem !important;
+            }
+            
+            h3 {
+                font-size: 1.125rem !important;
+            }
+        }
+        
+        /* Better button spacing */
+        .btn {
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 768px) {
+            .btn {
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            .btn i {
+                font-size: 1rem;
+            }
+            
+            /* Better form inputs on mobile */
+            input[type="text"],
+            input[type="email"],
+            input[type="tel"],
+            input[type="number"],
+            input[type="date"],
+            input[type="password"],
+            select,
+            textarea {
+                font-size: 16px !important;
+                padding: 0.75rem !important;
+                border-radius: 0.5rem !important;
+            }
+            
+            /* Prevent zoom on input focus in iOS */
+            input:focus,
+            select:focus,
+            textarea:focus {
+                font-size: 16px !important;
+            }
+            
+            /* Better fieldset on mobile */
+            fieldset {
+                padding: 1rem !important;
+                margin-bottom: 1rem;
+            }
+            
+            fieldset legend {
+                font-size: 1rem !important;
+                padding: 0.5rem 0.75rem !important;
+            }
+            
+            /* Responsive card padding */
+            .bg-white.p-6,
+            .bg-white.p-8,
+            .bg-white.p-10 {
+                padding: 1rem !important;
+            }
+        }
+        
+        /* Responsive spacing utilities */
+        @media (max-width: 768px) {
+            .space-y-4 > * + * {
+                margin-top: 0.75rem !important;
+            }
+            
+            .space-y-6 > * + * {
+                margin-top: 1rem !important;
+            }
+            
+            .space-y-8 > * + * {
+                margin-top: 1.25rem !important;
+            }
+            
+            .gap-4 {
+                gap: 0.75rem !important;
+            }
+            
+            .gap-6 {
+                gap: 1rem !important;
+            }
+            
+            .gap-8 {
+                gap: 1.25rem !important;
+            }
+            
+            /* Stats cards responsive */
+            .card-hover {
+                padding: 1.25rem !important;
+            }
+            
+            .card-hover .text-4xl {
+                font-size: 2rem !important;
+            }
+            
+            .card-hover .text-2xl {
+                font-size: 1.5rem !important;
+            }
+            
+            /* Badge responsive */
+            .badge, span[class*="badge"] {
+                font-size: 0.75rem !important;
+                padding: 0.25rem 0.625rem !important;
+            }
+            
+            /* Icon sizing */
+            .fa-2xl {
+                font-size: 1.5rem !important;
+            }
+            
+            .fa-xl {
+                font-size: 1.25rem !important;
+            }
+            
+            /* Better section headings */
+            .mb-8 {
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .mb-6 {
+                margin-bottom: 1rem !important;
+            }
+            
+            /* Responsive rounded corners */
+            .rounded-2xl {
+                border-radius: 1rem !important;
+            }
+            
+            .rounded-xl {
+                border-radius: 0.75rem !important;
+            }
+        }
+        
+        /* Fix for landscape mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            main {
+                padding-top: 65px !important;
+            }
+            
+            .mobile-header {
+                height: 50px;
+                padding: 0.625rem 1rem;
+            }
+            
+            .mobile-nav-tabs {
+                padding: 0.375rem 0;
+            }
+            
+            .mobile-nav-tabs button {
+                padding: 0.375rem 0.25rem;
+                font-size: 0.65rem;
+            }
+            
+            .mobile-nav-tabs button i {
+                font-size: 1.125rem;
+            }
+        }
+        
+        /* Better overflow handling */
+        @media (max-width: 768px) {
+            /* Prevent horizontal scroll */
+            body {
+                overflow-x: hidden;
+            }
+            
+            /* Better overflow for containers */
+            .overflow-hidden {
+                overflow: hidden !important;
+            }
+            
+            .overflow-x-auto {
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+            }
+            
+            /* Smooth scrolling */
+            html {
+                scroll-behavior: smooth;
+            }
+            
+            /* Fix for action buttons in tables */
+            .actions {
+                display: flex !important;
+                gap: 0.375rem !important;
+                flex-wrap: nowrap !important;
+            }
+            
+            .actions button {
+                min-width: 36px !important;
+                min-height: 36px !important;
+                padding: 0.5rem !important;
+                flex-shrink: 0 !important;
+            }
+            
+            /* Better grid auto-fit */
+            .grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Flex utilities for mobile */
+            .flex-wrap {
+                flex-wrap: wrap !important;
+            }
+            
+            .flex-col-reverse {
+                flex-direction: column-reverse !important;
+            }
+        }
+        
+        /* Print optimization */
+        @media print {
+            aside, .mobile-header, .mobile-nav-tabs, .mobile-overlay {
+                display: none !important;
+            }
+            
+            main {
+                margin-left: 0 !important;
+                padding: 0 !important;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            
+            .page {
+                display: block !important;
+            }
+            
+            .no-print, button, .btn {
+                display: none !important;
+            }
+        }
+        
+        /* Safe area insets for notched devices */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(0px, env(safe-area-inset-left));
+                padding-right: max(0px, env(safe-area-inset-right));
+            }
+            
+            .mobile-header {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <!-- Login Screen -->
+    <div id="login-screen" class="fixed inset-0 bg-gradient-to-br from-blue-600 via-cyan-600 to-blue-700 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
+            <div class="text-center mb-8">
+                <div class="bg-gradient-to-r from-blue-600 to-cyan-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <i class="fas fa-ship text-3xl text-white"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">EMKL PILOG</h1>
+                <p class="text-slate-600">Sistem Manajemen Logistik</p>
+            </div>
+            
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-2">
+                        <i class="fas fa-user mr-2"></i>Username
+                    </label>
+                    <input type="text" id="login-username" required
+                        class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                        placeholder="Masukkan username">
+                </div>
+                
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-2">
+                        <i class="fas fa-lock mr-2"></i>Password
+                    </label>
+                    <input type="password" id="login-password" required
+                        class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                        placeholder="Masukkan password">
+                </div>
+                
+                <button type="submit" 
+                    class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold py-3 rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all shadow-lg">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Login
+                </button>
+                
+                <div id="login-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-sm">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span id="login-error-message"></span>
+                </div>
+                
+                <div id="login-loading" class="hidden text-center">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+                    <p class="text-slate-600 mt-2">Memverifikasi...</p>
+                </div>
+            </form>
+            
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p class="text-xs text-slate-600 text-center">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Hubungi administrator untuk kredensial login
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App (Hidden until login) -->
+    <div id="main-app" class="hidden">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="hamburger" id="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <h1 class="text-white font-bold text-lg">EMKL Pro</h1>
+        <div class="w-8"></div>
+    </div>
+    
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+    
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-slate-300 flex flex-col shadow-2xl">
+            <div class="p-6 border-b border-slate-700 bg-gradient-to-r from-blue-600 to-cyan-600">
+                <div class="flex items-center justify-center gap-3 mb-2">
+                    <div class="bg-white p-2 rounded-lg shadow-lg">
+                        <i class="fas fa-ship text-2xl text-blue-600"></i>
+                    </div>
+                </div>
+                <h1 class="text-2xl font-bold text-white text-center tracking-wide">EMKL Pro</h1>
+                <p class="text-xs text-center text-blue-100 mt-1">PT. Pasir Indah Logistik</p>
+            </div>
+            <nav class="flex-1 p-3 space-y-2 overflow-y-auto">
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="dashboard"><i class="fas fa-tachometer-alt w-7"></i><span>Dashboard</span></a>
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="job-order-list"><i class="fas fa-list-alt w-7"></i><span>Daftar Job Order</span></a>
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="add-job-order"><i class="fas fa-plus-circle w-7"></i><span>Input Job Order Baru</span></a>
+                <div class="pt-2 mt-2 border-t border-slate-700"></div>
+                <h3 class="px-3 pt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Master Data</h3>
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="customer-list"><i class="fas fa-users w-7"></i><span>Data Pelanggan</span></a>
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="driver-list"><i class="fas fa-id-card-alt w-7"></i><span>Data Sopir</span></a>
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="item-biaya-list"><i class="fas fa-money-check-alt w-7"></i><span>Data Item Biaya</span></a>
+                <div class="pt-2 mt-2 border-t border-slate-700"></div>
+                <h3 class="px-3 pt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Keuangan</h3>
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="pembayaran-invoice"><i class="fas fa-cash-register w-7"></i><span>Pembayaran Invoice</span></a>
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="piutang-list"><i class="fas fa-file-invoice-dollar w-7"></i><span>Laporan Piutang</span></a>
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="operational-costs"><i class="fas fa-money-bill-wave w-7"></i><span>Biaya Operasional</span></a>
+                 <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="laporan-pembayaran"><i class="fas fa-receipt w-7"></i><span>Laporan Pembayaran</span></a>
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="laporan-sopir"><i class="fas fa-truck-moving w-7"></i><span>Laporan Sopir</span></a>
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="laporan"><i class="fas fa-chart-pie w-7"></i><span>Laporan Laba/Rugi</span></a>
+                <div class="pt-2 mt-2 border-t border-slate-700"></div>
+                 <h3 class="px-3 pt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Sistem</h3>
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="pengaturan"><i class="fas fa-cog w-7"></i><span>Pengaturan</span></a>
+                <a href="#" class="sidebar-item flex items-center p-3 rounded-lg" data-page="backup-restore"><i class="fas fa-database w-7"></i><span>Backup & Restore</span></a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 lg:p-8 overflow-y-auto">
+            <!-- PAGE: Dashboard -->
+            <div id="dashboard" class="page">
+                <div class="mb-4 md:mb-8">
+                    <h2 class="text-2xl md:text-4xl font-bold text-slate-800 mb-1 md:mb-2">Dashboard</h2>
+                    <p class="text-sm md:text-base text-slate-500">Ringkasan aktivitas dan performa bisnis Anda</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 stats-grid">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-2xl shadow-xl card-hover text-white">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                                <i class="fas fa-file-alt text-2xl"></i>
+                            </div>
+                            <i class="fas fa-arrow-up text-sm opacity-75"></i>
+                        </div>
+                        <h3 class="text-sm font-medium opacity-90 mb-1">Total Job Order</h3>
+                        <p id="total-jobs" class="text-4xl font-bold">0</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-500 to-emerald-600 p-6 rounded-2xl shadow-xl card-hover text-white">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                                <i class="fas fa-wallet text-2xl"></i>
+                            </div>
+                            <i class="fas fa-arrow-up text-sm opacity-75"></i>
+                        </div>
+                        <h3 class="text-sm font-medium opacity-90 mb-1">Total Pendapatan</h3>
+                        <p id="total-revenue" class="text-4xl font-bold">Rp 0</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-red-500 to-pink-600 p-6 rounded-2xl shadow-xl card-hover text-white">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                                <i class="fas fa-money-bill-wave text-2xl"></i>
+                            </div>
+                            <i class="fas fa-arrow-down text-sm opacity-75"></i>
+                        </div>
+                        <h3 class="text-sm font-medium opacity-90 mb-1">Total Biaya</h3>
+                        <p id="total-cost" class="text-4xl font-bold">Rp 0</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-500 to-indigo-600 p-6 rounded-2xl shadow-xl card-hover text-white">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                                <i class="fas fa-chart-line text-2xl"></i>
+                            </div>
+                            <i class="fas fa-check text-sm opacity-75"></i>
+                        </div>
+                        <h3 class="text-sm font-medium opacity-90 mb-1">Laba Bersih</h3>
+                        <p id="net-profit" class="text-4xl font-bold">Rp 0</p>
+                    </div>
+                </div>
+                 <div class="mt-8 bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-2xl font-bold text-slate-800">Job Order Terbaru</h3>
+                            <p class="text-sm text-slate-500 mt-1">5 transaksi terakhir</p>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded-lg">
+                            <i class="fas fa-history text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b-2 border-slate-200">
+                                    <th class="p-4 font-semibold text-slate-700 text-sm uppercase tracking-wide">No. Job</th>
+                                    <th class="p-4 font-semibold text-slate-700 text-sm uppercase tracking-wide">Pelanggan</th>
+                                    <th class="p-4 font-semibold text-slate-700 text-sm uppercase tracking-wide">Tanggal</th>
+                                    <th class="p-4 font-semibold text-slate-700 text-sm uppercase tracking-wide">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-jobs-table" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Daftar Job Order -->
+            <div id="job-order-list" class="page">
+                <div class="mb-4 md:mb-8">
+                    <h2 class="text-2xl md:text-4xl font-bold text-slate-800 mb-1 md:mb-2">Daftar Job Order</h2>
+                    <p class="text-sm md:text-base text-slate-500">Kelola semua job order Anda</p>
+                </div>
+                 <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
+                    <div class="mb-6 flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+                        <div class="flex-1 relative">
+                            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="job-search" class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100" placeholder="Cari berdasarkan No. Job atau Nama Pelanggan...">
+                        </div>
+                        <select id="job-status-filter" class="px-4 py-3 border-2 border-slate-200 rounded-xl bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 font-medium">
+                            <option value="all">📊 Semua Status</option>
+                            <option value="paid">✅ Lunas</option>
+                            <option value="partial">⏳ Lunas Sebagian</option>
+                            <option value="unpaid">⚠️ Belum Lunas</option>
+                        </select>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b-2 border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50">
+                                    <th class="p-4 font-bold text-slate-700 text-sm uppercase tracking-wide">No. Job Order</th>
+                                    <th class="p-4 font-bold text-slate-700 text-sm uppercase tracking-wide">Pelanggan</th>
+                                    <th class="p-4 font-bold text-slate-700 text-sm uppercase tracking-wide">Tanggal Dibuat</th>
+                                    <th class="p-4 font-bold text-slate-700 text-sm uppercase tracking-wide">Total Invoice</th>
+                                    <th class="p-4 font-bold text-slate-700 text-sm uppercase tracking-wide">Status Pembayaran</th>
+                                    <th class="p-4 font-bold text-slate-700 text-sm uppercase tracking-wide text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="job-order-table-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Input Job Order -->
+            <div id="add-job-order" class="page">
+                <div class="mb-8">
+                    <h2 class="text-4xl font-bold text-slate-800 mb-2">Input Job Order Baru</h2>
+                    <p class="text-slate-500">Lengkapi semua informasi job order dengan teliti</p>
+                </div>
+                <form id="job-order-form" class="bg-white p-4 md:p-10 rounded-xl md:rounded-2xl shadow-lg border border-slate-100 space-y-4 md:space-y-8">
+                    <fieldset class="border-2 border-slate-200 p-6 rounded-xl bg-gradient-to-br from-slate-50 to-blue-50"><legend class="text-xl font-bold px-4 text-slate-800 bg-white rounded-lg shadow-sm border-2 border-blue-200"><i class="fas fa-info-circle text-blue-600 mr-2"></i>Informasi Umum</legend><div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-4 form-grid"><div><label for="job-order-no" class="block font-semibold mb-2 text-slate-700 text-sm uppercase tracking-wide">No. Job Order</label><input type="text" id="job-order-no" class="w-full p-3 border-2 border-slate-200 rounded-xl bg-slate-100 font-mono font-bold text-slate-600" readonly></div><div><label for="customer-selection" class="block font-medium mb-1 text-slate-600">Nama Pelanggan</label><div class="flex gap-2"><select id="customer-selection" class="w-full p-2 border rounded-md bg-white" required></select><button type="button" id="quick-add-customer-btn" class="bg-sky-500 text-white px-3 rounded-md hover:bg-sky-600 flex-shrink-0" title="Tambah Pelanggan Cepat"><i class="fas fa-plus"></i></button></div></div><div><label for="shipment-type" class="block font-medium mb-1 text-slate-600">Partai</label><input type="text" id="shipment-type" class="w-full p-2 border rounded-md" placeholder="Contoh: FCL/LCL"></div><div><label for="vessel-voyage" class="block font-medium mb-1 text-slate-600">Kapal / Voyage</label><input type="text" id="vessel-voyage" class="w-full p-2 border rounded-md"></div><div><label for="pol" class="block font-medium mb-1 text-slate-600">Port of Loading (POL)</label><input type="text" id="pol" class="w-full p-2 border rounded-md"></div><div><label for="pod" class="block font-medium mb-1 text-slate-600">Port of Discharge (POD)</label><input type="text" id="pod" class="w-full p-2 border rounded-md"></div><div class="md:col-span-2"><label for="bank-selection" class="block font-medium mb-1 text-slate-600">Rekening Bank untuk Invoice</label><select id="bank-selection" class="w-full p-2 border rounded-md bg-white"></select></div></div></fieldset>
+                    <fieldset class="border-2 border-slate-200 p-4 md:p-6 rounded-xl bg-gradient-to-br from-slate-50 to-blue-50"><legend class="text-lg md:text-xl font-bold px-3 md:px-4 text-slate-800 bg-white rounded-lg shadow-sm border-2 border-blue-200"><i class="fas fa-truck text-blue-600 mr-2"></i>Detail Kontainer & Sopir</legend><div id="container-details-wrapper" class="space-y-4 mt-4"></div><button type="button" id="add-container-btn" class="mt-4 bg-sky-500 text-white px-4 py-2 rounded-md hover:bg-sky-600"><i class="fas fa-plus mr-2"></i>Tambah Kontainer</button></fieldset>
+                    <fieldset class="border-2 border-slate-200 p-4 md:p-6 rounded-xl bg-gradient-to-br from-slate-50 to-blue-50"><legend class="text-lg md:text-xl font-bold px-3 md:px-4 text-slate-800 bg-white rounded-lg shadow-sm border-2 border-blue-200"><i class="fas fa-receipt text-blue-600 mr-2"></i>Rincian Invoice</legend><div id="invoice-items-wrapper" class="space-y-4 mt-4"></div><button type="button" id="add-invoice-item-btn" class="mt-4 bg-sky-500 text-white px-4 py-2 rounded-md hover:bg-sky-600"><i class="fas fa-plus mr-2"></i>Tambah Item Invoice</button><div class="text-right mt-6 space-y-2 border-t pt-4"> <div class="text-lg font-semibold text-slate-600">Subtotal: <span id="invoice-subtotal" class="w-40 inline-block">Rp 0</span></div><div class="text-lg font-semibold text-slate-600">PPN 11%: <span id="invoice-ppn" class="w-40 inline-block">Rp 0</span></div><div class="text-2xl font-bold text-slate-800 mt-2">Grand Total: <span id="invoice-grand-total" class="w-40 inline-block">Rp 0</span></div></div></fieldset>
+                    <div class="text-right pt-4"><button type="submit" class="btn-primary bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-4 rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1"><i class="fas fa-save mr-2"></i>Simpan Job Order</button></div>
+                </form>
+            </div>
+
+            <!-- PAGE: Data Pelanggan -->
+            <div id="customer-list" class="page">
+                <div class="mb-4 md:mb-6">
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Data Pelanggan</h2>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
+                    <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md">
+                         <h3 class="text-xl font-semibold mb-4 text-slate-700 border-b pb-3">Tambah Pelanggan Baru</h3>
+                         <form id="customer-form" class="space-y-4 mt-4">
+                            <div><label for="customer-name-input" class="block font-medium mb-1 text-slate-600">Nama Pelanggan</label><input type="text" id="customer-name-input" class="w-full p-2 border rounded-md" required></div>
+                            <div><label for="customer-address-input" class="block font-medium mb-1 text-slate-600">Alamat</label><textarea id="customer-address-input" rows="3" class="w-full p-2 border rounded-md"></textarea></div>
+                            <div><label for="customer-phone-input" class="block font-medium mb-1 text-slate-600">Telepon</label><input type="text" id="customer-phone-input" class="w-full p-2 border rounded-md"></div>
+                            <div><label for="customer-npwp-input" class="block font-medium mb-1 text-slate-600">NPWP</label><input type="text" id="customer-npwp-input" class="w-full p-2 border rounded-md"></div>
+                            <div class="text-right pt-2"><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-plus mr-2"></i>Simpan Pelanggan</button></div>
+                         </form>
+                    </div>
+                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-semibold mb-4 text-slate-700">Daftar Pelanggan</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50"><tr><th class="p-4 font-semibold text-slate-600">Nama</th><th class="p-4 font-semibold text-slate-600">Kontak</th><th class="p-4 font-semibold text-slate-600">Alamat</th><th class="p-4 font-semibold text-slate-600 text-center">Aksi</th></tr></thead>
+                                <tbody id="customer-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Data Sopir -->
+            <div id="driver-list" class="page">
+                <div class="mb-4 md:mb-6">
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Data Sopir</h2>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
+                    <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md">
+                         <h3 class="text-xl font-semibold mb-4 text-slate-700 border-b pb-3">Tambah Sopir Baru</h3>
+                         <form id="driver-form" class="space-y-4 mt-4">
+                            <div><label for="driver-name-input" class="block font-medium mb-1 text-slate-600">Nama Sopir</label><input type="text" id="driver-name-input" class="w-full p-2 border rounded-md" required></div>
+                            <div><label for="driver-phone-input" class="block font-medium mb-1 text-slate-600">Telepon</label><input type="text" id="driver-phone-input" class="w-full p-2 border rounded-md"></div>
+                            <div><label for="driver-plate-input" class="block font-medium mb-1 text-slate-600">No. Polisi Kendaraan</label><input type="text" id="driver-plate-input" class="w-full p-2 border rounded-md"></div>
+                            <div class="text-right pt-2"><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-plus mr-2"></i>Simpan Sopir</button></div>
+                         </form>
+                    </div>
+                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-semibold mb-4 text-slate-700">Daftar Sopir</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50"><tr><th class="p-4 font-semibold text-slate-600">Nama</th><th class="p-4 font-semibold text-slate-600">Telepon</th><th class="p-4 font-semibold text-slate-600">No. Polisi</th><th class="p-4 font-semibold text-slate-600 text-center">Aksi</th></tr></thead>
+                                <tbody id="driver-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PAGE: Data Item Invoice (Hidden) -->
+            <div id="item-list" class="page">
+                 <!-- This page is intentionally blank per user request -->
+            </div>
+            
+            <!-- PAGE: Data Item Biaya -->
+            <div id="item-biaya-list" class="page">
+                <h2 class="text-3xl font-bold mb-6 text-slate-800">Data Item Biaya Operasional</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-md">
+                         <h3 class="text-xl font-semibold mb-4 text-slate-700 border-b pb-3">Tambah Item Biaya Baru</h3>
+                         <form id="op-cost-item-form" class="space-y-4 mt-4">
+                            <div><label for="op-cost-item-name-input" class="block font-medium mb-1 text-slate-600">Nama/Deskripsi Biaya</label><input type="text" id="op-cost-item-name-input" class="w-full p-2 border rounded-md" required></div>
+                            <div class="text-right pt-2"><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-plus mr-2"></i>Simpan Item Biaya</button></div>
+                         </form>
+                    </div>
+                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-semibold mb-4 text-slate-700">Daftar Item Tersimpan</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50"><tr><th class="p-4 font-semibold text-slate-600">Deskripsi</th><th class="p-4 font-semibold text-slate-600 text-center">Aksi</th></tr></thead>
+                                <tbody id="op-cost-item-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Pembayaran Invoice -->
+            <div id="pembayaran-invoice" class="page">
+                <h2 class="text-3xl font-bold mb-6 text-slate-800">Pembayaran Invoice</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="mb-6"><label for="payment-job-select" class="block font-medium mb-2 text-slate-600">Pilih Invoice (Belum Lunas / Lunas Sebagian):</label><select id="payment-job-select" class="w-full md:w-1/2 p-2 border rounded-md bg-white"><option value="">-- Pilih Job Order --</option></select></div>
+                    <div id="payment-details-section" class="hidden mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-slate-700">Detail Tagihan</h3>
+                            <div id="payment-invoice-summary" class="space-y-2 text-slate-600"></div>
+                             <h4 class="text-lg font-semibold mb-2 mt-6 text-slate-700">Input Pembayaran Baru</h4>
+                            <form id="payment-form" class="space-y-4">
+                                <div><label for="payment-date" class="block font-medium mb-1">Tanggal Bayar</label><input type="date" id="payment-date" class="w-full p-2 border rounded-md" required></div>
+                                <div><label for="payment-amount" class="block font-medium mb-1">Jumlah Bayar</label><input type="number" id="payment-amount" placeholder="0" class="w-full p-2 border rounded-md" required min="1"></div>
+                                <div><label for="payment-method" class="block font-medium mb-1">Metode Bayar</label><select id="payment-method" class="w-full p-2 border rounded-md bg-white"><option>Transfer</option><option>Tunai</option><option>Lainnya</option></select></div>
+                                <div class="text-right pt-2"><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-save mr-2"></i>Simpan Pembayaran</button></div>
+                            </form>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-slate-700">Riwayat Pembayaran</h3>
+                            <div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-slate-50"><tr class="border-b"><th class="p-3 font-semibold text-slate-600">Tanggal</th><th class="p-3 font-semibold text-slate-600">Jumlah</th><th class="p-3 font-semibold text-slate-600">Metode</th></tr></thead><tbody id="payment-history-body"></tbody></table></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Daftar Piutang -->
+            <div id="piutang-list" class="page">
+                <h2 class="text-3xl font-bold mb-6 text-slate-800">Daftar Piutang</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b"><h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3><div><label for="piutang-month" class="block font-medium mb-1 text-slate-600">Bulan</label><select id="piutang-month" class="p-2 border rounded-md bg-white"></select></div><div><label for="piutang-year" class="block font-medium mb-1 text-slate-600">Tahun</label><select id="piutang-year" class="p-2 border rounded-md bg-white"></select></div><button id="generate-piutang-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-filter mr-2"></i>Tampilkan</button><button id="print-piutang-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden"><i class="fas fa-print mr-2"></i>Cetak PDF</button></div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left"><thead class="bg-slate-50"><tr class="border-b"><th class="p-4 font-semibold text-slate-600">No. Job Order</th><th class="p-4 font-semibold text-slate-600">Pelanggan</th><th class="p-4 font-semibold text-slate-600">Tanggal Invoice</th><th class="p-4 font-semibold text-slate-600">Total Tagihan</th><th class="p-4 font-semibold text-slate-600">Status</th></tr></thead><tbody id="piutang-table-body"></tbody><tfoot class="font-bold bg-slate-200"><tr><td class="p-4 text-slate-800" colspan="3">TOTAL PIUTANG</td><td id="piutang-total" class="p-4 text-slate-800" colspan="2"></td></tr></tfoot></table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Biaya Operasional -->
+            <div id="operational-costs" class="page">
+                <h2 class="text-3xl font-bold mb-6 text-slate-800">Manajemen Biaya Operasional</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="mb-6"><label for="cost-job-select" class="block font-medium mb-2 text-slate-600">Pilih Job Order:</label><select id="cost-job-select" class="w-full md:w-1/2 p-2 border rounded-md bg-white"><option value="">-- Pilih Job Order --</option></select></div>
+                    <div id="costs-display-section" class="hidden mt-6">
+                        <h3 class="text-xl font-semibold mb-4 text-slate-700">Rincian Biaya untuk <span id="selected-job-id" class="text-blue-600"></span></h3>
+                        <div class="overflow-x-auto mb-6"><table class="w-full text-left"><thead class="bg-slate-50"><tr class="border-b"><th class="p-4 font-semibold text-slate-600">Deskripsi</th><th class="p-4 font-semibold text-slate-600">Sopir</th><th class="p-4 font-semibold text-slate-600 text-right">Jumlah</th><th class="p-4 font-semibold text-slate-600 text-center">Aksi</th></tr></thead><tbody id="costs-table-body"></tbody></table></div>
+                        <div><h4 class="text-lg font-semibold mb-2 text-slate-700">Tambah Biaya Baru</h4><form id="page-add-cost-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"><div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4"><div><label for="page-cost-desc" class="block text-sm font-medium text-slate-600">Deskripsi Biaya</label><select id="page-cost-desc" class="w-full p-2 border rounded-md bg-white" required></select></div><div><label for="page-cost-driver" class="block text-sm font-medium text-slate-600">Untuk Sopir (Opsional)</label><select id="page-cost-driver" class="w-full p-2 border rounded-md bg-white"></select></div></div><div class="flex gap-2 items-end"><div><label for="page-cost-amount" class="block text-sm font-medium text-slate-600">Jumlah</label><input type="number" id="page-cost-amount" placeholder="0" class="w-full p-2 border rounded-md" required min="0"></div><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 h-10"><i class="fas fa-plus"></i></button></div></form></div>
+                    </div>
+                </div>
+            </div>
+
+             <!-- PAGE: Laporan Pembayaran -->
+            <div id="laporan-pembayaran" class="page">
+                <h2 class="text-3xl font-bold mb-6 text-slate-800">Laporan Pembayaran</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b"><h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3><div><label for="payment-report-month" class="block font-medium mb-1 text-slate-600">Bulan</label><select id="payment-report-month" class="p-2 border rounded-md bg-white"></select></div><div><label for="payment-report-year" class="block font-medium mb-1 text-slate-600">Tahun</label><select id="payment-report-year" class="p-2 border rounded-md bg-white"></select></div><button id="generate-payment-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-filter mr-2"></i>Tampilkan</button><button id="print-payment-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden"><i class="fas fa-print mr-2"></i>Cetak PDF</button></div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left"><thead class="bg-slate-50"><tr class="border-b"><th class="p-4 font-semibold text-slate-600">Tgl. Bayar</th><th class="p-4 font-semibold text-slate-600">No. Invoice</th><th class="p-4 font-semibold text-slate-600">Pelanggan</th><th class="p-4 font-semibold text-slate-600">Jumlah</th><th class="p-4 font-semibold text-slate-600">Metode</th></tr></thead><tbody id="payment-report-table-body"></tbody><tfoot class="font-bold bg-slate-200"><tr><td class="p-4 text-slate-800" colspan="3">TOTAL PEMBAYARAN DITERIMA</td><td id="payment-report-total" class="p-4 text-slate-800" colspan="2"></td></tr></tfoot></table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Laporan Sopir -->
+            <div id="laporan-sopir" class="page">
+                <h2 class="text-3xl font-bold mb-6 text-slate-800">Laporan Aktivitas Sopir</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b"><h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3><div><label for="report-month" class="block font-medium mb-1 text-slate-600">Bulan</label><select id="report-month" class="p-2 border rounded-md bg-white"></select></div><div><label for="report-year" class="block font-medium mb-1 text-slate-600">Tahun</label><select id="report-year" class="p-2 border rounded-md bg-white"></select></div><button id="generate-driver-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-filter mr-2"></i>Tampilkan</button><button id="print-driver-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden"><i class="fas fa-print mr-2"></i>Cetak PDF</button></div>
+                    <div id="driver-report-content" class="space-y-6"></div>
+                </div>
+            </div>
+
+            <!-- PAGE: Laporan -->
+            <div id="laporan" class="page">
+                 <h2 class="text-3xl font-bold mb-6 text-slate-800">Laporan Laba/Rugi</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b"><h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3><div><label for="profit-loss-month" class="block font-medium mb-1 text-slate-600">Bulan</label><select id="profit-loss-month" class="p-2 border rounded-md bg-white"></select></div><div><label for="profit-loss-year" class="block font-medium mb-1 text-slate-600">Tahun</label><select id="profit-loss-year" class="p-2 border rounded-md bg-white"></select></div><button id="generate-profit-loss-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-filter mr-2"></i>Tampilkan</button><button id="print-profit-loss-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden"><i class="fas fa-print mr-2"></i>Cetak PDF</button></div>
+                    <div id="report-ppn-section" class="mb-8"><h3 class="text-xl font-semibold mb-3 text-slate-700">Laporan Laba/Rugi (Dengan PPN)</h3><div class="overflow-x-auto"><table id="report-table-ppn" class="w-full text-left"><thead class="bg-slate-50"><tr><th class="p-4 font-semibold text-slate-600">No. Job Order</th><th class="p-4 font-semibold text-slate-600">Pelanggan</th><th class="p-4 font-semibold text-slate-600">Pendapatan</th><th class="p-4 font-semibold text-slate-600">Biaya</th><th class="p-4 font-semibold text-slate-600">Laba/Rugi</th></tr></thead><tbody id="report-table-body-ppn"></tbody><tfoot class="font-bold bg-slate-200"><tr><td class="p-4 text-slate-800" colspan="2">TOTAL</td><td id="report-total-revenue-ppn" class="p-4 text-slate-800"></td><td id="report-total-cost-ppn" class="p-4 text-slate-800"></td><td id="report-total-profit-ppn" class="p-4 text-slate-800"></td></tr></tfoot></table></div></div>
+                    <div id="report-np-section"><h3 class="text-xl font-semibold mb-3 text-slate-700">Laporan Laba/Rugi (Bebas PPN)</h3><div class="overflow-x-auto"><table id="report-table-np" class="w-full text-left"><thead class="bg-slate-50"><tr><th class="p-4 font-semibold text-slate-600">No. Job Order</th><th class="p-4 font-semibold text-slate-600">Pelanggan</th><th class="p-4 font-semibold text-slate-600">Pendapatan</th><th class="p-4 font-semibold text-slate-600">Biaya</th><th class="p-4 font-semibold text-slate-600">Laba/Rugi</th></tr></thead><tbody id="report-table-body-np"></tbody><tfoot class="font-bold bg-slate-200"><tr><td class="p-4 text-slate-800" colspan="2">TOTAL</td><td id="report-total-revenue-np" class="p-4 text-slate-800"></td><td id="report-total-cost-np" class="p-4 text-slate-800"></td><td id="report-total-profit-np" class="p-4 text-slate-800"></td></tr></tfoot></table></div></div>
+                </div>
+            </div>
+            
+            <!-- PAGE: Pengaturan -->
+            <div id="pengaturan" class="page">
+                <h2 class="text-3xl font-bold mb-6 text-slate-800">Pengaturan</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h3 class="text-xl font-semibold mb-4 text-slate-700 border-b pb-3">Referensi Bank untuk Invoice</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 text-slate-600">Tambah Rekening Bank Baru</h4>
+                            <form id="bank-form" class="space-y-4">
+                                <div><label for="bank-name" class="block font-medium mb-1 text-slate-600">Nama Bank</label><input type="text" id="bank-name" class="w-full p-2 border rounded-md" required></div>
+                                <div><label for="account-number" class="block font-medium mb-1 text-slate-600">Nomor Rekening</label><input type="text" id="account-number" class="w-full p-2 border rounded-md" required></div>
+                                <div><label for="account-holder" class="block font-medium mb-1 text-slate-600">Atas Nama</label><input type="text" id="account-holder" class="w-full p-2 border rounded-md" required></div>
+                                <div class="text-right"><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-plus mr-2"></i>Tambah Bank</button></div>
+                            </form>
+                        </div>
+                        <div>
+                             <h4 class="text-lg font-semibold mb-3 text-slate-600">Daftar Rekening Tersimpan</h4>
+                             <div id="bank-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                                <!-- Bank list will be populated by JS -->
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- PAGE: Backup & Restore -->
+            <div id="backup-restore" class="page">
+                <h2 class="text-3xl font-bold mb-6 text-slate-800">Backup & Restore Data</h2>
+                <div class="bg-white p-6 rounded-xl shadow-md mb-6"><h3 class="text-xl font-semibold mb-4 text-slate-700">Backup Data</h3><p class="text-slate-600 mb-4">Simpan semua data Anda ke dalam sebuah file JSON. Simpan file ini di tempat yang aman sebagai cadangan.</p><button id="backup-btn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"><i class="fas fa-download mr-2"></i>Download Backup</button></div>
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-red-500"><h3 class="text-xl font-semibold mb-4 text-red-700">Restore Data</h3><p class="text-slate-600 mb-4"><strong>Peringatan:</strong> Memulihkan data dari file akan <strong class="text-red-600">MENGGANTI SEMUA DATA</strong> yang ada saat ini. Pastikan Anda telah mem-backup data terbaru jika diperlukan.</p><div class="flex items-center gap-4"><input type="file" id="restore-file-input" accept=".json" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/><button id="restore-btn" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 whitespace-nowrap"><i class="fas fa-upload mr-2"></i>Restore Data</button></div></div>
+            </div>
+        </main>
+        
+        <!-- Logout Button -->
+        <button id="logout-btn" class="fixed bottom-4 right-4 md:bottom-8 md:right-8 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-red-700 z-40">
+            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+        </button>
+    </div>
+    </div><!-- End of main-app -->
+
+    <!-- Modal -->
+    <div id="details-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50 p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col border-4 border-blue-100 animate-modal"><div class="flex justify-between items-center p-6 border-b-2 border-slate-200 bg-gradient-to-r from-blue-50 to-cyan-50"><h3 class="text-2xl font-bold text-slate-800" id="modal-title"><i class="fas fa-file-alt text-blue-600 mr-2"></i>Detail</h3><button id="close-modal-btn" class="text-slate-400 hover:text-slate-800 text-4xl font-bold hover:rotate-90 transition-transform duration-300">&times;</button></div><div id="modal-content" class="p-8 overflow-y-auto"></div></div></div>
+    
+    <style>
+        @keyframes modal {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-modal {
+            animation: modal 0.3s ease-out;
+        }
+    </style>
+    
+    <!-- Mobile Bottom Navigation -->
+    <div class="mobile-nav-tabs">
+        <button data-page="dashboard">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </button>
+        <button data-page="add-job-order">
+            <i class="fas fa-plus-circle"></i>
+            <span>Buat</span>
+        </button>
+        <button data-page="job-order-list">
+            <i class="fas fa-list"></i>
+            <span>Job</span>
+        </button>
+        <button data-page="laporan">
+            <i class="fas fa-chart-bar"></i>
+            <span>Laporan</span>
+        </button>
+        <button id="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+            <span>Menu</span>
+        </button>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-20 md:bottom-8 left-4 right-4 md:left-auto md:right-8 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-2xl hidden transform translate-y-20 transition-all duration-300 border-l-4 border-white z-50">
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="bg-white bg-opacity-20 p-2 rounded-lg">
+                <i class="fas fa-check-circle text-lg md:text-xl"></i>
+            </div>
+            <p id="toast-message" class="font-semibold text-sm md:text-base"></p>
+        </div>
+    </div>
+
+<script>
+// ==========================================
+// SUPABASE CONFIGURATION
+// ==========================================
+// GANTI dengan URL dan Key dari Supabase Project Anda!
+// Format URL yang benar: https://xxxxxxxxxxxxx.supabase.co (bukan connection string!)
+const SUPABASE_URL = 'https://ektlaltqltdgdctvxnpu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrdGxhbHRxbHRkZ2RjdHZ4bnB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxMjIzNDQsImV4cCI6MjA3ODY5ODM0NH0.wXYFP6uPBzHDufd5-MajpJ38S44Bj-c6WJ8M_6lFlDk';
+
+// Validate configuration
+function validateSupabaseConfig() {
+    if (!SUPABASE_URL || !SUPABASE_URL.startsWith('https://')) {
+        console.error('❌ SUPABASE_URL tidak valid! Harus format: https://xxxxx.supabase.co');
+        console.error('💡 Dapatkan URL dari: Supabase Dashboard → Settings → API → Project URL');
+        return false;
+    }
+    if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.length < 100) {
+        console.error('❌ SUPABASE_ANON_KEY tidak valid atau kosong!');
+        console.error('💡 Dapatkan key dari: Supabase Dashboard → Settings → API → anon public');
+        return false;
+    }
+    return true;
+}
+
+// Initialize Supabase Client only if config is valid
+let supabaseClient = null;
+const { createClient } = supabase;
+
+if (validateSupabaseConfig()) {
+    try {
+        supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Supabase client initialized successfully');
+    } catch (error) {
+        console.error('❌ Error initializing Supabase:', error);
+        console.warn('⚠️ Aplikasi akan menggunakan localStorage mode');
+    }
+} else {
+    console.warn('⚠️ Supabase tidak dikonfigurasi. Aplikasi akan menggunakan localStorage mode.');
+}
+
+// Login Credentials (hanya 1 akun untuk akses aplikasi)
+const VALID_USERNAME = 'admin';
+const VALID_PASSWORD = 'pilog2024';
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if already logged in
+    const isLoggedIn = sessionStorage.getItem('emklLoggedIn');
+    if (isLoggedIn === 'true') {
+        showMainApp();
+    }
+    
+    // Login Form Handler
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+        const errorDiv = document.getElementById('login-error');
+        const errorMessage = document.getElementById('login-error-message');
+        const loadingDiv = document.getElementById('login-loading');
+        
+        errorDiv.classList.add('hidden');
+        loadingDiv.classList.remove('hidden');
+        
+        // Simulate network delay for better UX
+        setTimeout(() => {
+            if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                sessionStorage.setItem('emklLoggedIn', 'true');
+                loadingDiv.classList.add('hidden');
+                showMainApp();
+                showToast('Login berhasil! Selamat datang di EMKL PILOG');
+            } else {
+                loadingDiv.classList.add('hidden');
+                errorMessage.textContent = 'Username atau password salah!';
+                errorDiv.classList.remove('hidden');
+            }
+        }, 800);
+    });
+    
+    // Logout Handler
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        if (confirm('Apakah Anda yakin ingin logout?')) {
+            sessionStorage.removeItem('emklLoggedIn');
+            location.reload();
+        }
+    });
+    
+    function showMainApp() {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        initializeApp();
+    }
+    
+    // ==========================================
+    // STATE MANAGEMENT
+    // ==========================================
+    let state = {
+        jobs: [],
+        banks: [],
+        customers: [],
+        drivers: [],
+        invoiceItemsMaster: [],
+        operationalCostItemsMaster: [],
+        activePage: 'dashboard',
+        editingJobId: null
+    };
+
+    // SELECTORS
+    const pages = document.querySelectorAll('.page');
+    const navLinks = document.querySelectorAll('.sidebar-item');
+    const jobOrderTableBody = document.getElementById('job-order-table-body');
+    const jobOrderForm = document.getElementById('job-order-form');
+    const jobOrderNoInput = document.getElementById('job-order-no');
+    
+    const detailsModal = document.getElementById('details-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const modalContent = document.getElementById('modal-content');
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+
+    // UTILITY FUNCTIONS
+    const formatCurrency = (amount) => {
+        if (amount === null || amount === undefined || isNaN(amount)) {
+            return 'Rp 0';
+        }
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+    };
+
+    const getPPNStatusText = (status) => {
+        switch (status) {
+            case 'kena_ppn': return 'Kena PPN';
+            case 'bebas_ppn': return 'Bebas PPN';
+            case 'ppn_dibebaskan': return 'PPN Dibebaskan';
+            default: return '';
+        }
+    };
+    
+    const getPaymentStatus = (job) => {
+        if (!job.invoice.payments || job.invoice.payments.length === 0) {
+            return { status: 'unpaid', text: 'Belum Lunas', class: 'bg-yellow-100 text-yellow-800' };
+        }
+        
+        const totalPaid = job.invoice.payments.reduce((sum, p) => sum + p.amount, 0);
+        
+        // Use a small tolerance for floating point issues
+        if (totalPaid >= job.invoice.total - 0.01) {
+            return { status: 'paid', text: 'Lunas', class: 'bg-green-100 text-green-800' };
+        } else if (totalPaid > 0) {
+            return { status: 'partial', text: 'Lunas Sebagian', class: 'bg-blue-100 text-blue-800' };
+        } else {
+             return { status: 'unpaid', text: 'Belum Lunas', class: 'bg-yellow-100 text-yellow-800' };
+        }
+    };
+
+    const showToast = (message) => {
+        toastMessage.textContent = message;
+        toast.classList.remove('hidden');
+        toast.classList.remove('translate-y-20');
+        setTimeout(() => {
+            toast.classList.add('translate-y-20');
+            setTimeout(() => toast.classList.add('hidden'), 300);
+        }, 3000);
+    };
+
+    // ==========================================
+    // SUPABASE DATA FUNCTIONS
+    // ==========================================
+    const saveData = async () => {
+        // Always save to localStorage first
+        localStorage.setItem('emklAppData', JSON.stringify(state));
+        
+        // Only try Supabase if client is initialized
+        if (!supabaseClient) {
+            console.log('📦 Data disimpan ke localStorage (Supabase not configured)');
+            return;
+        }
+        
+        try {
+            // Save to Supabase
+            await Promise.all([
+                saveToSupabase('jobs', state.jobs),
+                saveToSupabase('banks', state.banks),
+                saveToSupabase('customers', state.customers),
+                saveToSupabase('drivers', state.drivers),
+                saveToSupabase('invoice_items_master', state.invoiceItemsMaster),
+                saveToSupabase('operational_cost_items_master', state.operationalCostItemsMaster)
+            ]);
+            console.log('✅ Data tersimpan ke Supabase dan localStorage');
+        } catch (error) {
+            console.error('⚠️ Error saving to Supabase:', error);
+            showToast('⚠️ Data disimpan ke lokal saja (koneksi Supabase error)');
+        }
+    };
+
+    const saveToSupabase = async (tableName, data) => {
+        if (!supabaseClient) return;
+        
+        // Delete all existing records
+        const { error: deleteError } = await supabaseClient
+            .from(tableName)
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+        
+        if (deleteError && deleteError.code !== 'PGRST116') { // PGRST116 = no rows deleted
+            console.error(`Error deleting from ${tableName}:`, deleteError);
+        }
+        
+        // Insert new data if not empty
+        if (data && data.length > 0) {
+            const { error: insertError } = await supabaseClient
+                .from(tableName)
+                .insert(data.map(item => ({
+                    id: item.id || crypto.randomUUID(),
+                    data: item
+                })));
+            
+            if (insertError) {
+                console.error(`Error inserting to ${tableName}:`, insertError);
+                throw insertError;
+            }
+        }
+    };
+
+    const loadData = async () => {
+        // If Supabase is not configured, load from localStorage only
+        if (!supabaseClient) {
+            console.log('📦 Memuat data dari localStorage (Supabase not configured)');
+            loadFromLocalStorage();
+            return;
+        }
+        
+        try {
+            // Load from Supabase
+            const [jobs, banks, customers, drivers, invoiceItems, costItems] = await Promise.all([
+                loadFromSupabase('jobs'),
+                loadFromSupabase('banks'),
+                loadFromSupabase('customers'),
+                loadFromSupabase('drivers'),
+                loadFromSupabase('invoice_items_master'),
+                loadFromSupabase('operational_cost_items_master')
+            ]);
+            
+            state.jobs = jobs;
+            state.banks = banks;
+            state.customers = customers;
+            state.drivers = drivers;
+            state.invoiceItemsMaster = invoiceItems;
+            state.operationalCostItemsMaster = costItems;
+            
+            // Ensure data integrity
+            state.jobs.forEach(job => {
+                if (!job.invoice.payments) {
+                    job.invoice.payments = [];
+                }
+            });
+            
+            // Save to localStorage as backup
+            localStorage.setItem('emklAppData', JSON.stringify(state));
+            console.log('✅ Data dimuat dari Supabase');
+            
+        } catch (error) {
+            console.error('⚠️ Error loading from Supabase:', error);
+            showToast('⚠️ Memuat data dari lokal (koneksi Supabase error)');
+            
+            // Fallback to localStorage
+            loadFromLocalStorage();
+        }
+    };
+
+    const loadFromLocalStorage = () => {
+        const data = localStorage.getItem('emklAppData');
+        if (data) {
+            const loadedState = JSON.parse(data);
+            state.jobs = loadedState.jobs || [];
+            state.banks = loadedState.banks || [];
+            state.customers = loadedState.customers || [];
+            state.drivers = loadedState.drivers || [];
+            state.invoiceItemsMaster = loadedState.invoiceItemsMaster || [];
+            state.operationalCostItemsMaster = loadedState.operationalCostItemsMaster || [];
+            
+            state.jobs.forEach(job => {
+                if (!job.invoice.payments) {
+                    job.invoice.payments = [];
+                }
+            });
+        }
+    };
+
+    const loadFromSupabase = async (tableName) => {
+        const { data, error } = await supabaseClient
+            .from(tableName)
+            .select('data');
+        
+        if (error) {
+            console.error(`Error loading from ${tableName}:`, error);
+            return [];
+        }
+        
+        return data ? data.map(row => row.data) : [];
+    };
+
+    // ==========================================
+    // REAL-TIME SUBSCRIPTIONS
+    // ==========================================
+    const setupRealtimeSubscriptions = () => {
+        // Only setup real-time if Supabase is configured
+        if (!supabaseClient) {
+            console.log('📡 Real-time sync tidak aktif (Supabase not configured)');
+            return;
+        }
+        
+        const tables = ['jobs', 'banks', 'customers', 'drivers', 'invoice_items_master', 'operational_cost_items_master'];
+        
+        tables.forEach(tableName => {
+            supabaseClient
+                .channel(`public:${tableName}`)
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: tableName },
+                    async (payload) => {
+                        console.log(`Change detected in ${tableName}:`, payload);
+                        // Reload data when changes detected
+                        await loadData();
+                        render();
+                        showToast('📡 Data diperbarui dari server');
+                    }
+                )
+                .subscribe();
+        });
+        
+        console.log('✅ Real-time subscriptions aktif');
+    };
+
+    const generateJobOrderID = (type) => {
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        
+        const prefix = type === 'ppn' ? 'JO-PPN-' : 'JO-NP-';
+        const relevantJobs = state.jobs.filter(job => job.id.startsWith(prefix));
+        
+        const lastJobId = relevantJobs.length > 0 
+            ? Math.max(...relevantJobs.map(job => parseInt(job.id.split('-').pop()) || 0))
+            : 0;
+            
+        const newId = String(lastJobId + 1).padStart(3, '0');
+        return `${prefix}${year}${month}${day}-${newId}`;
+    };
+
+    const populateDateFilters = (monthSelectId, yearSelectId) => {
+        const monthSelect = document.getElementById(monthSelectId);
+        const yearSelect = document.getElementById(yearSelectId);
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth();
+
+        if (monthSelect.options.length === 0) {
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            months.forEach((month, index) => {
+                const option = new Option(month, index);
+                monthSelect.add(option);
+            });
+        }
+        monthSelect.value = currentMonth;
+        
+        if (yearSelect.options.length === 0) {
+            for (let i = currentYear; i >= currentYear - 5; i--) {
+                const option = new Option(i, i);
+                yearSelect.add(option);
+            }
+        }
+        yearSelect.value = currentYear;
+    };
+
+    const terbilang = (n) => {
+        if (n === null || n === undefined || isNaN(n)) return '';
+        n = Math.floor(Math.abs(n));
+        if (n === 0) return 'Nol Rupiah';
+
+        const angka = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
+
+        function inWords(num) {
+            if (num < 12) {
+                return angka[num];
+            } else if (num < 20) {
+                return angka[num - 10] + ' belas';
+            } else if (num < 100) {
+                const puluhan = Math.floor(num / 10);
+                const satuan = num % 10;
+                return (angka[puluhan] + ' puluh ' + (satuan > 0 ? angka[satuan] : '')).trim();
+            } else if (num < 200) {
+                return ('seratus ' + (num > 100 ? inWords(num - 100) : '')).trim();
+            } else if (num < 1000) {
+                const ratusan = Math.floor(num / 100);
+                const sisa = num % 100;
+                return (angka[ratusan] + ' ratus ' + (sisa > 0 ? inWords(sisa) : '')).trim();
+            } else if (num < 2000) {
+                return ('seribu ' + (num > 1000 ? inWords(num - 1000) : '')).trim();
+            } else if (num < 1000000) {
+                const ribuan = Math.floor(num / 1000);
+                const sisa = num % 1000;
+                return (inWords(ribuan) + ' ribu ' + (sisa > 0 ? inWords(sisa) : '')).trim();
+            } else if (num < 1000000000) {
+                const jutaan = Math.floor(num / 1000000);
+                const sisa = num % 1000000;
+                return (inWords(jutaan) + ' juta ' + (sisa > 0 ? inWords(sisa) : '')).trim();
+            } else if (num < 1000000000000) {
+                const miliaran = Math.floor(num / 1000000000);
+                const sisa = num % 1000000000;
+                return (inWords(miliaran) + ' miliar ' + (sisa > 0 ? inWords(sisa) : '')).trim();
+            } else {
+                const triliunan = Math.floor(num / 1000000000000);
+                const sisa = num % 1000000000000;
+                return (inWords(triliunan) + ' triliun ' + (sisa > 0 ? inWords(sisa) : '')).trim();
+            }
+        }
+        
+        let result = inWords(n).replace(/\s+/g, ' ');
+        return result.charAt(0).toUpperCase() + result.slice(1) + ' Rupiah';
+    };
+
+    // RENDER FUNCTIONS
+    const render = () => {
+        pages.forEach(p => p.classList.remove('active'));
+        document.getElementById(state.activePage).classList.add('active');
+
+        navLinks.forEach(l => l.classList.remove('active'));
+        document.querySelector(`.sidebar-item[data-page="${state.activePage}"]`).classList.add('active');
+
+        switch (state.activePage) {
+            case 'dashboard': renderDashboard(); break;
+            case 'job-order-list': renderJobOrderList(); break;
+            case 'add-job-order': 
+                populateBankSelection();
+                populateCustomerSelection();
+                if (!state.editingJobId) { 
+                    resetJobOrderForm(); 
+                } 
+                break;
+            case 'customer-list': renderCustomerListPage(); break;
+            case 'driver-list': renderDriverListPage(); break;
+            case 'item-list': renderItemListPage(); break;
+            case 'item-biaya-list': renderItemBiayaListPage(); break;
+            case 'pembayaran-invoice': renderPembayaranInvoicePage(); break;
+            case 'piutang-list': renderPiutangListPage(); break;
+            case 'operational-costs': renderOperationalCostsPage(); break;
+            case 'laporan-pembayaran': renderLaporanPembayaranPage(); break;
+            case 'laporan-sopir': renderSopirReportPage(); break;
+            case 'laporan': renderReportPage(); break;
+            case 'pengaturan': renderPengaturanPage(); break;
+        }
+    };
+    
+    const renderDashboard = () => {
+        const totalJobs = state.jobs.length;
+        const totalRevenue = state.jobs.reduce((sum, job) => sum + job.invoice.total, 0);
+        const totalCost = state.jobs.reduce((sum, job) => sum + job.operationalCosts.reduce((s, c) => s + c.amount, 0), 0);
+        const netProfit = totalRevenue - totalCost;
+
+        // Animated counter for stats
+        const animateValue = (element, start, end, duration, isNumber = true) => {
+            const startTime = performance.now();
+            const animate = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                element.textContent = isNumber ? value : formatCurrency(value);
+                if (progress < 1) requestAnimationFrame(animate);
+            };
+            requestAnimationFrame(animate);
+        };
+        
+        animateValue(document.getElementById('total-jobs'), 0, totalJobs, 1000, true);
+        animateValue(document.getElementById('total-revenue'), 0, totalRevenue, 1000, false);
+        animateValue(document.getElementById('total-cost'), 0, totalCost, 1000, false);
+        animateValue(document.getElementById('net-profit'), 0, netProfit, 1000, false);
+
+        const recentJobsTable = document.getElementById('recent-jobs-table');
+        recentJobsTable.innerHTML = '';
+        // Sort by createdAt date descending, then take last 5
+        const sortedJobs = [...state.jobs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const recentJobs = sortedJobs.slice(0, 5);
+        if (recentJobs.length === 0) {
+            recentJobsTable.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">Belum ada data job order.</td></tr>`;
+        } else {
+            recentJobs.forEach(job => {
+                const row = document.createElement('tr');
+                row.className = 'border-b';
+                const paymentInfo = getPaymentStatus(job);
+                row.innerHTML = `
+                    <td class="p-4">${job.id}</td>
+                    <td class="p-4">${job.customerName}</td>
+                    <td class="p-4">${new Date(job.createdAt).toLocaleDateString('id-ID')}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${paymentInfo.class}">
+                            ${paymentInfo.text}
+                        </span>
+                    </td>
+                `;
+                recentJobsTable.appendChild(row);
+            });
+        }
+    };
+
+    const renderJobOrderList = () => {
+        jobOrderTableBody.innerHTML = '';
+        
+        const searchTerm = document.getElementById('job-search')?.value.toLowerCase() || '';
+        const statusFilter = document.getElementById('job-status-filter')?.value || 'all';
+        
+        let filteredJobs = state.jobs.filter(job => {
+            const matchesSearch = job.id.toLowerCase().includes(searchTerm) || 
+                                  job.customerName.toLowerCase().includes(searchTerm);
+            
+            let matchesStatus = true;
+            if (statusFilter !== 'all') {
+                matchesStatus = getPaymentStatus(job).status === statusFilter;
+            }
+            
+            return matchesSearch && matchesStatus;
+        });
+        
+        if (filteredJobs.length === 0) {
+            jobOrderTableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center p-12">
+                        <div class="empty-state">
+                            <div class="inline-block p-6 bg-slate-100 rounded-full mb-4">
+                                <i class="fas fa-inbox text-5xl text-slate-400"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-700 mb-2">Tidak Ada Data</h3>
+                            <p class="text-slate-500">Tidak ada job order yang sesuai dengan filter Anda</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        filteredJobs.forEach(job => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-slate-50 cursor-pointer';
+            const paymentInfo = getPaymentStatus(job);
+            row.innerHTML = `
+                <td class="p-2 md:p-4"><span class="font-mono font-bold text-blue-600 text-xs md:text-base">${job.id}</span></td>
+                <td class="p-2 md:p-4"><span class="font-semibold text-slate-700 text-xs md:text-base">${job.customerName}</span></td>
+                <td class="p-2 md:p-4"><span class="text-slate-600 text-xs md:text-base"><i class="far fa-calendar-alt mr-1 md:mr-2 text-slate-400"></i>${new Date(job.createdAt).toLocaleDateString('id-ID')}</span></td>
+                <td class="p-2 md:p-4"><span class="font-bold text-green-600 text-xs md:text-base">${formatCurrency(job.invoice.total)}</span></td>
+                <td class="p-2 md:p-4">
+                    <span class="px-3 py-1.5 rounded-full text-xs font-bold ${paymentInfo.class} border-2 inline-flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full ${paymentInfo.status === 'paid' ? 'bg-green-600' : paymentInfo.status === 'partial' ? 'bg-blue-600' : 'bg-yellow-600'} animate-pulse"></span>
+                        ${paymentInfo.text}
+                    </span>
+                </td>
+                <td class="p-2 md:p-4 text-center">
+                    <div class="flex gap-1 md:gap-2 justify-center flex-wrap">
+                        <button class="text-white bg-blue-500 hover:bg-blue-600 p-2 md:p-2 rounded-lg view-details-btn shadow-md hover:shadow-lg transform hover:scale-110 min-w-[44px]" data-id="${job.id}" title="Lihat Detail"><i class="fas fa-eye"></i></button>
+                        <button class="text-white bg-orange-500 hover:bg-orange-600 p-2 md:p-2 rounded-lg edit-job-btn shadow-md hover:shadow-lg transform hover:scale-110 min-w-[44px]" data-id="${job.id}" title="Edit"><i class="fas fa-edit"></i></button>
+                        <button class="text-white bg-red-500 hover:bg-red-600 p-2 md:p-2 rounded-lg delete-job-btn shadow-md hover:shadow-lg transform hover:scale-110 min-w-[44px]" data-id="${job.id}" title="Hapus"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            `;
+            jobOrderTableBody.appendChild(row);
+        });
+    };
+
+    const renderCustomerListPage = () => {
+        const tableBody = document.getElementById('customer-table-body');
+        tableBody.innerHTML = '';
+        if (state.customers.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">Belum ada data pelanggan.</td></tr>`;
+            return;
+        }
+        state.customers.forEach((customer) => {
+            const row = document.createElement('tr');
+            row.className = 'border-b';
+            row.innerHTML = `
+                <td class="p-4">${customer.name}</td>
+                <td class="p-4 text-sm">
+                    <p>${customer.phone || '-'}</p>
+                    <p class="text-slate-500">NPWP: ${customer.npwp || '-'}</p>
+                </td>
+                <td class="p-4 text-sm text-slate-600">${customer.address || '-'}</td>
+                <td class="p-4 text-center">
+                    <button class="text-red-500 hover:text-red-700 delete-customer-btn" data-id="${customer.id}" title="Hapus Pelanggan">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    };
+    
+    const renderDriverListPage = () => {
+        const tableBody = document.getElementById('driver-table-body');
+        tableBody.innerHTML = '';
+        if (state.drivers.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">Belum ada data sopir.</td></tr>`;
+            return;
+        }
+        state.drivers.forEach((driver) => {
+            const row = document.createElement('tr');
+            row.className = 'border-b';
+            row.innerHTML = `
+                <td class="p-4">${driver.name}</td>
+                <td class="p-4 text-sm">${driver.phone || '-'}</td>
+                <td class="p-4 text-sm text-slate-600">${driver.plate || '-'}</td>
+                <td class="p-4 text-center">
+                    <button class="text-red-500 hover:text-red-700 delete-driver-btn" data-id="${driver.id}" title="Hapus Sopir">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    };
+    
+    const renderItemListPage = () => {
+        // This page is hidden per user request, but function is kept
+        const page = document.getElementById('item-list');
+        if (page) {
+            page.style.display = 'none';
+        }
+    };
+
+    const renderItemBiayaListPage = () => {
+        const tableBody = document.getElementById('op-cost-item-table-body');
+        tableBody.innerHTML = '';
+        if (!state.operationalCostItemsMaster || state.operationalCostItemsMaster.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-slate-500">Belum ada data item biaya.</td></tr>`;
+            return;
+        }
+        state.operationalCostItemsMaster.forEach((item) => {
+            const row = document.createElement('tr');
+            row.className = 'border-b';
+            row.innerHTML = `
+                <td class="p-4">${item.name}</td>
+                <td class="p-4 text-center">
+                    <button class="text-red-500 hover:text-red-700 delete-op-cost-item-btn" data-id="${item.id}" title="Hapus Item Biaya">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    };
+
+    const renderPembayaranInvoicePage = () => {
+        const select = document.getElementById('payment-job-select');
+        select.innerHTML = '<option value="">-- Pilih Job Order --</option>';
+        state.jobs
+            .filter(job => getPaymentStatus(job).status !== 'paid')
+            .forEach(job => {
+                const option = new Option(`${job.id} - ${job.customerName}`, job.id);
+                select.add(option);
+            });
+        select.value = '';
+        document.getElementById('payment-details-section').classList.add('hidden');
+    };
+    
+    const renderPiutangListPage = () => {
+        populateDateFilters('piutang-month', 'piutang-year');
+        document.getElementById('piutang-table-body').innerHTML = '<tr><td colspan="5" class="text-center p-4 text-slate-500">Pilih periode untuk menampilkan laporan piutang.</td></tr>';
+        document.getElementById('piutang-total').textContent = formatCurrency(0);
+        document.getElementById('print-piutang-report-btn').classList.add('hidden');
+    };
+
+    const renderLaporanPembayaranPage = () => {
+        populateDateFilters('payment-report-month', 'payment-report-year');
+        document.getElementById('payment-report-table-body').innerHTML = '<tr><td colspan="5" class="text-center p-4 text-slate-500">Pilih periode untuk menampilkan laporan pembayaran.</td></tr>';
+        document.getElementById('payment-report-total').textContent = formatCurrency(0);
+        document.getElementById('print-payment-report-btn').classList.add('hidden');
+    };
+
+    const renderReportPage = () => {
+        populateDateFilters('profit-loss-month', 'profit-loss-year');
+        const initialMsg = '<tr><td colspan="5" class="text-center p-4 text-slate-500">Pilih periode untuk menampilkan laporan.</td></tr>';
+        document.getElementById('report-table-body-ppn').innerHTML = initialMsg;
+        document.getElementById('report-table-body-np').innerHTML = initialMsg;
+        
+        document.getElementById('report-total-revenue-ppn').textContent = formatCurrency(0);
+        document.getElementById('report-total-cost-ppn').textContent = formatCurrency(0);
+        document.getElementById('report-total-profit-ppn').textContent = formatCurrency(0);
+
+        document.getElementById('report-total-revenue-np').textContent = formatCurrency(0);
+        document.getElementById('report-total-cost-np').textContent = formatCurrency(0);
+        document.getElementById('report-total-profit-np').textContent = formatCurrency(0);
+
+        document.getElementById('print-profit-loss-report-btn').classList.add('hidden');
+    };
+    
+    const renderOperationalCostsPage = () => {
+        const select = document.getElementById('cost-job-select');
+        const displaySection = document.getElementById('costs-display-section');
+        select.innerHTML = '<option value="">-- Pilih Job Order --</option>';
+
+        state.jobs.forEach(job => {
+            const option = new Option(`${job.id} - ${job.customerName}`, job.id);
+            select.add(option);
+        });
+
+        select.value = '';
+        displaySection.classList.add('hidden');
+    };
+
+    const renderSopirReportPage = () => {
+        populateDateFilters('report-month', 'report-year');
+        document.getElementById('driver-report-content').innerHTML = '<p class="text-slate-500">Pilih bulan dan tahun, lalu klik "Tampilkan Laporan".</p>';
+        document.getElementById('print-driver-report-btn').classList.add('hidden');
+    };
+    
+    const renderPengaturanPage = () => {
+        const bankList = document.getElementById('bank-list');
+        bankList.innerHTML = '';
+        if (state.banks.length === 0) {
+            bankList.innerHTML = '<p class="text-slate-500 text-center">Belum ada data bank.</p>';
+            return;
+        }
+        state.banks.forEach((bank, index) => {
+            const div = document.createElement('div');
+            div.className = 'bg-slate-50 p-3 rounded-lg flex justify-between items-center';
+            div.innerHTML = `
+                <div>
+                    <p class="font-semibold text-slate-700">${bank.name}</p>
+                    <p class="text-sm text-slate-600">${bank.number} (a.n. ${bank.holder})</p>
+                </div>
+                <button class="text-red-500 hover:text-red-700 delete-bank-btn" data-index="${index}" title="Hapus Bank"><i class="fas fa-trash"></i></button>
+            `;
+            bankList.appendChild(div);
+        });
+    };
+
+    // DYNAMIC FORM FUNCTIONS
+    const createContainerRow = (containerData = {}) => {
+        const div = document.createElement('div');
+        div.className = 'grid grid-cols-1 md:grid-cols-[1.5fr,1fr,1fr,1.5fr,auto] gap-4 items-center';
+        
+        let driverOptions = '<option value="">-- Pilih Sopir --</option>';
+        state.drivers.forEach(driver => {
+            driverOptions += `<option value="${driver.id}">${driver.name}</option>`;
+        });
+
+        div.innerHTML = `
+            <input type="text" class="p-2 border rounded-md container-number" placeholder="Nomor Kontainer" value="${containerData.number || ''}" required>
+            <input type="text" class="p-2 border rounded-md container-seal" placeholder="Nomor Seal" value="${containerData.seal || ''}">
+            <select class="p-2 border rounded-md bg-white container-type">
+                <option value="20FT" ${containerData.type === '20FT' ? 'selected' : ''}>20FT</option>
+                <option value="40FT" ${containerData.type === '40FT' ? 'selected' : ''}>40FT</option>
+                <option value="45FT" ${containerData.type === '45FT' ? 'selected' : ''}>45FT</option>
+            </select>
+            <div class="flex gap-2">
+                <select class="w-full p-2 border rounded-md bg-white container-driver">${driverOptions}</select>
+                <button type="button" class="bg-sky-500 text-white px-3 rounded-md hover:bg-sky-600 flex-shrink-0 quick-add-driver-btn" title="Tambah Sopir Cepat"><i class="fas fa-plus"></i></button>
+            </div>
+            <button type="button" class="bg-red-500 text-white h-10 w-10 rounded-md remove-btn flex-shrink-0 hover:bg-red-600"><i class="fas fa-trash"></i></button>
+        `;
+        
+        if (containerData.driverId) {
+            div.querySelector('.container-driver').value = containerData.driverId;
+        }
+
+        div.querySelector('.remove-btn').addEventListener('click', () => div.remove());
+        return div;
+    };
+
+    const createInvoiceItemRow = (itemData = {}) => {
+        const div = document.createElement('div');
+        div.className = 'grid grid-cols-1 md:grid-cols-[2fr,1fr,1fr,1.5fr] gap-4 items-center';
+        
+        div.innerHTML = `
+            <input type="text" class="p-2 border rounded-md invoice-desc" placeholder="Deskripsi Biaya" value="${itemData.description || ''}" required>
+            <select class="p-2 border rounded-md invoice-ppn-status bg-white">
+                <option value="kena_ppn" selected>Kena PPN</option>
+                <option value="bebas_ppn">Bebas PPN</option>
+                <option value="ppn_dibebaskan">PPN Dibebaskan</option>
+            </select>
+            <input type="number" class="p-2 border rounded-md invoice-qty" placeholder="Qty" value="${itemData.qty || 1}" min="1" required>
+            <div class="flex items-center space-x-2">
+                <input type="number" class="w-full p-2 border rounded-md invoice-price" placeholder="Harga Satuan" value="${itemData.price || 0}" min="0" required>
+                <button type="button" class="bg-red-500 text-white h-10 w-10 rounded-md remove-btn flex-shrink-0 hover:bg-red-600"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+
+        if(itemData.ppnStatus) {
+            div.querySelector('.invoice-ppn-status').value = itemData.ppnStatus;
+        }
+
+        div.querySelector('.remove-btn').addEventListener('click', () => {
+            div.remove();
+            calculateInvoiceTotal();
+        });
+        
+        div.querySelectorAll('.invoice-qty, .invoice-price, .invoice-ppn-status').forEach(input => {
+            input.addEventListener('input', calculateInvoiceTotal);
+            input.addEventListener('change', calculateInvoiceTotal);
+        });
+        return div;
+    };
+
+    
+    const calculateInvoiceTotal = () => {
+        let dpp = 0;
+        let subtotal = 0;
+        document.querySelectorAll('#invoice-items-wrapper > div').forEach(row => {
+            const qty = parseFloat(row.querySelector('.invoice-qty').value) || 0;
+            const price = parseFloat(row.querySelector('.invoice-price').value) || 0;
+            const ppnStatus = row.querySelector('.invoice-ppn-status').value;
+            const itemTotal = qty * price;
+
+            subtotal += itemTotal;
+            if (ppnStatus === 'kena_ppn') {
+                dpp += itemTotal;
+            }
+        });
+
+        const ppn = Math.floor(dpp * 0.11);
+        const grandTotal = subtotal + ppn;
+
+        document.getElementById('invoice-subtotal').textContent = formatCurrency(subtotal);
+        document.getElementById('invoice-ppn').textContent = formatCurrency(ppn);
+        document.getElementById('invoice-grand-total').textContent = formatCurrency(grandTotal);
+    };
+
+    const populateBankSelection = () => {
+        const select = document.getElementById('bank-selection');
+        select.innerHTML = '<option value="all">Tampilkan Semua Bank</option>';
+        state.banks.forEach((bank, index) => {
+            const option = new Option(`${bank.name} - ${bank.number}`, index);
+            select.add(option);
+        });
+    };
+
+    const populateCustomerSelection = (selectedCustomerId = null) => {
+        const select = document.getElementById('customer-selection');
+        select.innerHTML = '<option value="">-- Pilih Pelanggan --</option>';
+        state.customers.forEach(customer => {
+            const option = new Option(customer.name, customer.id);
+            select.add(option);
+        });
+        if(selectedCustomerId) {
+            select.value = selectedCustomerId;
+        }
+    };
+    
+    const populateAllDriverDropdowns = (selectedDriverId = null) => {
+        const allDriverSelects = document.querySelectorAll('.container-driver');
+        allDriverSelects.forEach(select => {
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">-- Pilih Sopir --</option>';
+            state.drivers.forEach(driver => {
+                const option = new Option(driver.name, driver.id);
+                select.add(option);
+            });
+            select.value = currentVal; // re-select previous value if possible
+        });
+        if(selectedDriverId){ // if a new one was just added, select it
+            allDriverSelects[allDriverSelects.length-1].value = selectedDriverId;
+        }
+    };
+
+    const populateDriverDropdown = (selectElement) => {
+        selectElement.innerHTML = '<option value="">-- Pilih Sopir --</option>';
+        state.drivers.forEach(driver => {
+            const option = new Option(driver.name, driver.id);
+            selectElement.add(option);
+        });
+    };
+
+    const populateOpCostItemDropdown = (selectElement) => {
+        selectElement.innerHTML = '<option value="">-- Pilih Item Biaya --</option>';
+        if (state.operationalCostItemsMaster.length > 0) {
+            state.operationalCostItemsMaster.forEach(item => {
+                const option = new Option(item.name, item.name); // Simpan nama sbg value
+                selectElement.add(option);
+            });
+        }
+        selectElement.innerHTML += '<option value="OTHER">-- Lainnya (Ketik Manual) --</option>';
+    };
+
+
+    // FORM SUBMISSION, RESET, EDIT
+    const resetJobOrderForm = () => {
+        jobOrderForm.reset();
+        document.querySelector('#add-job-order h2').textContent = 'Input Job Order Baru';
+        document.querySelector('#add-job-order button[type="submit"]').textContent = 'Simpan Job Order';
+        state.editingJobId = null; 
+        
+        jobOrderNoInput.value = "[Otomatis]";
+        document.getElementById('container-details-wrapper').innerHTML = '';
+        document.getElementById('invoice-items-wrapper').innerHTML = '';
+        document.getElementById('container-details-wrapper').appendChild(createContainerRow());
+        document.getElementById('invoice-items-wrapper').appendChild(createInvoiceItemRow());
+        populateBankSelection();
+        populateCustomerSelection();
+        calculateInvoiceTotal();
+    };
+    
+    const startEditJob = (jobId) => {
+        const jobToEdit = state.jobs.find(j => j.id === jobId);
+        if (!jobToEdit) return;
+
+        state.editingJobId = jobId;
+        navigateTo('add-job-order'); 
+
+        setTimeout(() => {
+            jobOrderForm.reset();
+            
+            document.getElementById('job-order-no').value = jobToEdit.id;
+            
+            populateCustomerSelection(jobToEdit.customerId);
+
+            document.getElementById('shipment-type').value = jobToEdit.shipmentType || '';
+            document.getElementById('vessel-voyage').value = jobToEdit.vesselVoyage || '';
+            document.getElementById('pol').value = jobToEdit.pol || '';
+            document.getElementById('pod').value = jobToEdit.pod || '';
+            
+            populateBankSelection();
+            document.getElementById('bank-selection').value = jobToEdit.selectedBankId || 'all';
+
+            const containerWrapper = document.getElementById('container-details-wrapper');
+            containerWrapper.innerHTML = '';
+            jobToEdit.containers.forEach(c => {
+                const row = createContainerRow(c);
+                containerWrapper.appendChild(row);
+            });
+
+            const invoiceWrapper = document.getElementById('invoice-items-wrapper');
+            invoiceWrapper.innerHTML = '';
+            jobToEdit.invoice.items.forEach(item => {
+                const row = createInvoiceItemRow(item);
+                row.querySelector('.invoice-desc').value = item.description;
+                row.querySelector('.invoice-qty').value = item.qty;
+                row.querySelector('.invoice-price').value = item.price;
+                row.querySelector('.invoice-ppn-status').value = item.ppnStatus || 'kena_ppn';
+                invoiceWrapper.appendChild(row);
+            });
+
+            calculateInvoiceTotal();
+
+            document.querySelector('#add-job-order h2').textContent = `Edit Job Order: ${jobId}`;
+            document.querySelector('#add-job-order button[type="submit"]').textContent = 'Update Job Order';
+        }, 100);
+    };
+
+    jobOrderForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const customerSelect = document.getElementById('customer-selection');
+        const customerId = customerSelect.value;
+        
+        if (!customerId) {
+            alert('Harap pilih pelanggan terlebih dahulu!');
+            return;
+        }
+        
+        const customerName = customerSelect.options[customerSelect.selectedIndex].text;
+
+        const containers = Array.from(document.querySelectorAll('#container-details-wrapper > div')).map(row => {
+            const driverSelect = row.querySelector('.container-driver');
+            return {
+                number: row.querySelector('.container-number').value,
+                seal: row.querySelector('.container-seal').value,
+                type: row.querySelector('.container-type').value,
+                driverId: driverSelect.value,
+                driverName: driverSelect.value ? driverSelect.options[driverSelect.selectedIndex].text : ''
+            }
+        });
+        
+        if (containers.length === 0) {
+            alert('Harap tambahkan minimal satu kontainer!');
+            return;
+        }
+        
+        if (containers.some(c => !c.number.trim())) {
+            alert('Harap isi nomor kontainer untuk semua baris!');
+            return;
+        }
+        
+        const invoiceItems = Array.from(document.querySelectorAll('#invoice-items-wrapper > div')).map(row => {
+            const qty = parseFloat(row.querySelector('.invoice-qty').value);
+            const price = parseFloat(row.querySelector('.invoice-price').value);
+            return { 
+                description: row.querySelector('.invoice-desc').value,
+                qty, 
+                price, 
+                total: qty * price, 
+                ppnStatus: row.querySelector('.invoice-ppn-status').value 
+            };
+        });
+        
+        if (invoiceItems.length === 0) {
+            alert('Harap tambahkan minimal satu item invoice!');
+            return;
+        }
+        
+        if (invoiceItems.some(item => !item.description.trim() || item.qty <= 0 || item.price < 0)) {
+            alert('Harap lengkapi semua data invoice dengan benar!');
+            return;
+        }
+
+        const dpp = invoiceItems.filter(item => item.ppnStatus === 'kena_ppn').reduce((sum, item) => sum + item.total, 0);
+        const subtotal = invoiceItems.reduce((sum, item) => sum + item.total, 0);
+        const ppn = Math.floor(dpp * 0.11);
+        const grandTotal = subtotal + ppn;
+        
+        if (state.editingJobId) {
+            const job = state.jobs.find(j => j.id === state.editingJobId);
+            if (job) {
+                job.customerId = customerId;
+                job.customerName = customerName;
+                job.shipmentType = document.getElementById('shipment-type').value;
+                job.vesselVoyage = document.getElementById('vessel-voyage').value;
+                job.pol = document.getElementById('pol').value;
+                job.pod = document.getElementById('pod').value;
+                job.selectedBankId = document.getElementById('bank-selection').value;
+                job.containers = containers;
+                job.invoice.items = invoiceItems;
+                job.invoice.subtotal = subtotal;
+                job.invoice.dpp = dpp;
+                job.invoice.ppn = ppn;
+                job.invoice.total = grandTotal;
+            }
+            showToast('Job Order berhasil diperbarui!');
+        } else {
+            const isPPNJob = invoiceItems.some(item => item.ppnStatus === 'kena_ppn' || item.ppnStatus === 'ppn_dibebaskan');
+            const newJobId = generateJobOrderID(isPPNJob ? 'ppn' : 'np');
+
+            const newJob = {
+                id: newJobId,
+                customerId,
+                customerName,
+                shipmentType: document.getElementById('shipment-type').value,
+                vesselVoyage: document.getElementById('vessel-voyage').value,
+                pol: document.getElementById('pol').value,
+                pod: document.getElementById('pod').value,
+                selectedBankId: document.getElementById('bank-selection').value,
+                createdAt: new Date().toISOString(),
+                containers: containers,
+                invoice: { 
+                    items: invoiceItems, 
+                    subtotal, dpp, ppn, 
+                    total: grandTotal, 
+                    payments: []
+                },
+                operationalCosts: []
+            };
+            state.jobs.push(newJob);
+            showToast('Job Order berhasil disimpan!');
+        }
+
+        saveData();
+        state.editingJobId = null;
+        navigateTo('job-order-list');
+    });
+
+    // NAVIGATION
+    const navigateTo = (pageId) => {
+        state.activePage = pageId;
+        render();
+        if (window.updateMobileNavState) {
+            window.updateMobileNavState();
+        }
+    };
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(link.dataset.page);
+        });
+    });
+
+    // EVENT DELEGATION FOR DYNAMIC BUTTONS
+    document.body.addEventListener('click', (e) => {
+        if (e.target.closest('.view-details-btn')) {
+            const jobId = e.target.closest('.view-details-btn').dataset.id;
+            openDetailsModal(jobId);
+        }
+        if (e.target.closest('.edit-job-btn')) {
+            const jobId = e.target.closest('.edit-job-btn').dataset.id;
+            startEditJob(jobId);
+        }
+        if (e.target.closest('.delete-job-btn')) {
+            const jobId = e.target.closest('.delete-job-btn').dataset.id;
+            const job = state.jobs.find(j => j.id === jobId);
+            const hasPayments = job && job.invoice.payments && job.invoice.payments.length > 0;
+            const hasCosts = job && job.operationalCosts && job.operationalCosts.length > 0;
+            
+            let confirmMsg = `Apakah Anda yakin ingin menghapus Job Order ${jobId}?`;
+            if (hasPayments) {
+                confirmMsg += `\n\nPeringatan: Job Order ini memiliki ${job.invoice.payments.length} transaksi pembayaran yang akan ikut terhapus!`;
+            }
+            if (hasCosts) {
+                confirmMsg += `\n\nPeringatan: Job Order ini memiliki ${job.operationalCosts.length} biaya operasional yang akan ikut terhapus!`;
+            }
+            
+            if (confirm(confirmMsg)) {
+                state.jobs = state.jobs.filter(job => job.id !== jobId);
+                saveData();
+                showToast(`Job Order ${jobId} telah dihapus.`);
+                render();
+            }
+        }
+        if (e.target.closest('.page-delete-cost-btn')) {
+            const btn = e.target.closest('.page-delete-cost-btn');
+            const jobId = btn.dataset.jobId;
+            const costIndex = parseInt(btn.dataset.costIndex);
+            
+            const job = state.jobs.find(j => j.id === jobId);
+            if(job) {
+                job.operationalCosts.splice(costIndex, 1);
+                saveData();
+                showToast('Biaya berhasil dihapus.');
+                displayCostsForJob(jobId);
+            }
+        }
+         if (e.target.closest('.delete-bank-btn')) {
+            const bankIndex = parseInt(e.target.closest('.delete-bank-btn').dataset.index);
+            if (confirm('Apakah Anda yakin ingin menghapus referensi bank ini?')) {
+                state.banks.splice(bankIndex, 1);
+                saveData();
+                renderPengaturanPage();
+                showToast('Referensi bank telah dihapus.');
+            }
+        }
+        if (e.target.closest('.delete-customer-btn')) {
+            const customerId = e.target.closest('.delete-customer-btn').dataset.id;
+             if (confirm('Apakah Anda yakin ingin menghapus pelanggan ini?')) {
+                state.customers = state.customers.filter(c => c.id !== customerId);
+                saveData();
+                renderCustomerListPage();
+                showToast('Pelanggan telah dihapus.');
+            }
+        }
+        if (e.target.closest('.delete-driver-btn')) {
+            const driverId = e.target.closest('.delete-driver-btn').dataset.id;
+             if (confirm('Apakah Anda yakin ingin menghapus sopir ini?')) {
+                state.drivers = state.drivers.filter(d => d.id !== driverId);
+                saveData();
+                renderDriverListPage();
+                showToast('Sopir telah dihapus.');
+            }
+        }
+        if (e.target.closest('.delete-item-btn')) {
+            const itemId = e.target.closest('.delete-item-btn').dataset.id;
+             if (confirm('Apakah Anda yakin ingin menghapus item ini?')) {
+                state.invoiceItemsMaster = state.invoiceItemsMaster.filter(i => i.id !== itemId);
+                saveData();
+                renderItemListPage();
+                showToast('Item invoice telah dihapus.');
+            }
+        }
+         if (e.target.closest('.delete-op-cost-item-btn')) {
+            const itemId = e.target.closest('.delete-op-cost-item-btn').dataset.id;
+             if (confirm('Apakah Anda yakin ingin menghapus item biaya ini?')) {
+                state.operationalCostItemsMaster = state.operationalCostItemsMaster.filter(i => i.id !== itemId);
+                saveData();
+                renderItemBiayaListPage();
+                showToast('Item biaya telah dihapus.');
+            }
+        }
+        if (e.target.closest('.quick-add-driver-btn')){
+            const driverName = prompt("Masukkan Nama Sopir Baru:");
+            if (driverName && driverName.trim() !== "") {
+                const newDriver = {
+                    id: `DRIVER-${Date.now()}`,
+                    name: driverName.trim(),
+                    phone: '', plate: ''
+                };
+                state.drivers.push(newDriver);
+                saveData();
+                populateAllDriverDropdowns(newDriver.id);
+                showToast(`Sopir "${newDriver.name}" berhasil ditambahkan.`);
+            }
+        }
+    });
+
+    // MODAL LOGIC
+    const openDetailsModal = (jobId) => {
+        const job = state.jobs.find(j => j.id === jobId);
+        if (!job) return;
+
+        const costsTotal = job.operationalCosts.reduce((sum, cost) => sum + cost.amount, 0);
+        const profit = job.invoice.total - costsTotal;
+        const paymentInfo = getPaymentStatus(job);
+
+        modalContent.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Job Info -->
+                <div class="space-y-4">
+                    <h4 class="text-xl font-bold border-b pb-2">Informasi Job Order</h4>
+                    <p><strong>No. Job:</strong> ${job.id}</p>
+                    <p><strong>Pelanggan:</strong> ${job.customerName}</p>
+                    <p><strong>Kapal/Voyage:</strong> ${job.vesselVoyage || 'N/A'}</p>
+                    <p><strong>Rute:</strong> ${job.pol || 'N/A'} - ${job.pod || 'N/A'}</p>
+                    <h4 class="text-xl font-bold border-b pb-2 mt-4">Kontainer & Sopir</h4>
+                    <div class="text-sm space-y-2">
+                        ${job.containers.map(c => `
+                            <div class="p-2 bg-slate-50 rounded">
+                                <p><strong>Kontainer:</strong> ${c.number} (${c.type || 'N/A'})</p>
+                                <p><strong>Seal:</strong> ${c.seal || 'N/A'}</p>
+                                <p><strong>Sopir:</strong> ${c.driverName || 'N/A'}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Invoice Info -->
+                <div>
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xl font-bold border-b pb-2">Detail Invoice</h4>
+                        <button id="print-invoice-btn" class="bg-slate-600 text-white px-3 py-1 rounded-md text-sm hover:bg-slate-700" data-id="${job.id}">
+                            <i class="fas fa-print mr-2"></i>Cetak
+                        </button>
+                    </div>
+                    <table class="w-full mt-2 text-sm">
+                        <thead class="bg-slate-50"><tr><th class="p-2 text-left">Deskripsi</th><th class="p-2 text-right">Jumlah</th></tr></thead>
+                        <tbody>
+                        ${job.invoice.items.map(item => `
+                            <tr class="border-b">
+                                <td class="p-2">${item.description} ${item.ppnStatus === 'ppn_dibebaskan' ? `<div class="text-xs text-slate-500">(${getPPNStatusText(item.ppnStatus)})</div>` : ''}</td>
+                                <td class="p-2 text-right">${formatCurrency(item.total)}</td>
+                            </tr>
+                        `).join('')}
+                        </tbody>
+                        <tfoot class="font-semibold">
+                            <tr class="border-t"><td class="p-2">Subtotal</td><td class="p-2 text-right">${formatCurrency(job.invoice.subtotal)}</td></tr>
+                            <tr><td class="p-2">PPN 11%</td><td class="p-2 text-right">${formatCurrency(job.invoice.ppn)}</td></tr>
+                            <tr class="bg-slate-200 text-base"><td class="p-2">Grand Total</td><td class="p-2 text-right">${formatCurrency(job.invoice.total)}</td></tr>
+                        </tfoot>
+                    </table>
+                    <div class="mt-4">
+                        <strong>Status Pembayaran:</strong>
+                        <span class="ml-2 px-2 py-1 rounded-full text-xs font-semibold ${paymentInfo.class}">
+                            ${paymentInfo.text}
+                        </span>
+                        ${paymentInfo.status !== 'paid' ? `<button id="go-to-payment-btn" data-id="${job.id}" class="ml-4 bg-green-500 text-white px-3 py-1 rounded-md text-sm hover:bg-green-600">Catat Pembayaran</button>` : ''}
+                    </div>
+                </div>
+
+                <!-- Operational Costs -->
+                <div class="md:col-span-2">
+                    <h4 class="text-xl font-bold border-b pb-2">Biaya Operasional</h4>
+                     <table class="w-full mt-2 text-sm">
+                        <thead class="bg-slate-50"><tr><th class="p-2 text-left">Deskripsi</th><th class="p-2 text-left">Sopir</th><th class="p-2 text-right">Jumlah</th><th class="p-2 text-center">Aksi</th></tr></thead>
+                        <tbody id="op-costs-body">
+                        ${job.operationalCosts.map((cost, index) => `
+                            <tr class="border-b"><td class="p-2">${cost.description}</td><td class="p-2">${cost.driverName || 'N/A'}</td><td class="p-2 text-right">${formatCurrency(cost.amount)}</td><td class="text-center"><button class="text-red-500 hover:text-red-700 delete-cost-btn" data-job-id="${job.id}" data-cost-index="${index}" title="Hapus Biaya"><i class="fas fa-times-circle"></i></button></td></tr>
+                        `).join('')}
+                        </tbody>
+                        <tfoot class="font-semibold"><tr><td class="p-2" colspan="2">Total Biaya</td><td class="p-2 text-right">${formatCurrency(costsTotal)}</td><td></td></tr></tfoot>
+                    </table>
+                    <form id="add-cost-form" class="mt-4 space-y-2" data-id="${job.id}">
+                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <div>
+                                <label for="cost-desc" class="block text-sm font-medium text-slate-600">Deskripsi Biaya</label>
+                                <select id="cost-desc" class="w-full p-2 border rounded-md bg-white" required></select>
+                            </div>
+                             <div>
+                                <label for="cost-driver" class="block text-sm font-medium text-slate-600">Untuk Sopir (Opsional)</label>
+                                <select id="cost-driver" class="w-full p-2 border rounded-md bg-white"></select>
+                            </div>
+                            <div>
+                                <label for="cost-amount" class="block text-sm font-medium text-slate-600">Jumlah</label>
+                                <input type="number" id="cost-amount" placeholder="Jumlah" class="w-full p-2 border rounded-md" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Tambah Biaya</button>
+                    </form>
+                </div>
+                
+                <!-- Summary -->
+                <div class="md:col-span-2 bg-slate-100 p-4 rounded-lg mt-4 text-center">
+                    <h4 class="text-xl font-bold text-slate-700">Ringkasan Keuangan</h4>
+                    <div class="flex justify-around mt-2">
+                        <div><p class="text-slate-600">Pendapatan</p><p class="font-bold text-lg">${formatCurrency(job.invoice.total)}</p></div>
+                        <div><p class="text-slate-600">Biaya</p><p class="font-bold text-lg">${formatCurrency(costsTotal)}</p></div>
+                        <div><p class="text-slate-600">Laba/Rugi</p><p class="font-bold text-lg ${profit >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(profit)}</p></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        detailsModal.classList.remove('hidden');
+        
+        populateOpCostItemDropdown(document.getElementById('cost-desc'));
+        populateDriverDropdown(document.getElementById('cost-driver'));
+
+        document.getElementById('add-cost-form')?.addEventListener('submit', handleAddCost);
+        document.getElementById('go-to-payment-btn')?.addEventListener('click', (e) => {
+            const jobId = e.target.dataset.id;
+            navigateTo('pembayaran-invoice');
+            setTimeout(() => {
+                document.getElementById('payment-job-select').value = jobId;
+                displayPaymentDetails(jobId);
+            }, 100);
+            closeModalBtn.click();
+        });
+        document.getElementById('print-invoice-btn')?.addEventListener('click', handlePrintDotMatrixInvoice);
+        document.querySelectorAll('.delete-cost-btn').forEach(btn => btn.addEventListener('click', handleDeleteCost));
+    };
+
+    const handleAddCost = (e) => {
+        e.preventDefault();
+        const jobId = e.target.dataset.id;
+        const job = state.jobs.find(j => j.id === jobId);
+        
+        const descSelect = document.getElementById('cost-desc');
+        const description = descSelect.options[descSelect.selectedIndex].text;
+        
+        const driverSelect = document.getElementById('cost-driver');
+        const driverId = driverSelect.value;
+        const driverName = driverId ? driverSelect.options[driverSelect.selectedIndex].text : null;
+        
+        const amount = parseFloat(document.getElementById('cost-amount').value);
+
+        if (job && description && amount > 0) {
+            job.operationalCosts.push({ description, amount, driverId, driverName });
+            saveData();
+            openDetailsModal(jobId);
+        }
+    };
+    
+    const handleDeleteCost = (e) => {
+        const btn = e.target.closest('.delete-cost-btn');
+        const jobId = btn.dataset.jobId;
+        const costIndex = parseInt(btn.dataset.costIndex);
+        const job = state.jobs.find(j => j.id === jobId);
+
+        if (job) {
+            job.operationalCosts.splice(costIndex, 1);
+            saveData();
+            openDetailsModal(jobId);
+        }
+    };
+
+    closeModalBtn.addEventListener('click', () => {
+        detailsModal.classList.add('hidden');
+    });
+
+    // PDF GENERATION
+    const handlePrintDotMatrixInvoice = (e) => {
+        const jobId = e.currentTarget.dataset.id;
+        const job = state.jobs.find(j => j.id === jobId);
+        if (!job) return;
+        
+        showToast('Sedang membuat PDF...');
+
+        setTimeout(() => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFont('Courier', 'normal');
+        doc.setFontSize(10);
+
+        let y = 15;
+        const line = (text) => {
+            doc.text(text, 14, y);
+            y += 5; // line height
+        };
+        const centerLine = (text) => {
+             doc.text(text, doc.internal.pageSize.getWidth() / 2, y, { align: 'center' });
+             y += 5;
+        }
+        const repeatChar = (char, count) => char.repeat(count);
+
+        doc.setFontSize(30); // Set larger font size for main title
+        doc.setFont('Courier', 'bold');
+        centerLine('PT PASIR INDAH LOGISTIK');
+        doc.setFontSize(10); // Reset to default size
+        doc.setFont('Courier', 'normal');
+        y+=2;
+        centerLine(`No. Invoice: INV/${job.id}`);
+        centerLine(`Tanggal: ${new Date().toLocaleDateString('id-ID')}`);
+        y += 5;
+
+        line(`Kepada Yth:`);
+        line(job.customerName);
+        y += 5;
+
+        line('Detail Pengiriman:');
+        line(`- Kapal/Voyage: ${job.vesselVoyage || 'N/A'}`);
+        line(`- Rute        : ${job.pol || 'N/A'} - ${job.pod || 'N/A'}`);
+        y += 5;
+
+        line('Kontainer:');
+        line(repeatChar('-', 70));
+        line('No. Kontainer      | Jenis/Ukuran      | Seal');
+        line(repeatChar('-', 70));
+        job.containers.forEach(c => {
+            const no = (c.number || '-').padEnd(18);
+            const type = (c.type || '-').padEnd(19);
+            const seal = (c.seal || '-');
+            line(`${no}| ${type}| ${seal}`);
+        });
+        line(repeatChar('-', 70));
+        y += 5;
+        
+        line('Rincian Biaya:');
+        line(repeatChar('-', 70));
+        line('Deskripsi'.padEnd(30) + 'Qty'.padStart(5) + 'Harga'.padStart(17) + 'Jumlah'.padStart(17));
+        line(repeatChar('-', 70));
+        job.invoice.items.forEach(item => {
+            const desc = item.description.length > 28 ? item.description.substring(0, 28) + '..' : item.description;
+            const ppnText = item.ppnStatus === 'ppn_dibebaskan' ? `(${getPPNStatusText(item.ppnStatus)})` : '';
+            const qty = item.qty.toString().padStart(5);
+            const price = formatCurrency(item.price).padStart(17);
+            const total = formatCurrency(item.total).padStart(17);
+            line(desc.padEnd(30) + qty + price + total);
+            if (ppnText) {
+                line('  ' + ppnText);
+            }
+        });
+        line(repeatChar('-', 70));
+        
+        line('Subtotal'.padStart(53) + formatCurrency(job.invoice.subtotal).padStart(17));
+        line('PPN 11%'.padStart(53) + formatCurrency(job.invoice.ppn).padStart(17));
+        line(repeatChar('-', 70));
+        doc.setFont('Courier', 'bold');
+        line('Grand Total'.padStart(53) + formatCurrency(job.invoice.total).padStart(17));
+        doc.setFont('Courier', 'normal');
+        line(repeatChar('=', 70));
+        y += 5;
+
+        line('Terbilang:');
+        const terbilangText = `# ${terbilang(job.invoice.total)} #`;
+        doc.setFont('Courier', 'bolditalic');
+        line(terbilangText);
+        doc.setFont('Courier', 'normal');
+        y += 5;
+        
+        if (state.banks.length > 0) {
+            line('Informasi Pembayaran:');
+            let banksToDisplay = [];
+            if (job.selectedBankId && job.selectedBankId !== 'all') {
+                const selectedBank = state.banks.find((b, index) => index.toString() === job.selectedBankId);
+                if (selectedBank) banksToDisplay.push(selectedBank);
+            } else {
+                banksToDisplay = state.banks;
+            }
+            banksToDisplay.forEach(bank => {
+                line(`- ${bank.name}: ${bank.number} (a.n. ${bank.holder})`);
+            });
+        }
+        
+        doc.save(`Invoice-DotMatrix-${job.id}.pdf`);
+        showToast('Invoice berhasil diunduh!');
+        }, 100);
+    };
+
+    // OPERATIONAL COSTS PAGE LOGIC
+    const displayCostsForJob = (jobId) => {
+        const job = state.jobs.find(j => j.id === jobId);
+        const costsTableBody = document.getElementById('costs-table-body');
+        const displaySection = document.getElementById('costs-display-section');
+        costsTableBody.innerHTML = '';
+
+        if (!job) {
+            displaySection.classList.add('hidden');
+            return;
+        }
+
+        document.getElementById('selected-job-id').textContent = jobId;
+        populateOpCostItemDropdown(document.getElementById('page-cost-desc'));
+        populateDriverDropdown(document.getElementById('page-cost-driver'));
+        
+        if (job.operationalCosts.length === 0) {
+            costsTableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">Belum ada biaya operasional untuk job ini.</td></tr>`;
+        } else {
+            job.operationalCosts.forEach((cost, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b';
+                row.innerHTML = `
+                    <td class="p-4">${cost.description}</td>
+                    <td class="p-4">${cost.driverName || 'N/A'}</td>
+                    <td class="p-4 text-right">${formatCurrency(cost.amount)}</td>
+                    <td class="p-4 text-center">
+                        <button class="text-red-500 hover:text-red-700 page-delete-cost-btn" data-job-id="${job.id}" data-cost-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                costsTableBody.appendChild(row);
+            });
+        }
+        displaySection.classList.remove('hidden');
+    };
+
+    // PAYMENT PAGE LOGIC
+    const displayPaymentDetails = (jobId) => {
+        const detailsSection = document.getElementById('payment-details-section');
+        const summaryDiv = document.getElementById('payment-invoice-summary');
+        const historyBody = document.getElementById('payment-history-body');
+        
+        const job = state.jobs.find(j => j.id === jobId);
+        if (!job) {
+            detailsSection.classList.add('hidden');
+            return;
+        }
+
+        const totalPaid = job.invoice.payments.reduce((sum, p) => sum + p.amount, 0);
+        const remaining = job.invoice.total - totalPaid;
+
+        summaryDiv.innerHTML = `
+            <p><strong>Pelanggan:</strong> ${job.customerName}</p>
+            <p><strong>Total Tagihan:</strong> ${formatCurrency(job.invoice.total)}</p>
+            <p class="text-green-600"><strong>Sudah Dibayar:</strong> ${formatCurrency(totalPaid)}</p>
+            <p class="font-bold ${remaining > 0 ? 'text-red-600' : 'text-green-600'}"><strong>Sisa Tagihan:</strong> ${formatCurrency(remaining)}</p>
+        `;
+
+        historyBody.innerHTML = '';
+        if (job.invoice.payments.length === 0) {
+            historyBody.innerHTML = `<tr><td colspan="3" class="p-3 text-center text-slate-500">Belum ada riwayat pembayaran.</td></tr>`;
+        } else {
+            job.invoice.payments.forEach(p => {
+                const row = document.createElement('tr');
+                row.className = 'border-b';
+                row.innerHTML = `
+                    <td class="p-3">${new Date(p.date).toLocaleDateString('id-ID')}</td>
+                    <td class="p-3">${formatCurrency(p.amount)}</td>
+                    <td class="p-3">${p.method}</td>
+                `;
+                historyBody.appendChild(row);
+            });
+        }
+        
+        document.getElementById('payment-form').dataset.jobId = jobId;
+        document.getElementById('payment-amount').max = remaining;
+        document.getElementById('payment-amount').value = remaining;
+        
+        // Auto-fill tanggal hari ini
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('payment-date').value = today;
+        
+        detailsSection.classList.remove('hidden');
+    };
+
+
+    const handlePrintDriverReport = () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const month = parseInt(document.getElementById('report-month').value);
+        const year = parseInt(document.getElementById('report-year').value);
+        const monthName = document.getElementById('report-month').options[month].text;
+
+        const filteredJobs = state.jobs.filter(job => {
+            const jobDate = new Date(job.createdAt);
+            const hasDriver = job.containers.some(c => c.driverId);
+            return jobDate.getMonth() === month && jobDate.getFullYear() === year && hasDriver;
+        });
+        
+        const allCostsInPeriod = [];
+        state.jobs.forEach(job => {
+            const jobDate = new Date(job.createdAt);
+            if (jobDate.getMonth() === month && jobDate.getFullYear() === year) {
+                job.operationalCosts.forEach(cost => {
+                    if (cost.driverId) {
+                        allCostsInPeriod.push({
+                            ...cost,
+                            jobId: job.id,
+                            jobDate: job.createdAt
+                        });
+                    }
+                });
+            }
+        });
+
+        const jobsByDriver = filteredJobs.reduce((acc, job) => {
+            job.containers.forEach(container => {
+                if (container.driverId) {
+                    const driver = state.drivers.find(d => d.id === container.driverId);
+                    if(driver){
+                        const driverName = driver.name;
+                         if (!acc[driverName]) {
+                            acc[driverName] = [];
+                        }
+                         if (!acc[driverName].some(j => j.id === job.id)) {
+                             acc[driverName].push(job);
+                        }
+                    }
+                }
+            });
+            return acc;
+        }, {});
+        
+        const costsByDriver = allCostsInPeriod.reduce((acc, cost) => {
+            const driver = state.drivers.find(d => d.id === cost.driverId);
+            const driverName = driver ? driver.name : 'Unknown';
+            if (!acc[driverName]) acc[driverName] = [];
+            acc[driverName].push(cost);
+            return acc;
+        }, {});
+        
+        const allDriverNames = new Set([...Object.keys(jobsByDriver), ...Object.keys(costsByDriver)]);
+
+        doc.setFontSize(18);
+        doc.text("Laporan Aktivitas Sopir", 14, 22);
+        doc.setFontSize(12);
+        doc.text(`Periode: ${monthName} ${year}`, 14, 29);
+        let startY = 35;
+
+        allDriverNames.forEach(driverKey => {
+            if (startY > 250) { doc.addPage(); startY = 20; }
+            
+            const jobs = jobsByDriver[driverKey] || [];
+            const costs = costsByDriver[driverKey] || [];
+
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text(driverKey, 14, startY);
+            startY += 8;
+
+            if (jobs.length > 0) {
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'bold');
+                doc.text("Aktivitas Job", 14, startY);
+                startY += 6;
+                const tableColumn = ["No. Job", "Tanggal", "Pelanggan", "Tujuan (POD)"];
+                const tableRows = jobs.map(job => [ job.id, new Date(job.createdAt).toLocaleDateString('id-ID'), job.customerName, job.pod ]);
+                tableRows.push([{ content: `Total Job: ${jobs.length}`, colSpan: 4, styles: { halign: 'right', fontStyle: 'bold' } }]);
+                doc.autoTable({
+                    startY: startY,
+                    head: [tableColumn],
+                    body: tableRows,
+                    theme: 'grid',
+                    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+                    styles: { fontSize: 9 },
+                    headStyles: { fontSize: 10 }
+                });
+                startY = doc.autoTable.previous.finalY + 10;
+            }
+            
+            if (costs.length > 0) {
+                if (startY > 250) { doc.addPage(); startY = 20; }
+                let totalCost = 0;
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'bold');
+                doc.text("Biaya Operasional Terkait", 14, startY);
+                startY += 6;
+                const costTableCols = ["Tgl. Job", "No. Job", "Deskripsi Biaya", "Jumlah"];
+                const costTableRows = costs.map(cost => {
+                    totalCost += cost.amount;
+                    return [new Date(cost.jobDate).toLocaleDateString('id-ID'), cost.jobId, cost.description, formatCurrency(cost.amount)];
+                });
+                costTableRows.push([{ content: 'Total Biaya', colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } }, { content: formatCurrency(totalCost), styles: { halign: 'right', fontStyle: 'bold' } } ]);
+                doc.autoTable({
+                    startY: startY,
+                    head: [costTableCols],
+                    body: costTableRows,
+                    theme: 'grid',
+                    headStyles: { fillColor: [220, 220, 220], textColor: 0 },
+                    styles: { fontSize: 9 },
+                    headStyles: { fontSize: 10 }
+                });
+                startY = doc.autoTable.previous.finalY + 10;
+            }
+        });
+        
+        doc.save(`laporan-sopir-${monthName}-${year}.pdf`);
+    };
+
+    // BACKUP & RESTORE
+    const handleBackupData = () => {
+        if (state.jobs.length === 0 && state.banks.length === 0 && state.customers.length === 0 && state.drivers.length === 0 && state.invoiceItemsMaster.length === 0 && state.operationalCostItemsMaster.length === 0) {
+            alert('Tidak ada data untuk di-backup.');
+            return;
+        }
+        const dataStr = JSON.stringify(state, null, 2);
+        const dataBlob = new Blob([dataStr], {type: "application/json"});
+        const url = URL.createObjectURL(dataBlob);
+        const a = document.createElement('a');
+        const date = new Date().toISOString().slice(0, 10);
+        a.href = url;
+        a.download = `emkl_backup_${date}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Backup data berhasil diunduh.');
+    };
+
+    const handleRestoreData = () => {
+        const fileInput = document.getElementById('restore-file-input');
+        if (fileInput.files.length === 0) {
+            alert('Silakan pilih file backup terlebih dahulu.');
+            return;
+        }
+
+        if (!confirm('PERINGATAN! Ini akan menimpa semua data yang ada. Apakah Anda yakin ingin melanjutkan?')) {
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            try {
+                const restoredState = JSON.parse(e.target.result);
+                if (restoredState && (Array.isArray(restoredState.jobs) || Array.isArray(restoredState.customers) || Array.isArray(restoredState.drivers) || Array.isArray(restoredState.banks))) { 
+                    state.jobs = restoredState.jobs || [];
+                    state.banks = restoredState.banks || [];
+                    state.customers = restoredState.customers || [];
+                    state.drivers = restoredState.drivers || [];
+                    state.invoiceItemsMaster = restoredState.invoiceItemsMaster || [];
+                    state.operationalCostItemsMaster = restoredState.operationalCostItemsMaster || [];
+                } else if (Array.isArray(restoredState)) { // Fallback for very old format (jobs only)
+                     state.jobs = restoredState;
+                     state.banks = [];
+                     state.customers = [];
+                     state.drivers = [];
+                     state.invoiceItemsMaster = [];
+                     state.operationalCostItemsMaster = [];
+                }
+                else {
+                    throw new Error('Format file tidak valid.');
+                }
+                saveData();
+                showToast('Data berhasil dipulihkan. Aplikasi akan dimuat ulang.');
+                setTimeout(() => window.location.reload(), 1500);
+            } catch (error) {
+                alert(`Gagal memulihkan data: ${error.message}`);
+            }
+        };
+
+        reader.onerror = function() {
+            alert('Gagal membaca file.');
+        };
+
+        reader.readAsText(file);
+    };
+
+    // MOBILE MENU HANDLERS
+    const initMobileMenu = () => {
+        const hamburger = document.getElementById('hamburger-menu');
+        const sidebar = document.querySelector('aside');
+        const overlay = document.getElementById('mobile-overlay');
+        const mobileNavButtons = document.querySelectorAll('.mobile-nav-tabs button[data-page]');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        
+        const closeMobileMenu = () => {
+            sidebar?.classList.remove('mobile-open');
+            hamburger?.classList.remove('active');
+            overlay?.classList.remove('active');
+        };
+        
+        const openMobileMenu = () => {
+            sidebar?.classList.add('mobile-open');
+            hamburger?.classList.add('active');
+            overlay?.classList.add('active');
+        };
+        
+        hamburger?.addEventListener('click', () => {
+            if (sidebar?.classList.contains('mobile-open')) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
+        });
+        
+        overlay?.addEventListener('click', closeMobileMenu);
+        
+        // Close menu when clicking sidebar links
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeMobileMenu();
+                }
+            });
+        });
+        
+        // Mobile bottom navigation
+        mobileNavButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const page = btn.dataset.page;
+                navigateTo(page);
+                
+                // Update active state
+                mobileNavButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+        
+        mobileMenuBtn?.addEventListener('click', openMobileMenu);
+        
+        // Update mobile nav active state on page change
+        const updateMobileNavState = () => {
+            mobileNavButtons.forEach(btn => {
+                if (btn.dataset.page === state.activePage) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        };
+        
+        // Call update on render
+        window.updateMobileNavState = updateMobileNavState;
+    };
+
+    // INITIALIZATION
+    const initializeApp = () => {
+        initMobileMenu();
+        // Form Buttons
+        document.getElementById('add-container-btn').addEventListener('click', () => {
+            const newRow = createContainerRow();
+            document.getElementById('container-details-wrapper').appendChild(newRow);
+            populateAllDriverDropdowns();
+        });
+        document.getElementById('add-invoice-item-btn').addEventListener('click', () => {
+            document.getElementById('invoice-items-wrapper').appendChild(createInvoiceItemRow());
+        });
+
+        // Backup/Restore Listeners
+        document.getElementById('backup-btn').addEventListener('click', handleBackupData);
+        document.getElementById('restore-btn').addEventListener('click', handleRestoreData);
+
+        // Bank Form Listener
+        document.getElementById('bank-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const bank = {
+                name: document.getElementById('bank-name').value,
+                number: document.getElementById('account-number').value,
+                holder: document.getElementById('account-holder').value
+            };
+            state.banks.push(bank);
+            saveData();
+            renderPengaturanPage();
+            e.target.reset();
+            showToast('Referensi bank berhasil ditambahkan.');
+        });
+
+        // Customer Form Listener
+        document.getElementById('customer-form').addEventListener('submit', (e) => {
+             e.preventDefault();
+            
+            const customerName = document.getElementById('customer-name-input').value.trim();
+            if (!customerName) {
+                alert('Nama pelanggan harus diisi!');
+                return;
+            }
+            
+            const npwp = document.getElementById('customer-npwp-input').value.trim();
+            // Validasi NPWP jika diisi (format: 15 digit)
+            if (npwp && npwp.replace(/[^0-9]/g, '').length !== 15) {
+                if (!confirm('Format NPWP biasanya 15 digit. Lanjutkan menyimpan?')) {
+                    return;
+                }
+            }
+            
+            const newCustomer = {
+                id: `CUST-${Date.now()}`,
+                name: customerName,
+                address: document.getElementById('customer-address-input').value,
+                phone: document.getElementById('customer-phone-input').value,
+                npwp: npwp,
+            };
+            state.customers.push(newCustomer);
+            saveData();
+            renderCustomerListPage();
+            e.target.reset();
+            showToast('Pelanggan baru berhasil ditambahkan.');
+        });
+        
+        document.getElementById('quick-add-customer-btn').addEventListener('click', () => {
+            const customerName = prompt("Masukkan Nama Pelanggan Baru:");
+            if (customerName && customerName.trim() !== "") {
+                const newCustomer = {
+                    id: `CUST-${Date.now()}`,
+                    name: customerName.trim(),
+                    address: '', phone: '', npwp: ''
+                };
+                state.customers.push(newCustomer);
+                saveData();
+                populateCustomerSelection(newCustomer.id);
+                showToast(`Pelanggan "${newCustomer.name}" berhasil ditambahkan.`);
+            }
+        });
+
+        // Driver Form Listener
+        document.getElementById('driver-form').addEventListener('submit', (e) => {
+             e.preventDefault();
+            const newDriver = {
+                id: `DRIVER-${Date.now()}`,
+                name: document.getElementById('driver-name-input').value,
+                phone: document.getElementById('driver-phone-input').value,
+                plate: document.getElementById('driver-plate-input').value,
+            };
+            state.drivers.push(newDriver);
+            saveData();
+            renderDriverListPage();
+            e.target.reset();
+            showToast('Sopir baru berhasil ditambahkan.');
+        });
+        
+        // Item Invoice Form Listener (Removed as per user request)
+        const itemForm = document.getElementById('item-form');
+        if(itemForm) {
+            itemForm.addEventListener('submit', (e) => {
+                 e.preventDefault();
+                 // This form is no longer used, but listener is kept to prevent errors if page remains
+            });
+        }
+        
+        
+        // Op Cost Item Form Listener
+        const opCostItemForm = document.getElementById('op-cost-item-form');
+        if (opCostItemForm) {
+            opCostItemForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newItem = {
+                    id: `OPCITEM-${Date.now()}`,
+                    name: document.getElementById('op-cost-item-name-input').value,
+                };
+                if(!state.operationalCostItemsMaster) {
+                    state.operationalCostItemsMaster = [];
+                }
+                state.operationalCostItemsMaster.push(newItem);
+                saveData();
+                renderItemBiayaListPage();
+                e.target.reset();
+                showToast('Item biaya baru berhasil ditambahkan.');
+            });
+        }
+
+        // Payment Page Listeners
+        document.getElementById('payment-job-select').addEventListener('change', (e) => {
+            displayPaymentDetails(e.target.value);
+        });
+
+        document.getElementById('payment-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const jobId = e.target.dataset.jobId;
+            const job = state.jobs.find(j => j.id === jobId);
+            if (!job) return;
+
+            const paymentDate = document.getElementById('payment-date').value;
+            const paymentAmount = parseFloat(document.getElementById('payment-amount').value);
+            const paymentMethod = document.getElementById('payment-method').value;
+            
+            if (!paymentDate) {
+                alert('Harap pilih tanggal pembayaran!');
+                return;
+            }
+            
+            if (!paymentAmount || paymentAmount <= 0) {
+                alert('Jumlah pembayaran harus lebih dari 0!');
+                return;
+            }
+            
+            const totalPaid = job.invoice.payments.reduce((sum, p) => sum + p.amount, 0);
+            const remaining = job.invoice.total - totalPaid;
+            
+            if (paymentAmount > remaining + 0.01) {
+                alert(`Jumlah pembayaran melebihi sisa tagihan!\nSisa tagihan: ${formatCurrency(remaining)}`);
+                return;
+            }
+
+            const payment = {
+                date: paymentDate,
+                amount: paymentAmount,
+                method: paymentMethod
+            };
+            
+            if (!job.invoice.payments) {
+                job.invoice.payments = [];
+            }
+
+            job.invoice.payments.push(payment);
+            saveData();
+            showToast('Pembayaran berhasil disimpan.');
+            displayPaymentDetails(jobId); // Refresh details
+            renderPembayaranInvoicePage(); // Refresh dropdown
+        });
+
+
+        // Job Order List Filter Listeners
+        const jobSearchInput = document.getElementById('job-search');
+        const jobStatusFilter = document.getElementById('job-status-filter');
+        if (jobSearchInput) {
+            jobSearchInput.addEventListener('input', () => {
+                if (state.activePage === 'job-order-list') renderJobOrderList();
+            });
+        }
+        if (jobStatusFilter) {
+            jobStatusFilter.addEventListener('change', () => {
+                if (state.activePage === 'job-order-list') renderJobOrderList();
+            });
+        }
+        
+        // Operational Costs Page Listeners
+        document.getElementById('cost-job-select').addEventListener('change', (e) => {
+            displayCostsForJob(e.target.value);
+        });
+        document.getElementById('page-add-cost-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const jobId = document.getElementById('cost-job-select').value;
+            const descSelect = document.getElementById('page-cost-desc');
+            const description = descSelect.options[descSelect.selectedIndex].text;
+            
+            const driverSelect = document.getElementById('page-cost-driver');
+            const driverId = driverSelect.value;
+            const driverName = driverId ? driverSelect.options[driverSelect.selectedIndex].text : null;
+            
+            const amount = parseFloat(document.getElementById('page-cost-amount').value);
+            const job = state.jobs.find(j => j.id === jobId);
+
+            if (job && description && amount > 0) {
+                job.operationalCosts.push({ description, amount, driverId, driverName });
+                saveData();
+                showToast('Biaya operasional berhasil ditambahkan.');
+                displayCostsForJob(jobId);
+                e.target.reset();
+            } else {
+                alert('Pastikan Job Order dipilih dan semua kolom diisi dengan benar.');
+            }
+        });
+        
+        // Piutang Report Page Listeners
+        document.getElementById('generate-piutang-report-btn').addEventListener('click', () => {
+            const month = parseInt(document.getElementById('piutang-month').value);
+            const year = parseInt(document.getElementById('piutang-year').value);
+            const piutangTableBody = document.getElementById('piutang-table-body');
+            const printBtn = document.getElementById('print-piutang-report-btn');
+            piutangTableBody.innerHTML = '';
+
+            const unpaidJobs = state.jobs.filter(job => {
+                const jobDate = new Date(job.createdAt);
+                const paymentInfo = getPaymentStatus(job);
+                return paymentInfo.status !== 'paid' && jobDate.getMonth() === month && jobDate.getFullYear() === year;
+            });
+
+            let totalPiutang = 0;
+
+            if (unpaidJobs.length === 0) {
+                piutangTableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-500">Tidak ada piutang untuk periode yang dipilih.</td></tr>`;
+                printBtn.classList.add('hidden');
+            } else {
+                unpaidJobs.forEach(job => {
+                    const totalPaid = job.invoice.payments.reduce((sum, p) => sum + p.amount, 0);
+                    const remaining = job.invoice.total - totalPaid;
+                    totalPiutang += remaining;
+                    
+                    const paymentInfo = getPaymentStatus(job);
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'border-b hover:bg-slate-50';
+                    row.innerHTML = `
+                        <td class="p-4">${job.id}</td>
+                        <td class="p-4">${job.customerName}</td>
+                        <td class="p-4">${new Date(job.createdAt).toLocaleDateString('id-ID')}</td>
+                        <td class="p-4">${formatCurrency(remaining)}</td>
+                        <td class="p-4">
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold ${paymentInfo.class}">
+                                ${paymentInfo.text}
+                            </span>
+                        </td>
+                    `;
+                    piutangTableBody.appendChild(row);
+                });
+                printBtn.classList.remove('hidden');
+            }
+            document.getElementById('piutang-total').textContent = formatCurrency(totalPiutang);
+        });
+
+        document.getElementById('print-piutang-report-btn').addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const month = parseInt(document.getElementById('piutang-month').value);
+            const year = parseInt(document.getElementById('piutang-year').value);
+            const monthName = document.getElementById('piutang-month').options[month].text;
+
+            const unpaidJobs = state.jobs.filter(job => {
+                const jobDate = new Date(job.createdAt);
+                return getPaymentStatus(job).status !== 'paid' && jobDate.getMonth() === month && jobDate.getFullYear() === year;
+            });
+
+            let totalPiutang = 0;
+            const tableData = unpaidJobs.map(job => {
+                 const totalPaid = job.invoice.payments.reduce((sum, p) => sum + p.amount, 0);
+                 const remaining = job.invoice.total - totalPaid;
+                 totalPiutang += remaining;
+                 return [
+                    job.id,
+                    job.customerName,
+                    new Date(job.createdAt).toLocaleDateString('id-ID'),
+                    formatCurrency(remaining),
+                    getPaymentStatus(job).text
+                 ]
+            });
+
+            doc.setFontSize(18);
+            doc.text("Laporan Piutang Usaha", 14, 22);
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Periode: ${monthName} ${year}`, 14, 29);
+
+            tableData.push([
+                { content: 'TOTAL PIUTANG', colSpan: 3, styles: { fontStyle: 'bold', halign: 'right' } },
+                { content: formatCurrency(totalPiutang), styles: { fontStyle: 'bold' } },
+                ''
+            ]);
+
+            doc.autoTable({
+                startY: 35,
+                head: [['No. Job', 'Pelanggan', 'Tanggal', 'Sisa Tagihan', 'Status']],
+                body: tableData,
+                theme: 'grid'
+            });
+
+            doc.save(`laporan-piutang-${monthName}-${year}.pdf`);
+        });
+        
+        // Laporan Pembayaran Listeners
+        document.getElementById('generate-payment-report-btn').addEventListener('click', () => {
+            const month = parseInt(document.getElementById('payment-report-month').value);
+            const year = parseInt(document.getElementById('payment-report-year').value);
+            const reportBody = document.getElementById('payment-report-table-body');
+            const printBtn = document.getElementById('print-payment-report-btn');
+            reportBody.innerHTML = '';
+
+            let allPayments = [];
+            state.jobs.forEach(job => {
+                job.invoice.payments.forEach(p => {
+                    allPayments.push({ ...p, jobId: job.id, customerName: job.customerName });
+                });
+            });
+
+            const filteredPayments = allPayments.filter(p => {
+                const paymentDate = new Date(p.date);
+                return paymentDate.getMonth() === month && paymentDate.getFullYear() === year;
+            });
+
+            let totalPaid = 0;
+            if (filteredPayments.length === 0) {
+                reportBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-500">Tidak ada data pembayaran untuk periode ini.</td></tr>`;
+                printBtn.classList.add('hidden');
+            } else {
+                filteredPayments.forEach(p => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b';
+                    row.innerHTML = `
+                        <td class="p-4">${new Date(p.date).toLocaleDateString('id-ID')}</td>
+                        <td class="p-4">${p.jobId}</td>
+                        <td class="p-4">${p.customerName}</td>
+                        <td class="p-4">${formatCurrency(p.amount)}</td>
+                        <td class="p-4">${p.method}</td>
+                    `;
+                    reportBody.appendChild(row);
+                    totalPaid += p.amount;
+                });
+                printBtn.classList.remove('hidden');
+            }
+            document.getElementById('payment-report-total').textContent = formatCurrency(totalPaid);
+        });
+
+        document.getElementById('print-payment-report-btn').addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const month = parseInt(document.getElementById('payment-report-month').value);
+            const year = parseInt(document.getElementById('payment-report-year').value);
+            const monthName = document.getElementById('payment-report-month').options[month].text;
+
+            let allPayments = [];
+            state.jobs.forEach(job => {
+                job.invoice.payments.forEach(p => {
+                    allPayments.push({ ...p, jobId: job.id, customerName: job.customerName });
+                });
+            });
+            const filteredPayments = allPayments.filter(p => {
+                const paymentDate = new Date(p.date);
+                return paymentDate.getMonth() === month && paymentDate.getFullYear() === year;
+            });
+            const totalPaid = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
+
+            doc.setFontSize(18);
+            doc.text("Laporan Pembayaran Diterima", 14, 22);
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Periode: ${monthName} ${year}`, 14, 29);
+
+            const tableData = filteredPayments.map(p => [
+                new Date(p.date).toLocaleDateString('id-ID'),
+                p.jobId,
+                p.customerName,
+                formatCurrency(p.amount),
+                p.method
+            ]);
+
+            tableData.push([
+                { content: 'TOTAL DITERIMA', colSpan: 3, styles: { fontStyle: 'bold', halign: 'right' } },
+                { content: formatCurrency(totalPaid), styles: { fontStyle: 'bold' } },
+                ''
+            ]);
+
+            doc.autoTable({
+                startY: 35,
+                head: [['Tgl. Bayar', 'No. Invoice', 'Pelanggan', 'Jumlah', 'Metode']],
+                body: tableData,
+                theme: 'grid'
+            });
+
+            doc.save(`laporan-pembayaran-${monthName}-${year}.pdf`);
+        });
+
+
+        // Profit Loss Report Page Listeners
+        document.getElementById('generate-profit-loss-report-btn').addEventListener('click', () => {
+            const month = parseInt(document.getElementById('profit-loss-month').value);
+            const year = parseInt(document.getElementById('profit-loss-year').value);
+            const printBtn = document.getElementById('print-profit-loss-report-btn');
+
+            const filteredJobs = state.jobs.filter(job => {
+                const jobDate = new Date(job.createdAt);
+                return jobDate.getMonth() === month && jobDate.getFullYear() === year;
+            });
+            
+            const ppnJobs = filteredJobs.filter(job => !job.invoice.items.every(item => item.ppnStatus === 'bebas_ppn'));
+            const npJobs = filteredJobs.filter(job => job.invoice.items.every(item => item.ppnStatus === 'bebas_ppn'));
+
+            const renderTable = (tbodyId, totalRevenueId, totalCostId, totalProfitId, jobs) => {
+                const tbody = document.getElementById(tbodyId);
+                tbody.innerHTML = '';
+                let totalRevenue = 0, totalCost = 0, totalProfit = 0;
+
+                if (jobs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-500">Tidak ada data untuk kategori ini.</td></tr>`;
+                } else {
+                    jobs.forEach(job => {
+                        const revenue = job.invoice.total;
+                        const cost = job.operationalCosts.reduce((sum, c) => sum + c.amount, 0);
+                        const profit = revenue - cost;
+                        
+                        totalRevenue += revenue;
+                        totalCost += cost;
+                        totalProfit += profit;
+
+                        const row = document.createElement('tr');
+                        row.className = 'border-b';
+                        row.innerHTML = `
+                            <td class="p-4">${job.id}</td>
+                            <td class="p-4">${job.customerName}</td>
+                            <td class="p-4">${formatCurrency(revenue)}</td>
+                            <td class="p-4">${formatCurrency(cost)}</td>
+                            <td class="p-4 ${profit >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(profit)}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+                document.getElementById(totalRevenueId).textContent = formatCurrency(totalRevenue);
+                document.getElementById(totalCostId).textContent = formatCurrency(totalCost);
+                document.getElementById(totalProfitId).textContent = formatCurrency(totalProfit);
+            };
+
+            renderTable('report-table-body-ppn', 'report-total-revenue-ppn', 'report-total-cost-ppn', 'report-total-profit-ppn', ppnJobs);
+            renderTable('report-table-body-np', 'report-total-revenue-np', 'report-total-cost-np', 'report-total-profit-np', npJobs);
+
+            if(filteredJobs.length > 0) {
+                printBtn.classList.remove('hidden');
+            } else {
+                printBtn.classList.add('hidden');
+            }
+        });
+        
+        document.getElementById('print-profit-loss-report-btn').addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const month = parseInt(document.getElementById('profit-loss-month').value);
+            const year = parseInt(document.getElementById('profit-loss-year').value);
+            const monthName = document.getElementById('profit-loss-month').options[month].text;
+
+            const filteredJobs = state.jobs.filter(job => {
+                const jobDate = new Date(job.createdAt);
+                return jobDate.getMonth() === month && jobDate.getFullYear() === year;
+            });
+            const ppnJobs = filteredJobs.filter(job => !job.invoice.items.every(item => item.ppnStatus === 'bebas_ppn'));
+            const npJobs = filteredJobs.filter(job => job.invoice.items.every(item => item.ppnStatus === 'bebas_ppn'));
+            
+            doc.setFontSize(18);
+            doc.text("Laporan Laba/Rugi", 14, 22);
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Periode: ${monthName} ${year}`, 14, 29);
+
+            let startY = 35;
+
+            const createTable = (title, jobs) => {
+                if (jobs.length === 0) return;
+                
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text(title, 14, startY);
+                startY += 6;
+
+                const tableData = jobs.map(job => {
+                    const revenue = job.invoice.total;
+                    const cost = job.operationalCosts.reduce((sum, c) => sum + c.amount, 0);
+                    const profit = revenue - cost;
+                    return [job.id, job.customerName, formatCurrency(revenue), formatCurrency(cost), formatCurrency(profit)];
+                });
+                
+                const totalRevenue = jobs.reduce((sum, job) => sum + job.invoice.total, 0);
+                const totalCost = jobs.reduce((sum, job) => sum + job.operationalCosts.reduce((s, c) => s + c.amount, 0), 0);
+                
+                tableData.push([
+                    { content: 'TOTAL', colSpan: 2, styles: { fontStyle: 'bold' } },
+                    { content: formatCurrency(totalRevenue), styles: { fontStyle: 'bold' } },
+                    { content: formatCurrency(totalCost), styles: { fontStyle: 'bold' } },
+                    { content: formatCurrency(totalRevenue - totalCost), styles: { fontStyle: 'bold' } },
+                ]);
+
+                doc.autoTable({
+                    startY: startY,
+                    head: [['No. Job', 'Pelanggan', 'Pendapatan', 'Biaya', 'Laba/Rugi']],
+                    body: tableData,
+                    theme: 'grid'
+                });
+                startY = doc.autoTable.previous.finalY + 10;
+            };
+
+            createTable("Laporan Laba/Rugi (Dengan PPN)", ppnJobs);
+            createTable("Laporan Laba/Rugi (Bebas PPN)", npJobs);
+
+            doc.save(`laporan-laba-rugi-${monthName}-${year}.pdf`);
+        });
+
+        // Driver Report Page Listeners
+        document.getElementById('generate-driver-report-btn').addEventListener('click', () => {
+            const month = parseInt(document.getElementById('report-month').value);
+            const year = parseInt(document.getElementById('report-year').value);
+            const reportContent = document.getElementById('driver-report-content');
+            const printBtn = document.getElementById('print-driver-report-btn');
+
+            const filteredJobs = state.jobs.filter(job => {
+                const jobDate = new Date(job.createdAt);
+                const hasDriver = job.containers.some(c => c.driverId);
+                return jobDate.getMonth() === month && jobDate.getFullYear() === year && hasDriver;
+            });
+            
+            const allCostsInPeriod = [];
+            state.jobs.forEach(job => {
+                const jobDate = new Date(job.createdAt);
+                if (jobDate.getMonth() === month && jobDate.getFullYear() === year) {
+                    job.operationalCosts.forEach(cost => {
+                        if (cost.driverId) {
+                            allCostsInPeriod.push({
+                                ...cost,
+                                jobId: job.id,
+                                jobDate: job.createdAt
+                            });
+                        }
+                    });
+                }
+            });
+
+            const jobsByDriver = filteredJobs.reduce((acc, job) => {
+                job.containers.forEach(container => {
+                    if (container.driverId) {
+                        const driver = state.drivers.find(d => d.id === container.driverId);
+                        if(driver){
+                            const driverName = driver.name;
+                             if (!acc[driverName]) {
+                                acc[driverName] = [];
+                            }
+                             if (!acc[driverName].some(j => j.id === job.id)) {
+                                 acc[driverName].push(job);
+                            }
+                        }
+                    }
+                });
+                return acc;
+            }, {});
+            
+            const costsByDriver = allCostsInPeriod.reduce((acc, cost) => {
+                const driver = state.drivers.find(d => d.id === cost.driverId);
+                const driverName = driver ? driver.name : 'Unknown';
+                if (!acc[driverName]) acc[driverName] = [];
+                acc[driverName].push(cost);
+                return acc;
+            }, {});
+            
+            const allDriverNames = new Set([...Object.keys(jobsByDriver), ...Object.keys(costsByDriver)]);
+
+            if (allDriverNames.size === 0) {
+                reportContent.innerHTML = '<p class="text-center text-slate-500">Tidak ada data aktivitas sopir untuk periode yang dipilih.</p>';
+                printBtn.classList.add('hidden');
+                return;
+            }
+
+            reportContent.innerHTML = '';
+            allDriverNames.forEach(driverKey => {
+                const jobs = jobsByDriver[driverKey] || [];
+                const costs = costsByDriver[driverKey] || [];
+
+                const driverDiv = document.createElement('div');
+                driverDiv.className = 'border p-4 rounded-lg bg-slate-50';
+                
+                let tableHTML = `<h3 class="text-xl font-semibold mb-3 text-slate-700">${driverKey}</h3>`;
+                
+                // Job Activity Table
+                if (jobs.length > 0) {
+                    tableHTML += `
+                        <h4 class="text-lg font-medium mb-2 text-slate-600">Aktivitas Job</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-200">
+                                    <tr>
+                                        <th class="p-3 font-semibold text-slate-600">No. Job</th>
+                                        <th class="p-3 font-semibold text-slate-600">Tanggal</th>
+                                        <th class="p-3 font-semibold text-slate-600">Pelanggan</th>
+                                        <th class="p-3 font-semibold text-slate-600">Tujuan (POD)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    jobs.forEach(job => {
+                        tableHTML += `
+                            <tr class="border-b">
+                                <td class="p-3">${job.id}</td>
+                                <td class="p-3">${new Date(job.createdAt).toLocaleDateString('id-ID')}</td>
+                                <td class="p-3">${job.customerName}</td>
+                                <td class="p-3">${job.pod}</td>
+                            </tr>
+                        `;
+                    });
+                    tableHTML += `
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-right font-bold mt-2 text-slate-700">Total Job: ${jobs.length}</p>
+                    `;
+                }
+
+                // Operational Costs Table
+                if (costs.length > 0) {
+                    let totalCost = 0;
+                    tableHTML += `<h4 class="text-lg font-medium mt-4 mb-2 text-slate-600">Biaya Operasional Terkait</h4>
+                                  <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-sm">
+                                      <thead class="bg-slate-200">
+                                        <tr>
+                                          <th class="p-3 font-semibold text-slate-600">Tgl. Job</th>
+                                          <th class="p-3 font-semibold text-slate-600">No. Job</th>
+                                          <th class="p-3 font-semibold text-slate-600">Deskripsi Biaya</th>
+                                          <th class="p-3 font-semibold text-slate-600 text-right">Jumlah</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>`;
+                    costs.forEach(cost => {
+                        tableHTML += `
+                            <tr class="border-b">
+                                <td class="p-3">${new Date(cost.jobDate).toLocaleDateString('id-ID')}</td>
+                                <td class="p-3">${cost.jobId}</td>
+                                <td class="p-3">${cost.description}</td>
+                                <td class="p-3 text-right">${formatCurrency(cost.amount)}</td>
+                            </tr>
+                        `;
+                        totalCost += cost.amount;
+                    });
+                    tableHTML += `
+                                      </tbody>
+                                      <tfoot class="font-bold bg-slate-200">
+                                        <tr>
+                                            <td colspan="3" class="p-3 text-right">Total Biaya:</td>
+                                            <td class="p-3 text-right">${formatCurrency(totalCost)}</td>
+                                        </tr>
+                                      </tfoot>
+                                    </table>
+                                  </div>`;
+                }
+                
+                driverDiv.innerHTML = tableHTML;
+                reportContent.appendChild(driverDiv);
+            });
+            
+            printBtn.classList.remove('hidden');
+        });
+
+        document.getElementById('print-driver-report-btn').addEventListener('click', handlePrintDriverReport);
+
+        // Load data and setup real-time sync
+        loadData().then(() => {
+            navigateTo('dashboard');
+            setupRealtimeSubscriptions();
+        });
+    };
+
+    // Only call initializeApp from showMainApp after login
+    // initializeApp() is called from showMainApp()
+});
+</script>
+</body>
+</html>
