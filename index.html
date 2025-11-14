@@ -2910,160 +2910,239 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setTimeout(() => {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        
+        // Support berbagai ukuran kertas (A4 default, bisa diganti: 'letter', 'legal', dll)
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4' // Bisa diganti: 'letter', 'legal', [width, height]
+        });
+        
+        // Get page dimensions (otomatis menyesuaikan dengan format yang dipilih)
         const pageWidth = doc.internal.pageSize.getWidth();
-        const margin = 15;
-        const maxWidth = pageWidth - (margin * 2);
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const leftMargin = 10;
+        const rightMargin = 10;
+        const contentWidth = pageWidth - leftMargin - rightMargin;
+        
+        // Hitung characters per line berdasarkan lebar kertas
+        const charWidth = 2.12; // Rata-rata lebar karakter Courier 9pt dalam mm
+        const maxChars = Math.floor(contentWidth / charWidth);
         
         doc.setFont('Courier', 'normal');
         doc.setFontSize(9);
 
-        let y = 20;
+        let y = 15;
         const lineHeight = 4;
         
-        // Helper functions
-        const line = (text, size = 9, bold = false) => {
-            doc.setFontSize(size);
+        // Helper functions dengan alignment yang tepat
+        const addLine = (text, align = 'left', bold = false, fontSize = 9) => {
+            // Check if need new page
+            if (y > pageHeight - 20) {
+                doc.addPage();
+                y = 15;
+            }
+            
+            doc.setFontSize(fontSize);
             doc.setFont('Courier', bold ? 'bold' : 'normal');
-            doc.text(text, margin, y);
+            
+            switch(align) {
+                case 'center':
+                    doc.text(text, pageWidth / 2, y, { align: 'center' });
+                    break;
+                case 'right':
+                    doc.text(text, pageWidth - rightMargin, y, { align: 'right' });
+                    break;
+                case 'left':
+                default:
+                    doc.text(text, leftMargin, y);
+                    break;
+            }
             y += lineHeight;
         };
         
-        const centerLine = (text, size = 9, bold = false) => {
-            doc.setFontSize(size);
-            doc.setFont('Courier', bold ? 'bold' : 'normal');
-            doc.text(text, pageWidth / 2, y, { align: 'center' });
+        // Helper untuk separator dengan lebar dinamis (full width dari margin ke margin)
+        const addSeparator = (char = '=') => {
+            // Check if need new page
+            if (y > pageHeight - 20) {
+                doc.addPage();
+                y = 15;
+            }
+            
+            // Hitung berapa banyak karakter yang muat dalam lebar konten
+            doc.setFontSize(9);
+            const testChar = char.repeat(10);
+            const testWidth = doc.getTextWidth(testChar);
+            const charWidthActual = testWidth / 10;
+            const numChars = Math.floor(contentWidth / charWidthActual);
+            
+            // Gambar separator dari kiri ke kanan
+            const separatorLine = char.repeat(numChars);
+            doc.text(separatorLine, leftMargin, y);
             y += lineHeight;
         };
         
-        const separator = (char = '=', length = 80) => {
-            line(char.repeat(length));
+        // Helper untuk format currency
+        const formatMoney = (num) => {
+            return num.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         };
         
-        const formatRupiah = (amount) => {
-            return 'Rp ' + amount.toLocaleString('id-ID');
+        // Helper untuk label-value pair dengan alignment
+        const addLabelValue = (label, value, bold = false) => {
+            const labelWidth = 15; // characters
+            const line = label.padEnd(labelWidth) + ': ' + value;
+            addLine(line, 'left', bold);
         };
 
-        // HEADER SECTION
+        // ========================================
+        // HEADER (CENTER ALIGNED)
+        // ========================================
+        y += 5; // Extra top margin
+        addSeparator('=');
+        addLine('PT PASIR INDAH LOGISTIK', 'center', true, 11);
+        addLine('Jl. Contoh No. 123, Jakarta', 'center', false, 8);
+        addLine('Telp: 021-12345678', 'center', false, 8);
+        y += 2;
+        addLine('INVOICE PENGIRIMAN', 'center', true, 10);
+        addSeparator('=');
         y += 3;
-        centerLine('PT PASIR INDAH LOGISTIK', 14, true);
+        
+        // ========================================
+        // INVOICE INFO (LEFT ALIGNED)
+        // ========================================
+        addLabelValue('No. Invoice', `INV/${job.id}`, true);
+        addLabelValue('Tanggal', new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }));
+        addLabelValue('Kepada Yth', job.customerName, true);
+        y += 2;
+        addSeparator('-');
+        y += 3;
+        
+        // ========================================
+        // DETAIL PENGIRIMAN (LEFT ALIGNED)
+        // ========================================
+        addLine('DETAIL PENGIRIMAN:', 'left', true);
         y += 1;
-        centerLine('INVOICE PENGIRIMAN', 11, true);
+        addLabelValue('  Kapal/Voyage', job.vesselVoyage || '-');
+        addLabelValue('  POL', job.pol || '-');
+        addLabelValue('  POD', job.pod || '-');
         y += 2;
-        separator('=', 80);
-        y += 2;
+        addSeparator('-');
+        y += 3;
         
-        // Invoice Info
-        line(`No. Invoice    : INV/${job.id}`, 9, true);
-        line(`Tanggal        : ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}`);
-        line(`Kepada Yth     : ${job.customerName}`, 9, true);
-        y += 2;
-        separator('-', 80);
-        y += 2;
-        
-        // SHIPPING DETAILS
-        line('DETAIL PENGIRIMAN:', 9, true);
+        // ========================================
+        // DAFTAR KONTAINER (LEFT ALIGNED)
+        // ========================================
+        addLine('DAFTAR KONTAINER:', 'left', true);
         y += 1;
-        line(`  Kapal/Voyage : ${job.vesselVoyage || '-'}`);
-        line(`  Rute         : ${job.pol || '-'} >>> ${job.pod || '-'}`);
-        y += 2;
-        
-        // CONTAINER SECTION
-        line('DAFTAR KONTAINER:', 9, true);
-        y += 1;
-        separator('-', 80);
-        line('  No. Kontainer          Jenis/Ukuran           No. Seal');
-        separator('-', 80);
-        
-        job.containers.forEach((c, idx) => {
-            const no = `${idx + 1}. ${c.number || '-'}`;
-            const type = (c.type || '-');
-            const seal = (c.seal || '-');
+        job.containers.forEach((container, idx) => {
+            const containerNum = container.number || '-';
+            const containerType = container.type || '-';
+            const sealNum = container.seal || '-';
             
-            // Format with proper spacing
-            const containerLine = `  ${no.padEnd(24)} ${type.padEnd(22)} ${seal}`;
-            line(containerLine);
+            addLine(`  ${idx + 1}. No. Kontainer: ${containerNum}`);
+            addLine(`     Tipe: ${containerType}  |  Seal: ${sealNum}`);
+            if (idx < job.containers.length - 1) y += 1;
         });
-        separator('-', 80);
         y += 2;
+        addSeparator('-');
+        y += 3;
         
-        // INVOICE ITEMS
-        line('RINCIAN BIAYA:', 9, true);
+        // ========================================
+        // RINCIAN BIAYA (TABLE FORMAT)
+        // ========================================
+        addLine('RINCIAN BIAYA:', 'left', true);
         y += 1;
-        separator('=', 80);
-        line('  Deskripsi                      Qty      Harga           Total');
-        separator('-', 80);
+        addSeparator('=');
         
+        // Table Header (LEFT ALIGNED)
+        const descWidth = Math.floor(maxChars * 0.45); // 45% untuk deskripsi
+        const qtyWidth = 5;
+        const priceWidth = Math.floor(maxChars * 0.22); // 22% untuk harga
+        const totalWidth = Math.floor(maxChars * 0.22); // 22% untuk total
+        
+        const headerLine = 'No'.padEnd(4) + 
+                          'Deskripsi'.padEnd(descWidth) + 
+                          'Qty'.padStart(qtyWidth) + ' '.repeat(2) +
+                          'Harga'.padStart(priceWidth) + ' '.repeat(2) +
+                          'Total'.padStart(totalWidth);
+        addLine(headerLine, 'left', true);
+        addSeparator('-');
+        
+        // Table Content (LEFT ALIGNED dengan columns)
         job.invoice.items.forEach((item, idx) => {
-            // Truncate description if too long
+            const num = `${idx + 1}.`.padEnd(4);
+            
             let desc = item.description;
-            if (desc.length > 28) {
-                desc = desc.substring(0, 25) + '...';
-            }
+            if (desc.length > descWidth - 2) desc = desc.substring(0, descWidth - 5) + '...';
+            desc = desc.padEnd(descWidth);
             
-            const qty = item.qty.toString();
-            const price = formatRupiah(item.price);
-            const total = formatRupiah(item.total);
+            const qty = item.qty.toString().padStart(qtyWidth);
+            const price = formatMoney(item.price).padStart(priceWidth);
+            const total = formatMoney(item.total).padStart(totalWidth);
             
-            // Format line dengan alignment yang tepat
-            const itemLine = `  ${(idx + 1) + '. ' + desc.padEnd(28)} ${qty.padStart(3)}  ${price.padStart(14)}  ${total.padStart(14)}`;
-            line(itemLine);
+            const itemLine = num + desc + qty + ' '.repeat(2) + price + ' '.repeat(2) + total;
+            addLine(itemLine, 'left');
             
-            // Add PPN status if applicable
+            // Status PPN jika dibebaskan
             if (item.ppnStatus === 'ppn_dibebaskan') {
-                line(`     (${getPPNStatusText(item.ppnStatus)})`, 8);
+                addLine(`    (${getPPNStatusText(item.ppnStatus)})`, 'left', false, 8);
             }
         });
         
-        separator('=', 80);
+        addSeparator('=');
+        y += 3;
+        
+        // ========================================
+        // TOTAL (RIGHT ALIGNED)
+        // ========================================
+        const labelCol = 40; // Posisi label dari kanan
+        
+        addLine('Subtotal'.padStart(labelCol) + ' : Rp ' + formatMoney(job.invoice.subtotal), 'right');
+        addLine('PPN 11%'.padStart(labelCol) + ' : Rp ' + formatMoney(job.invoice.ppn), 'right');
+        addLine('-'.repeat(35), 'right');
+        addLine('GRAND TOTAL'.padStart(labelCol) + ' : Rp ' + formatMoney(job.invoice.total), 'right', true, 10);
+        y += 2;
+        addSeparator('=');
+        y += 3;
+        
+        // ========================================
+        // TERBILANG (LEFT ALIGNED, ITALIC)
+        // ========================================
+        addLine('Terbilang:', 'left', true);
         y += 1;
         
-        // TOTALS
-        const subtotalLine = 'Subtotal'.padStart(58) + formatRupiah(job.invoice.subtotal).padStart(22);
-        const ppnLine = 'PPN 11%'.padStart(58) + formatRupiah(job.invoice.ppn).padStart(22);
-        const grandTotalLine = 'GRAND TOTAL'.padStart(58) + formatRupiah(job.invoice.total).padStart(22);
+        const terbilangText = terbilang(job.invoice.total);
+        doc.setFont('Courier', 'italic');
         
-        line(subtotalLine);
-        line(ppnLine);
-        separator('-', 80);
-        line(grandTotalLine, 10, true);
-        separator('=', 80);
-        y += 2;
-        
-        // TERBILANG
-        line('Terbilang:', 9, true);
-        const terbilangText = `  # ${terbilang(job.invoice.total)} #`;
-        doc.setFont('Courier', 'bolditalic');
-        doc.setFontSize(9);
-        
-        // Word wrap for terbilang
+        // Word wrap otomatis sesuai lebar kertas
         const words = terbilangText.split(' ');
         let currentLine = '';
-        words.forEach(word => {
+        const terbilangMaxChars = maxChars - 4; // Minus indent
+        
+        words.forEach((word) => {
             const testLine = currentLine + word + ' ';
-            const testWidth = doc.getTextWidth(testLine);
-            if (testWidth > maxWidth - 10 && currentLine !== '') {
-                doc.text(currentLine.trim(), margin, y);
-                y += lineHeight;
+            if (testLine.length > terbilangMaxChars && currentLine.length > 0) {
+                addLine(`  "${currentLine.trim()}"`, 'left', false);
                 currentLine = word + ' ';
             } else {
                 currentLine = testLine;
             }
         });
-        if (currentLine.trim() !== '') {
-            doc.text(currentLine.trim(), margin, y);
-            y += lineHeight;
+        if (currentLine.trim()) {
+            addLine(`  ${currentLine.trim()}"`, 'left', false);
         }
         
         doc.setFont('Courier', 'normal');
-        y += 2;
+        y += 3;
         
-        // PAYMENT INFO
+        // ========================================
+        // INFORMASI PEMBAYARAN (LEFT ALIGNED)
+        // ========================================
         if (state.banks.length > 0) {
-            separator('-', 80);
-            y += 1;
-            line('INFORMASI PEMBAYARAN:', 9, true);
-            y += 1;
+            addSeparator('-');
+            y += 2;
+            addLine('INFORMASI PEMBAYARAN:', 'left', true);
+            y += 2;
             
             let banksToDisplay = [];
             if (job.selectedBankId && job.selectedBankId !== 'all') {
@@ -3074,22 +3153,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             banksToDisplay.forEach((bank, idx) => {
-                line(`  ${idx + 1}. ${bank.name}`);
-                line(`     No. Rek: ${bank.number}`);
-                line(`     A/N: ${bank.holder}`);
-                if (idx < banksToDisplay.length - 1) y += 1;
+                addLine(`  ${idx + 1}. ${bank.name}`, 'left', true);
+                addLabelValue('     No. Rekening', bank.number);
+                addLabelValue('     Atas Nama', bank.holder);
+                if (idx < banksToDisplay.length - 1) y += 2;
             });
             
-            y += 2;
-            separator('=', 80);
+            y += 3;
+            addSeparator('=');
         }
         
-        // FOOTER
-        y += 3;
-        centerLine('Terima kasih atas kepercayaan Anda', 8);
-        centerLine('PT Pasir Indah Logistik', 8);
+        // ========================================
+        // FOOTER (CENTER ALIGNED)
+        // ========================================
+        y += 5;
+        addLine('Terima kasih atas kepercayaan Anda', 'center', false, 9);
+        addLine('PT Pasir Indah Logistik', 'center', true, 9);
+        y += 2;
+        addSeparator('=');
         
-        doc.save(`Invoice-DotMatrix-${job.id}.pdf`);
+        // Tambahkan info halaman di footer (RIGHT ALIGNED)
+        const currentDate = new Date().toLocaleString('id-ID');
+        addLine(`Dicetak: ${currentDate}`, 'right', false, 7);
+        
+        doc.save(`Invoice-${job.id}.pdf`);
         showToast('Invoice berhasil diunduh!');
         }, 100);
     };
