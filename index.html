@@ -6,9 +6,15 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="description" content="Aplikasi EMKL PILOG - Sistem manajemen freight forwarding">
     <title>Aplikasi EMKL PILOG</title>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="icon-192.png">
     <!-- Tailwind CSS for styling (Note: For production, install Tailwind CSS locally) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- jsPDF for PDF generation -->
@@ -4266,6 +4272,118 @@ document.addEventListener('DOMContentLoaded', () => {
     // Only call initializeApp from showMainApp after login
     // initializeApp() is called from showMainApp()
 });
+
+// ==========================================
+// PWA SERVICE WORKER REGISTRATION
+// ==========================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+                console.log('✅ Service Worker registered successfully:', registration.scope);
+                
+                // Check for updates
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // New service worker available, show update notification
+                            console.log('🔄 New version available! Reload to update.');
+                            if (confirm('Versi baru aplikasi tersedia. Reload sekarang?')) {
+                                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                window.location.reload();
+                            }
+                        }
+                    });
+                });
+            })
+            .catch((error) => {
+                console.warn('⚠️ Service Worker registration failed:', error);
+            });
+    });
+    
+    // Handle service worker updates
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+        }
+    });
+}
+
+// ==========================================
+// PWA INSTALL PROMPT
+// ==========================================
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    
+    // Show install button/banner (optional)
+    console.log('💾 PWA Install available');
+    
+    // You can show a custom install button here
+    showInstallPromotion();
+});
+
+window.addEventListener('appinstalled', () => {
+    console.log('✅ PWA installed successfully!');
+    deferredPrompt = null;
+});
+
+function showInstallPromotion() {
+    // Create install banner
+    const installBanner = document.createElement('div');
+    installBanner.id = 'install-banner';
+    installBanner.className = 'fixed top-4 left-4 right-4 md:left-auto md:right-4 bg-blue-600 text-white p-4 rounded-lg shadow-xl z-50 flex items-center justify-between';
+    installBanner.style.maxWidth = '400px';
+    installBanner.innerHTML = `
+        <div class="flex items-center gap-3">
+            <i class="fas fa-download text-xl"></i>
+            <div>
+                <p class="font-bold text-sm">Install Aplikasi</p>
+                <p class="text-xs opacity-90">Tambahkan ke desktop/home screen</p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button id="install-btn" class="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50">Install</button>
+            <button id="install-dismiss" class="text-white hover:text-blue-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    // Only show if not already installed and not dismissed
+    if (!window.matchMedia('(display-mode: standalone)').matches && !localStorage.getItem('installPromptDismissed')) {
+        document.body.appendChild(installBanner);
+        
+        // Install button handler
+        document.getElementById('install-btn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to install prompt: ${outcome}`);
+                deferredPrompt = null;
+                installBanner.remove();
+            }
+        });
+        
+        // Dismiss button handler
+        document.getElementById('install-dismiss').addEventListener('click', () => {
+            installBanner.remove();
+            localStorage.setItem('installPromptDismissed', 'true');
+        });
+    }
+}
+
+// Check if running as installed PWA
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    console.log('🚀 Running as installed PWA');
+}
 </script>
 </body>
 </html>
