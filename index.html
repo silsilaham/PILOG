@@ -2822,11 +2822,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <!-- Invoice Info -->
                 <div>
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-center mb-3">
                         <h4 class="text-xl font-bold border-b pb-2">Detail Invoice</h4>
                         <button id="print-invoice-btn" class="bg-slate-600 text-white px-3 py-1 rounded-md text-sm hover:bg-slate-700" data-id="${job.id}">
                             <i class="fas fa-print mr-2"></i>Cetak
                         </button>
+                    </div>
+                    
+                    <!-- Pengaturan Tanggal Invoice -->
+                    <div class="bg-blue-50 p-3 rounded-lg mb-3 border border-blue-200">
+                        <label class="text-sm font-semibold text-slate-700 block mb-2">
+                            <i class="fas fa-calendar-alt text-blue-600 mr-1"></i>
+                            Tanggal Invoice (untuk cetak):
+                        </label>
+                        <input type="date" id="invoice-print-date-${job.id}" 
+                               value="${new Date().toISOString().split('T')[0]}"
+                               class="w-full px-3 py-2 border border-blue-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <p class="text-xs text-slate-600 mt-1">
+                            <i class="fas fa-info-circle"></i>
+                            Tanggal ini akan muncul di invoice saat dicetak
+                        </p>
                     </div>
                     <table class="w-full mt-2 text-sm">
                         <thead class="bg-slate-50"><tr><th class="p-2 text-left">Deskripsi</th><th class="p-2 text-right">Jumlah</th></tr></thead>
@@ -2958,6 +2973,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const job = state.jobs.find(j => j.id === jobId);
         if (!job) return;
         
+        // Ambil tanggal custom dari input
+        const customDateInput = document.getElementById(`invoice-print-date-${jobId}`);
+        let customDate = new Date();
+        
+        if (customDateInput && customDateInput.value) {
+            customDate = new Date(customDateInput.value + 'T00:00:00');
+        }
+        
         showToast('Sedang membuat PDF...');
 
         setTimeout(() => {
@@ -3063,7 +3086,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // INVOICE INFO (LEFT ALIGNED)
         // ========================================
         addLabelValue('No. Invoice', `INV/${job.id}`, true);
-        addLabelValue('Tanggal', new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }));
+        addLabelValue('Tanggal', customDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }));
         addLabelValue('Kepada Yth', job.customerName, true);
         y += 2;
         addSeparator('-');
