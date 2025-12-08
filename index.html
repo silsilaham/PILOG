@@ -865,6 +865,83 @@
                 padding-right: max(1rem, env(safe-area-inset-right));
             }
         }
+
+        /* Increase font sizes for better readability - excluding PDF generation */
+        body {
+            font-size: 14px;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        h2 {
+            font-size: 20px;
+        }
+
+        h3 {
+            font-size: 18px;
+        }
+
+        h4 {
+            font-size: 16px;
+        }
+
+        h5 {
+            font-size: 14px;
+        }
+
+        h6 {
+            font-size: 12px;
+        }
+
+        p, div, span, label, button, input, select, textarea {
+            font-size: 14px;
+        }
+
+        table {
+            font-size: 13px;
+        }
+
+        thead {
+            font-size: 13px;
+        }
+
+        td, th {
+            font-size: 13px;
+        }
+
+        .text-xs {
+            font-size: 11px;
+        }
+
+        .text-sm {
+            font-size: 12px;
+        }
+
+        .text-base {
+            font-size: 14px;
+        }
+
+        .text-lg {
+            font-size: 16px;
+        }
+
+        .text-xl {
+            font-size: 18px;
+        }
+
+        .text-2xl {
+            font-size: 20px;
+        }
+
+        .text-3xl {
+            font-size: 24px;
+        }
+
+        .text-4xl {
+            font-size: 28px;
+        }
     </style>
 </head>
 <body class="bg-slate-100">
@@ -3001,17 +3078,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentWidth = pageWidth - leftMargin - rightMargin;
         
         // Hitung characters per line berdasarkan lebar kertas
-        const charWidth = 2.12; // Rata-rata lebar karakter Courier 9pt dalam mm
+        const charWidth = 2.12; // Rata-rata lebar karakter Courier 12pt dalam mm
         const maxChars = Math.floor(contentWidth / charWidth);
         
         doc.setFont('Courier', 'normal');
-        doc.setFontSize(9);
+        doc.setFontSize(12);
 
         let y = 15;
         const lineHeight = 4;
         
         // Helper functions dengan alignment yang tepat
-        const addLine = (text, align = 'left', bold = false, fontSize = 9) => {
+        const addLine = (text, align = 'left', bold = false, fontSize = 12) => {
             // Check if need new page
             if (y > pageHeight - 20) {
                 doc.addPage();
@@ -3045,7 +3122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // Hitung berapa banyak karakter yang muat dalam lebar konten
-            doc.setFontSize(9);
+            doc.setFontSize(12);
             const testChar = char.repeat(10);
             const testWidth = doc.getTextWidth(testChar);
             const charWidthActual = testWidth / 10;
@@ -3079,9 +3156,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // ========================================
         // INVOICE INFO (LEFT ALIGNED)
         // ========================================
-        addLabelValue('No. Invoice', `INV/${job.id}`, true);
+        addLabelValue('No. Invoice', `INV/${job.id}`, true, 12);
         addLabelValue('Tanggal', customDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }));
-        addLabelValue('Kepada Yth', job.customerName, true);
+        addLabelValue('Kepada Yth', job.customerName, true, 12);
         y += 2;
         addSeparator('-');
         y += 3;
@@ -3169,7 +3246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addLine('Subtotal'.padStart(labelCol) + ' : Rp ' + formatMoney(job.invoice.subtotal), 'right');
         addLine('PPN 11%'.padStart(labelCol) + ' : Rp ' + formatMoney(job.invoice.ppn), 'right');
         addLine('-'.repeat(35), 'right');
-        addLine('GRAND TOTAL'.padStart(labelCol) + ' : Rp ' + formatMoney(job.invoice.total), 'right', true, 10);
+        addLine('GRAND TOTAL'.padStart(labelCol) + ' : Rp ' + formatMoney(job.invoice.total), 'right', true, 12);
         y += 2;
         addSeparator('=');
         y += 3;
@@ -3182,25 +3259,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const terbilangText = terbilang(job.invoice.total);
         doc.setFont('Courier', 'italic');
-        
-        // Word wrap otomatis sesuai lebar kertas
-        const words = terbilangText.split(' ');
-        let currentLine = '';
-        const terbilangMaxChars = maxChars - 4; // Minus indent
-        
-        words.forEach((word) => {
-            const testLine = currentLine + word + ' ';
-            if (testLine.length > terbilangMaxChars && currentLine.length > 0) {
-                addLine(`  "${currentLine.trim()}"`, 'left', false);
-                currentLine = word + ' ';
-            } else {
-                currentLine = testLine;
-            }
+
+        // Word wrap otomatis dengan lebar konten, ukuran 10pt agar muat di kertas
+        const terbilangLines = doc.splitTextToSize(terbilangText, contentWidth - 8);
+        terbilangLines.forEach(line => {
+            addLine(`  "${line.trim()}"`, 'left', false, 10);
         });
-        if (currentLine.trim()) {
-            addLine(`  ${currentLine.trim()}"`, 'left', false);
-        }
-        
+
         doc.setFont('Courier', 'normal');
         y += 3;
         
@@ -3236,12 +3301,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // FOOTER (CENTER ALIGNED)
         // ========================================
         y += 5;
-        addLine('Terima kasih atas kepercayaan Anda', 'center', false, 9);
+        addLine('Terima kasih atas kepercayaan Anda', 'center', false, 12);
         y += 2;
         
         // Tambahkan info halaman di footer (RIGHT ALIGNED)
         const currentDate = new Date().toLocaleString('id-ID');
-        addLine(`Dicetak: ${currentDate}`, 'right', false, 7);
+        addLine(`Dicetak: ${currentDate}`, 'right', false, 10);
         
         doc.save(`Invoice-${job.id}.pdf`);
         showToast('Invoice berhasil diunduh!');
@@ -4404,6 +4469,7 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
 </html>
 index.html
 Menampilkan index.html.
+
 
 
 
