@@ -1463,11 +1463,52 @@
 
             <!-- PAGE: Daftar Piutang -->
             <div id="piutang-list" class="page">
-                <h2 class="text-3xl font-bold mb-6 text-slate-800">Daftar Piutang</h2>
+                <h2 class="text-3xl font-bold mb-6 text-slate-800">Laporan Piutang</h2>
                 <div class="bg-white p-6 rounded-xl shadow-md">
-                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b"><h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3><div><label for="piutang-month" class="block font-medium mb-1 text-slate-600">Bulan</label><select id="piutang-month" class="p-2 border rounded-md bg-white"></select></div><div><label for="piutang-year" class="block font-medium mb-1 text-slate-600">Tahun</label><select id="piutang-year" class="p-2 border rounded-md bg-white"></select></div><button id="generate-piutang-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-filter mr-2"></i>Tampilkan</button><button id="print-piutang-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden"><i class="fas fa-print mr-2"></i>Cetak PDF</button></div>
+                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b">
+                        <h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3>
+                        <div>
+                            <label for="piutang-customer" class="block font-medium mb-1 text-slate-600">Pelanggan</label>
+                            <select id="piutang-customer" class="p-2 border rounded-md bg-white min-w-[200px]">
+                                <option value="">Semua Pelanggan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="piutang-month" class="block font-medium mb-1 text-slate-600">Bulan</label>
+                            <select id="piutang-month" class="p-2 border rounded-md bg-white"></select>
+                        </div>
+                        <div>
+                            <label for="piutang-year" class="block font-medium mb-1 text-slate-600">Tahun</label>
+                            <select id="piutang-year" class="p-2 border rounded-md bg-white"></select>
+                        </div>
+                        <button id="generate-piutang-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            <i class="fas fa-filter mr-2"></i>Tampilkan
+                        </button>
+                        <button id="print-piutang-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden">
+                            <i class="fas fa-print mr-2"></i>Cetak PDF
+                        </button>
+                    </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left"><thead class="bg-slate-50"><tr class="border-b"><th class="p-4 font-semibold text-slate-600">No. Job Order</th><th class="p-4 font-semibold text-slate-600">Pelanggan</th><th class="p-4 font-semibold text-slate-600">Tanggal Invoice</th><th class="p-4 font-semibold text-slate-600">Total Tagihan</th><th class="p-4 font-semibold text-slate-600">Status</th></tr></thead><tbody id="piutang-table-body"></tbody><tfoot class="font-bold bg-slate-200"><tr><td class="p-4 text-slate-800" colspan="3">TOTAL PIUTANG</td><td id="piutang-total" class="p-4 text-slate-800" colspan="2"></td></tr></tfoot></table>
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50">
+                                <tr class="border-b">
+                                    <th class="p-4 font-semibold text-slate-600">No. Job Order</th>
+                                    <th class="p-4 font-semibold text-slate-600">Pelanggan</th>
+                                    <th class="p-4 font-semibold text-slate-600">Tanggal Invoice</th>
+                                    <th class="p-4 font-semibold text-slate-600">Total Invoice</th>
+                                    <th class="p-4 font-semibold text-slate-600">Terbayar</th>
+                                    <th class="p-4 font-semibold text-slate-600">Sisa Piutang</th>
+                                    <th class="p-4 font-semibold text-slate-600">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="piutang-table-body"></tbody>
+                            <tfoot class="font-bold bg-slate-200">
+                                <tr>
+                                    <td class="p-4 text-slate-800" colspan="5">TOTAL PIUTANG</td>
+                                    <td id="piutang-total" class="p-4 text-slate-800" colspan="2"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -2353,7 +2394,27 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const renderPiutangListPage = () => {
         populateDateFilters('piutang-month', 'piutang-year');
-        document.getElementById('piutang-table-body').innerHTML = '<tr><td colspan="5" class="text-center p-4 text-slate-500">Pilih periode untuk menampilkan laporan piutang.</td></tr>';
+        
+        // Populate customer filter
+        const customerSelect = document.getElementById('piutang-customer');
+        customerSelect.innerHTML = '<option value="">Semua Pelanggan</option>';
+        
+        // Get unique customers from jobs that have unpaid invoices
+        const customersWithPiutang = new Set();
+        state.jobs.forEach(job => {
+            const paymentInfo = getPaymentStatus(job);
+            if (paymentInfo.status !== 'paid') {
+                customersWithPiutang.add(job.customerName);
+            }
+        });
+        
+        // Sort and add to dropdown
+        Array.from(customersWithPiutang).sort().forEach(customerName => {
+            const option = new Option(customerName, customerName);
+            customerSelect.add(option);
+        });
+        
+        document.getElementById('piutang-table-body').innerHTML = '<tr><td colspan="7" class="text-center p-4 text-slate-500">Pilih filter dan klik "Tampilkan" untuk melihat laporan piutang.</td></tr>';
         document.getElementById('piutang-total').textContent = formatCurrency(0);
         document.getElementById('print-piutang-report-btn').classList.add('hidden');
     };
@@ -3884,20 +3945,34 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('generate-piutang-report-btn').addEventListener('click', () => {
             const month = parseInt(document.getElementById('piutang-month').value);
             const year = parseInt(document.getElementById('piutang-year').value);
+            const selectedCustomer = document.getElementById('piutang-customer').value;
             const piutangTableBody = document.getElementById('piutang-table-body');
             const printBtn = document.getElementById('print-piutang-report-btn');
             piutangTableBody.innerHTML = '';
 
+            // Create end date for the selected period (last day of selected month/year)
+            const endDate = new Date(year, month + 1, 0, 23, 59, 59);
+
             const unpaidJobs = state.jobs.filter(job => {
                 const jobDate = new Date(job.createdAt);
                 const paymentInfo = getPaymentStatus(job);
-                return paymentInfo.status !== 'paid' && jobDate.getMonth() === month && jobDate.getFullYear() === year;
+                
+                // Filter by payment status
+                const isUnpaid = paymentInfo.status !== 'paid';
+                
+                // Filter by date - show all invoices up to and including the selected month/year
+                const matchesDate = jobDate <= endDate;
+                
+                // Filter by customer (if selected)
+                const matchesCustomer = !selectedCustomer || job.customerName === selectedCustomer;
+                
+                return isUnpaid && matchesDate && matchesCustomer;
             });
 
             let totalPiutang = 0;
 
             if (unpaidJobs.length === 0) {
-                piutangTableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-500">Tidak ada piutang untuk periode yang dipilih.</td></tr>`;
+                piutangTableBody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-slate-500">Tidak ada piutang untuk filter yang dipilih.</td></tr>`;
                 printBtn.classList.add('hidden');
             } else {
                 unpaidJobs.forEach(job => {
@@ -3913,7 +3988,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td class="p-4">${job.id}</td>
                         <td class="p-4">${job.customerName}</td>
                         <td class="p-4">${new Date(job.createdAt).toLocaleDateString('id-ID')}</td>
-                        <td class="p-4">${formatCurrency(remaining)}</td>
+                        <td class="p-4">${formatCurrency(job.invoice.total)}</td>
+                        <td class="p-4">${formatCurrency(totalPaid)}</td>
+                        <td class="p-4 font-semibold text-red-600">${formatCurrency(remaining)}</td>
                         <td class="p-4">
                             <span class="px-2 py-1 rounded-full text-xs font-semibold ${paymentInfo.class}">
                                 ${paymentInfo.text}
@@ -3932,11 +4009,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const doc = new jsPDF();
             const month = parseInt(document.getElementById('piutang-month').value);
             const year = parseInt(document.getElementById('piutang-year').value);
+            const selectedCustomer = document.getElementById('piutang-customer').value;
             const monthName = document.getElementById('piutang-month').options[month].text;
+
+            // Create end date for the selected period (last day of selected month/year)
+            const endDate = new Date(year, month + 1, 0, 23, 59, 59);
 
             const unpaidJobs = state.jobs.filter(job => {
                 const jobDate = new Date(job.createdAt);
-                return getPaymentStatus(job).status !== 'paid' && jobDate.getMonth() === month && jobDate.getFullYear() === year;
+                const paymentInfo = getPaymentStatus(job);
+                const isUnpaid = paymentInfo.status !== 'paid';
+                const matchesDate = jobDate <= endDate;
+                const matchesCustomer = !selectedCustomer || job.customerName === selectedCustomer;
+                return isUnpaid && matchesDate && matchesCustomer;
             });
 
             let totalPiutang = 0;
@@ -3948,6 +4033,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     job.id,
                     job.customerName,
                     new Date(job.createdAt).toLocaleDateString('id-ID'),
+                    formatCurrency(job.invoice.total),
+                    formatCurrency(totalPaid),
                     formatCurrency(remaining),
                     getPaymentStatus(job).text
                  ]
@@ -3957,22 +4044,29 @@ document.addEventListener('DOMContentLoaded', () => {
             doc.text("Laporan Piutang Usaha", 14, 22);
             doc.setFontSize(11);
             doc.setTextColor(100);
-            doc.text(`Periode: ${monthName} ${year}`, 14, 29);
+            doc.text(`Periode: Sampai dengan ${monthName} ${year}`, 14, 29);
+            if (selectedCustomer) {
+                doc.text(`Pelanggan: ${selectedCustomer}`, 14, 34);
+            }
 
             tableData.push([
-                { content: 'TOTAL PIUTANG', colSpan: 3, styles: { fontStyle: 'bold', halign: 'right' } },
+                { content: 'TOTAL PIUTANG', colSpan: 5, styles: { fontStyle: 'bold', halign: 'right' } },
                 { content: formatCurrency(totalPiutang), styles: { fontStyle: 'bold' } },
                 ''
             ]);
 
             doc.autoTable({
-                startY: 35,
-                head: [['No. Job', 'Pelanggan', 'Tanggal', 'Sisa Tagihan', 'Status']],
+                startY: selectedCustomer ? 40 : 35,
+                head: [['No. Job', 'Pelanggan', 'Tanggal', 'Total Invoice', 'Terbayar', 'Sisa Piutang', 'Status']],
                 body: tableData,
-                theme: 'grid'
+                theme: 'grid',
+                styles: { fontSize: 8 }
             });
 
-            doc.save(`laporan-piutang-${monthName}-${year}.pdf`);
+            const filename = selectedCustomer 
+                ? `laporan-piutang-${selectedCustomer.replace(/\s+/g, '-')}-${monthName}-${year}.pdf`
+                : `laporan-piutang-${monthName}-${year}.pdf`;
+            doc.save(filename);
         });
         
         // Laporan Pembayaran Listeners
