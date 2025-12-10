@@ -2249,6 +2249,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return matchesSearch && matchesStatus;
         });
         
+        // Urutkan berdasarkan nomor job dari awal (ascending)
+        filteredJobs.sort((a, b) => {
+            return a.id.localeCompare(b.id);
+        });
+        
         if (filteredJobs.length === 0) {
             jobOrderTableBody.innerHTML = `
                 <tr>
