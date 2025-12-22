@@ -20,6 +20,8 @@
     <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <!-- Supabase Client -->
@@ -1550,7 +1552,7 @@
             <div id="laporan" class="page">
                  <h2 class="text-3xl font-bold mb-6 text-slate-800">Laporan Laba/Rugi</h2>
                 <div class="bg-white p-6 rounded-xl shadow-md">
-                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b"><h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3><div><label for="profit-loss-month" class="block font-medium mb-1 text-slate-600">Bulan</label><select id="profit-loss-month" class="p-2 border rounded-md bg-white"></select></div><div><label for="profit-loss-year" class="block font-medium mb-1 text-slate-600">Tahun</label><select id="profit-loss-year" class="p-2 border rounded-md bg-white"></select></div><button id="generate-profit-loss-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-filter mr-2"></i>Tampilkan</button><button id="print-profit-loss-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden"><i class="fas fa-print mr-2"></i>Cetak PDF</button></div>
+                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b"><h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3><div><label for="profit-loss-month" class="block font-medium mb-1 text-slate-600">Bulan</label><select id="profit-loss-month" class="p-2 border rounded-md bg-white"></select></div><div><label for="profit-loss-year" class="block font-medium mb-1 text-slate-600">Tahun</label><select id="profit-loss-year" class="p-2 border rounded-md bg-white"></select></div><button id="generate-profit-loss-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-filter mr-2"></i>Tampilkan</button><button id="export-excel-profit-loss-btn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 hidden"><i class="fas fa-file-excel mr-2"></i>Export Excel</button><button id="print-profit-loss-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden"><i class="fas fa-print mr-2"></i>Cetak PDF</button></div>
                     <div id="report-ppn-section" class="mb-8"><h3 class="text-xl font-semibold mb-3 text-slate-700">Laporan Laba/Rugi (Dengan PPN)</h3><div class="overflow-x-auto"><table id="report-table-ppn" class="w-full text-left"><thead class="bg-slate-50"><tr><th class="p-4 font-semibold text-slate-600">No. Job Order</th><th class="p-4 font-semibold text-slate-600">Pelanggan</th><th class="p-4 font-semibold text-slate-600">Pendapatan</th><th class="p-4 font-semibold text-slate-600">Biaya</th><th class="p-4 font-semibold text-slate-600">Laba/Rugi</th></tr></thead><tbody id="report-table-body-ppn"></tbody><tfoot class="font-bold bg-slate-200"><tr><td class="p-4 text-slate-800" colspan="2">TOTAL</td><td id="report-total-revenue-ppn" class="p-4 text-slate-800"></td><td id="report-total-cost-ppn" class="p-4 text-slate-800"></td><td id="report-total-profit-ppn" class="p-4 text-slate-800"></td></tr></tfoot></table></div></div>
                     <div id="report-np-section"><h3 class="text-xl font-semibold mb-3 text-slate-700">Laporan Laba/Rugi (Bebas PPN)</h3><div class="overflow-x-auto"><table id="report-table-np" class="w-full text-left"><thead class="bg-slate-50"><tr><th class="p-4 font-semibold text-slate-600">No. Job Order</th><th class="p-4 font-semibold text-slate-600">Pelanggan</th><th class="p-4 font-semibold text-slate-600">Pendapatan</th><th class="p-4 font-semibold text-slate-600">Biaya</th><th class="p-4 font-semibold text-slate-600">Laba/Rugi</th></tr></thead><tbody id="report-table-body-np"></tbody><tfoot class="font-bold bg-slate-200"><tr><td class="p-4 text-slate-800" colspan="2">TOTAL</td><td id="report-total-revenue-np" class="p-4 text-slate-800"></td><td id="report-total-cost-np" class="p-4 text-slate-800"></td><td id="report-total-profit-np" class="p-4 text-slate-800"></td></tr></tfoot></table></div></div>
                 </div>
@@ -2247,11 +2249,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             return matchesSearch && matchesStatus;
-        });
-        
-        // Urutkan berdasarkan nomor job dari awal (ascending)
-        filteredJobs.sort((a, b) => {
-            return a.id.localeCompare(b.id);
         });
         
         if (filteredJobs.length === 0) {
@@ -4218,10 +4215,13 @@ document.addEventListener('DOMContentLoaded', () => {
             renderTable('report-table-body-ppn', 'report-total-revenue-ppn', 'report-total-cost-ppn', 'report-total-profit-ppn', ppnJobs);
             renderTable('report-table-body-np', 'report-total-revenue-np', 'report-total-cost-np', 'report-total-profit-np', npJobs);
 
+            const excelBtn = document.getElementById('export-excel-profit-loss-btn');
             if(filteredJobs.length > 0) {
                 printBtn.classList.remove('hidden');
+                excelBtn.classList.remove('hidden');
             } else {
                 printBtn.classList.add('hidden');
+                excelBtn.classList.add('hidden');
             }
         });
         
@@ -4285,6 +4285,102 @@ document.addEventListener('DOMContentLoaded', () => {
             createTable("Laporan Laba/Rugi (Bebas PPN)", npJobs);
 
             doc.save(`laporan-laba-rugi-${monthName}-${year}.pdf`);
+        });
+
+        // Export to Excel Listener for Profit Loss Report
+        document.getElementById('export-excel-profit-loss-btn').addEventListener('click', () => {
+            const month = parseInt(document.getElementById('profit-loss-month').value);
+            const year = parseInt(document.getElementById('profit-loss-year').value);
+            const monthName = document.getElementById('profit-loss-month').options[month].text;
+
+            const filteredJobs = state.jobs.filter(job => {
+                const jobDate = new Date(job.createdAt);
+                return jobDate.getMonth() === month && jobDate.getFullYear() === year;
+            });
+
+            const ppnJobs = filteredJobs.filter(job => !job.invoice.items.every(item => item.ppnStatus === 'bebas_ppn'));
+            const npJobs = filteredJobs.filter(job => job.invoice.items.every(item => item.ppnStatus === 'bebas_ppn'));
+
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+
+            // Function to create sheet data
+            const createSheetData = (jobs, title) => {
+                if (jobs.length === 0) return null;
+
+                const data = [];
+                
+                // Add title and period
+                data.push([title]);
+                data.push([`Periode: ${monthName} ${year}`]);
+                data.push([]); // Empty row
+                
+                // Add headers
+                data.push(['No. Job Order', 'Pelanggan', 'Pendapatan', 'Biaya', 'Laba/Rugi']);
+                
+                // Add data rows
+                let totalRevenue = 0, totalCost = 0, totalProfit = 0;
+                jobs.forEach(job => {
+                    const revenue = job.invoice.total;
+                    const cost = job.operationalCosts.reduce((sum, c) => sum + c.amount, 0);
+                    const profit = revenue - cost;
+                    
+                    totalRevenue += revenue;
+                    totalCost += cost;
+                    totalProfit += profit;
+                    
+                    data.push([
+                        job.id,
+                        job.customerName,
+                        revenue,
+                        cost,
+                        profit
+                    ]);
+                });
+                
+                // Add total row
+                data.push([]);
+                data.push(['', 'TOTAL', totalRevenue, totalCost, totalProfit]);
+                
+                return data;
+            };
+
+            // Create sheets for PPN and Non-PPN
+            const ppnData = createSheetData(ppnJobs, 'Laporan Laba/Rugi (Dengan PPN)');
+            const npData = createSheetData(npJobs, 'Laporan Laba/Rugi (Bebas PPN)');
+
+            if (ppnData) {
+                const ws1 = XLSX.utils.aoa_to_sheet(ppnData);
+                
+                // Set column widths
+                ws1['!cols'] = [
+                    { wch: 15 },  // No. Job Order
+                    { wch: 25 },  // Pelanggan
+                    { wch: 15 },  // Pendapatan
+                    { wch: 15 },  // Biaya
+                    { wch: 15 }   // Laba/Rugi
+                ];
+                
+                XLSX.utils.book_append_sheet(wb, ws1, 'Dengan PPN');
+            }
+
+            if (npData) {
+                const ws2 = XLSX.utils.aoa_to_sheet(npData);
+                
+                // Set column widths
+                ws2['!cols'] = [
+                    { wch: 15 },  // No. Job Order
+                    { wch: 25 },  // Pelanggan
+                    { wch: 15 },  // Pendapatan
+                    { wch: 15 },  // Biaya
+                    { wch: 15 }   // Laba/Rugi
+                ];
+                
+                XLSX.utils.book_append_sheet(wb, ws2, 'Bebas PPN');
+            }
+
+            // Save file
+            XLSX.writeFile(wb, `laporan-laba-rugi-${monthName}-${year}.xlsx`);
         });
 
         // Driver Report Page Listeners
@@ -4566,8 +4662,6 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
 </script>
 </body>
 </html>
-index.html
-Menampilkan index.html.
 
 
 
