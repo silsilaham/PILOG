@@ -204,6 +204,58 @@
             background-clip: text;
         }
 
+        /* Excel/Spreadsheet Style */
+        .overflow-x-auto table, .excel-table {
+            border-collapse: collapse !important;
+            width: 100% !important;
+            border: 1px solid #cbd5e1 !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin-bottom: 1rem;
+        }
+        .overflow-x-auto table th, .excel-table th {
+            background-color: #e2e8f0 !important;
+            color: #334155 !important;
+            font-weight: 600 !important;
+            border: 1px solid #94a3b8 !important;
+            padding: 10px 12px !important;
+            text-align: left !important;
+            font-size: 0.75rem !important;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .overflow-x-auto table td, .excel-table td {
+            border: 1px solid #e2e8f0 !important;
+            padding: 8px 12px !important;
+            color: #475569 !important;
+            font-size: 0.875rem !important;
+            background-color: #ffffff;
+        }
+        .overflow-x-auto table tr:nth-child(even) td, .excel-table tr:nth-child(even) td {
+            background-color: #f8fafc !important;
+        }
+        .overflow-x-auto table tr:hover td, .excel-table tr:hover td {
+            background-color: #f1f5f9 !important;
+        }
+        .overflow-x-auto table tfoot td, .excel-table tfoot td {
+            background-color: #f1f5f9 !important;
+            font-weight: bold !important;
+            border-top: 2px solid #94a3b8 !important;
+        }
+
+        /* Row Number Column */
+        .row-number {
+            width: 40px;
+            text-align: center !important;
+            background-color: #f1f5f9 !important;
+            color: #64748b !important;
+            font-weight: normal !important;
+            border-right: 1px solid #cbd5e1 !important;
+            font-size: 0.75rem !important;
+        }
+
         /* Glass Effect */
         .glass {
             background: rgba(255, 255, 255, 0.9);
@@ -1015,9 +1067,14 @@
             <i class="fas fa-ship"></i>
             <span>EMKL Pro</span>
         </h1>
-        <button id="logout-btn-mobile" class="text-white hover:text-red-300 transition-colors">
-            <i class="fas fa-sign-out-alt text-xl"></i>
-        </button>
+        <div class="flex items-center gap-4">
+            <button id="refresh-btn-mobile" class="text-white hover:text-blue-200 transition-colors">
+                <i class="fas fa-sync-alt text-xl"></i>
+            </button>
+            <button id="logout-btn-mobile" class="text-white hover:text-red-300 transition-colors">
+                <i class="fas fa-sign-out-alt text-xl"></i>
+            </button>
+        </div>
     </div>
     
     <!-- Mobile Overlay -->
@@ -1096,6 +1153,10 @@
                     <i class="fas fa-file-invoice-dollar w-5 text-center"></i>
                     <span>Piutang</span>
                 </a>
+                <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="laporan-job-order-lengkap">
+                    <i class="fas fa-file-alt w-5 text-center"></i>
+                    <span>Laporan Job Order Lengkap</span>
+                </a>
                 <a href="#" class="sidebar-item flex items-center gap-3 p-3 rounded-lg" data-page="laporan-pembayaran">
                     <i class="fas fa-receipt w-5 text-center"></i>
                     <span>Pembayaran</span>
@@ -1116,6 +1177,10 @@
                     <i class="fas fa-database w-5 text-center"></i>
                     <span>Backup & Restore</span>
                 </a>
+                <button id="refresh-app-btn" class="w-full sidebar-item flex items-center gap-3 p-3 rounded-lg text-left">
+                    <i class="fas fa-sync-alt w-5 text-center"></i>
+                    <span>Refresh Aplikasi</span>
+                </button>
             </nav>
             
             <!-- Logout Button in Sidebar (Desktop) -->
@@ -1141,69 +1206,69 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <!-- Total Job Orders -->
                     <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg card-hover transform transition-all hover:scale-105">
-                        <div class="p-5">
+                        <div class="p-4">
                             <div class="flex items-center justify-between mb-3">
-                                <div class="bg-white bg-opacity-20 p-2.5 rounded-lg">
-                                    <i class="fas fa-file-alt text-xl text-white"></i>
+                                <div class="bg-white bg-opacity-20 p-2 rounded-lg">
+                                    <i class="fas fa-file-alt text-lg text-white"></i>
                                 </div>
-                                <div class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full text-white">
-                                    <i class="fas fa-chart-line text-xs"></i> All
+                                <div class="text-[10px] bg-white bg-opacity-20 px-2 py-0.5 rounded-full text-white">
+                                    <i class="fas fa-chart-line text-[10px]"></i> All
                                 </div>
                             </div>
-                            <h3 class="text-xs font-medium text-blue-100 mb-1">Total Job Order</h3>
-                            <p id="total-jobs" class="text-3xl font-bold text-white mb-1">0</p>
-                            <p class="text-xs text-blue-100 opacity-80">Semua transaksi</p>
+                            <h3 class="text-[10px] font-medium text-blue-100 mb-1 uppercase tracking-wider">Total Job Order</h3>
+                            <p id="total-jobs" class="text-xl md:text-2xl font-bold text-white mb-1">0</p>
+                            <p class="text-[10px] text-blue-100 opacity-80">Semua transaksi</p>
                         </div>
                     </div>
                     
                     <!-- Total Revenue -->
                     <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg card-hover transform transition-all hover:scale-105">
-                        <div class="p-5">
+                        <div class="p-4">
                             <div class="flex items-center justify-between mb-3">
-                                <div class="bg-white bg-opacity-20 p-2.5 rounded-lg">
-                                    <i class="fas fa-wallet text-xl text-white"></i>
+                                <div class="bg-white bg-opacity-20 p-2 rounded-lg">
+                                    <i class="fas fa-wallet text-lg text-white"></i>
                                 </div>
-                                <div class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full text-white">
-                                    <i class="fas fa-arrow-up text-xs"></i> Income
+                                <div class="text-[10px] bg-white bg-opacity-20 px-2 py-0.5 rounded-full text-white">
+                                    <i class="fas fa-arrow-up text-[10px]"></i> Income
                                 </div>
                             </div>
-                            <h3 class="text-xs font-medium text-green-100 mb-1">Total Pendapatan</h3>
-                            <p id="total-revenue" class="text-2xl md:text-3xl font-bold text-white mb-1">Rp 0</p>
-                            <p class="text-xs text-green-100 opacity-80">Revenue keseluruhan</p>
+                            <h3 class="text-[10px] font-medium text-green-100 mb-1 uppercase tracking-wider">Total Pendapatan</h3>
+                            <p id="total-revenue" class="text-lg md:text-xl font-bold text-white mb-1">Rp 0</p>
+                            <p class="text-[10px] text-green-100 opacity-80">Revenue keseluruhan</p>
                         </div>
                     </div>
                     
                     <!-- Total Cost -->
                     <div class="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-lg card-hover transform transition-all hover:scale-105">
-                        <div class="p-5">
+                        <div class="p-4">
                             <div class="flex items-center justify-between mb-3">
-                                <div class="bg-white bg-opacity-20 p-2.5 rounded-lg">
-                                    <i class="fas fa-money-bill-wave text-xl text-white"></i>
+                                <div class="bg-white bg-opacity-20 p-2 rounded-lg">
+                                    <i class="fas fa-money-bill-wave text-lg text-white"></i>
                                 </div>
-                                <div class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full text-white">
-                                    <i class="fas fa-arrow-down text-xs"></i> Cost
+                                <div class="text-[10px] bg-white bg-opacity-20 px-2 py-0.5 rounded-full text-white">
+                                    <i class="fas fa-arrow-down text-[10px]"></i> Cost
                                 </div>
                             </div>
-                            <h3 class="text-xs font-medium text-orange-100 mb-1">Total Biaya</h3>
-                            <p id="total-cost" class="text-2xl md:text-3xl font-bold text-white mb-1">Rp 0</p>
-                            <p class="text-xs text-orange-100 opacity-80">Biaya operasional</p>
+                            <h3 class="text-[10px] font-medium text-orange-100 mb-1 uppercase tracking-wider">Total Biaya</h3>
+                            <p id="total-cost" class="text-lg md:text-xl font-bold text-white mb-1">Rp 0</p>
+                            <p class="text-[10px] text-orange-100 opacity-80">Biaya operasional</p>
                         </div>
                     </div>
                     
                     <!-- Net Profit -->
                     <div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-lg card-hover transform transition-all hover:scale-105">
-                        <div class="p-5">
+                        <div class="p-4">
                             <div class="flex items-center justify-between mb-3">
-                                <div class="bg-white bg-opacity-20 p-2.5 rounded-lg">
-                                    <i class="fas fa-chart-line text-xl text-white"></i>
+                                <div class="bg-white bg-opacity-20 p-2 rounded-lg">
+                                    <i class="fas fa-chart-line text-lg text-white"></i>
                                 </div>
-                                <div class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full text-white">
-                                    <i class="fas fa-trophy text-xs"></i> Profit
+                                <div class="text-[10px] bg-white bg-opacity-20 px-2 py-0.5 rounded-full text-white">
+                                    <i class="fas fa-trophy text-[10px]"></i> Profit
                                 </div>
                             </div>
-                            <h3 class="text-xs font-medium text-purple-100 mb-1">Laba Bersih</h3>
-                            <p id="net-profit" class="text-2xl md:text-3xl font-bold text-white mb-1">Rp 0</p>
-                            <p class="text-xs text-purple-100 opacity-80">Keuntungan bersih</p>
+                            <h3 class="text-[10px] font-medium text-purple-100 mb-1 uppercase tracking-wider">Laba Bersih</h3>
+                            <p id="net-profit" class="text-lg md:text-xl font-bold text-white mb-1">Rp 0</p>
+                            <p class="text-[10px] text-purple-100 opacity-80">Keuntungan bersih</p>
                         </div>
                     </div>
                 </div>
@@ -1211,65 +1276,65 @@
                 <!-- Analytics Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
                     <!-- Profit Margin Card -->
-                    <div class="bg-white rounded-xl shadow-md p-5 border border-slate-100">
+                    <div class="bg-white rounded-xl shadow-md p-4 border border-slate-100">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-sm font-semibold text-slate-700">Profit Margin</h3>
-                            <div class="bg-purple-100 p-2 rounded-lg">
-                                <i class="fas fa-percentage text-purple-600 text-sm"></i>
+                            <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Profit Margin</h3>
+                            <div class="bg-purple-100 p-1.5 rounded-lg">
+                                <i class="fas fa-percentage text-purple-600 text-xs"></i>
                             </div>
                         </div>
-                        <p id="profit-margin" class="text-2xl font-bold text-slate-800 mb-1">0%</p>
-                        <p class="text-xs text-slate-500">Rasio keuntungan</p>
-                        <div class="mt-3 bg-slate-100 rounded-full h-2">
-                            <div id="profit-margin-bar" class="bg-gradient-to-r from-purple-500 to-indigo-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        <p id="profit-margin" class="text-xl font-bold text-slate-800 mb-1">0%</p>
+                        <p class="text-[10px] text-slate-500">Rasio keuntungan</p>
+                        <div class="mt-3 bg-slate-100 rounded-full h-1.5">
+                            <div id="profit-margin-bar" class="bg-gradient-to-r from-purple-500 to-indigo-600 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
                         </div>
                     </div>
                     
                     <!-- Payment Status Card -->
-                    <div class="bg-white rounded-xl shadow-md p-5 border border-slate-100">
+                    <div class="bg-white rounded-xl shadow-md p-4 border border-slate-100">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-sm font-semibold text-slate-700">Status Pembayaran</h3>
-                            <div class="bg-green-100 p-2 rounded-lg">
-                                <i class="fas fa-check-circle text-green-600 text-sm"></i>
+                            <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Status Pembayaran</h3>
+                            <div class="bg-green-100 p-1.5 rounded-lg">
+                                <i class="fas fa-check-circle text-green-600 text-xs"></i>
                             </div>
                         </div>
                         <div class="space-y-2">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs text-slate-600">Lunas</span>
-                                <span id="paid-count" class="text-sm font-bold text-green-600">0</span>
+                                <span class="text-[10px] text-slate-600">Lunas</span>
+                                <span id="paid-count" class="text-xs font-bold text-green-600">0</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-xs text-slate-600">Sebagian</span>
-                                <span id="partial-count" class="text-sm font-bold text-blue-600">0</span>
+                                <span class="text-[10px] text-slate-600">Sebagian</span>
+                                <span id="partial-count" class="text-xs font-bold text-blue-600">0</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-xs text-slate-600">Belum Bayar</span>
-                                <span id="unpaid-count" class="text-sm font-bold text-red-600">0</span>
+                                <span class="text-[10px] text-slate-600">Belum Bayar</span>
+                                <span id="unpaid-count" class="text-xs font-bold text-red-600">0</span>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Job Type Distribution -->
-                    <div class="bg-white rounded-xl shadow-md p-5 border border-slate-100">
+                    <div class="bg-white rounded-xl shadow-md p-4 border border-slate-100">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-sm font-semibold text-slate-700">Tipe Job Order</h3>
-                            <div class="bg-blue-100 p-2 rounded-lg">
-                                <i class="fas fa-chart-pie text-blue-600 text-sm"></i>
+                            <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Tipe Job Order</h3>
+                            <div class="bg-blue-100 p-1.5 rounded-lg">
+                                <i class="fas fa-chart-pie text-blue-600 text-xs"></i>
                             </div>
                         </div>
                         <div class="space-y-2">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs text-slate-600">PPN</span>
-                                <span id="ppn-count" class="text-sm font-bold text-blue-600">0</span>
+                                <span class="text-[10px] text-slate-600">PPN</span>
+                                <span id="ppn-count" class="text-xs font-bold text-blue-600">0</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-xs text-slate-600">Non-PPN</span>
-                                <span id="non-ppn-count" class="text-sm font-bold text-cyan-600">0</span>
+                                <span class="text-[10px] text-slate-600">Non-PPN</span>
+                                <span id="non-ppn-count" class="text-xs font-bold text-cyan-600">0</span>
                             </div>
                         </div>
                         <div class="mt-3 flex gap-1">
-                            <div id="ppn-bar" class="bg-blue-500 h-2 rounded-l-full transition-all duration-500" style="width: 50%"></div>
-                            <div id="non-ppn-bar" class="bg-cyan-500 h-2 rounded-r-full transition-all duration-500" style="width: 50%"></div>
+                            <div id="ppn-bar" class="bg-blue-500 h-1.5 rounded-l-full transition-all duration-500" style="width: 50%"></div>
+                            <div id="non-ppn-bar" class="bg-cyan-500 h-1.5 rounded-r-full transition-all duration-500" style="width: 50%"></div>
                         </div>
                     </div>
                 </div>
@@ -1289,16 +1354,17 @@
                         </div>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50">
-                                <tr class="border-b border-slate-200">
-                                    <th class="p-3 md:p-4 font-semibold text-slate-700 text-xs uppercase tracking-wide whitespace-nowrap">No. Job</th>
-                                    <th class="p-3 md:p-4 font-semibold text-slate-700 text-xs uppercase tracking-wide whitespace-nowrap">Pelanggan</th>
-                                    <th class="p-3 md:p-4 font-semibold text-slate-700 text-xs uppercase tracking-wide whitespace-nowrap">Tanggal</th>
-                                    <th class="p-3 md:p-4 font-semibold text-slate-700 text-xs uppercase tracking-wide whitespace-nowrap">Status</th>
+                        <table class="w-full text-left excel-table">
+                            <thead>
+                                <tr>
+                                    <th class="row-number">#</th>
+                                    <th>No. Job</th>
+                                    <th>Pelanggan</th>
+                                    <th>Tanggal</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="recent-jobs-table" class="divide-y divide-slate-100"></tbody>
+                            <tbody id="recent-jobs-table"></tbody>
                         </table>
                     </div>
                 </div>
@@ -1324,18 +1390,23 @@
                         </select>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left">
+                        <table class="w-full text-left excel-table">
                             <thead>
-                                <tr class="border-b-2 border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50">
-                                    <th class="p-4 font-bold text-slate-700 text-sm uppercase tracking-wide">No. Job Order</th>
-                                    <th class="p-4 font-bold text-slate-700 text-sm uppercase tracking-wide">Pelanggan</th>
-                                    <th class="p-4 font-bold text-slate-700 text-sm uppercase tracking-wide">Tanggal Dibuat</th>
-                                    <th class="p-4 font-bold text-slate-700 text-sm uppercase tracking-wide">Total Invoice</th>
-                                    <th class="p-4 font-bold text-slate-700 text-sm uppercase tracking-wide">Status Pembayaran</th>
-                                    <th class="p-4 font-bold text-slate-700 text-sm uppercase tracking-wide text-center">Aksi</th>
+                                <tr>
+                                    <th class="row-number">#</th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('job-order-list', 'id')" data-column="id">No. Job Order <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('job-order-list', 'customerName')" data-column="customerName">Pelanggan <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('job-order-list', 'createdAt')" data-column="createdAt">Tanggal <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('job-order-list', 'shipmentType')" data-column="shipmentType">Partai <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('job-order-list', 'vesselVoyage')" data-column="vesselVoyage">Vessel/Voyage <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('job-order-list', 'pol')" data-column="pol">POL <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('job-order-list', 'pod')" data-column="pod">POD <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('job-order-list', 'invoice.total')" data-column="invoice.total">Total Invoice <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th>Status</th>
+                                    <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="job-order-table-body" class="divide-y divide-slate-100"></tbody>
+                            <tbody id="job-order-table-body"></tbody>
                         </table>
                     </div>
                 </div>
@@ -1374,8 +1445,16 @@
                     <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
                         <h3 class="text-xl font-semibold mb-4 text-slate-700">Daftar Pelanggan</h3>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead class="bg-slate-50"><tr><th class="p-4 font-semibold text-slate-600">Nama</th><th class="p-4 font-semibold text-slate-600">Kontak</th><th class="p-4 font-semibold text-slate-600">Alamat</th><th class="p-4 font-semibold text-slate-600 text-center">Aksi</th></tr></thead>
+                            <table class="w-full text-left excel-table">
+                                <thead>
+                                    <tr>
+                                        <th class="row-number">#</th>
+                                        <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('customer-list', 'name')" data-column="name">Nama <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                        <th>Kontak</th>
+                                        <th>Alamat</th>
+                                        <th class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
                                 <tbody id="customer-table-body"></tbody>
                             </table>
                         </div>
@@ -1401,8 +1480,16 @@
                     <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
                         <h3 class="text-xl font-semibold mb-4 text-slate-700">Daftar Sopir</h3>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead class="bg-slate-50"><tr><th class="p-4 font-semibold text-slate-600">Nama</th><th class="p-4 font-semibold text-slate-600">Telepon</th><th class="p-4 font-semibold text-slate-600">No. Polisi</th><th class="p-4 font-semibold text-slate-600 text-center">Aksi</th></tr></thead>
+                            <table class="w-full text-left excel-table">
+                                <thead>
+                                    <tr>
+                                        <th class="row-number">#</th>
+                                        <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('driver-list', 'name')" data-column="name">Nama <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                        <th>Telepon</th>
+                                        <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('driver-list', 'plate')" data-column="plate">No. Polisi <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                        <th class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
                                 <tbody id="driver-table-body"></tbody>
                             </table>
                         </div>
@@ -1429,8 +1516,8 @@
                     <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
                         <h3 class="text-xl font-semibold mb-4 text-slate-700">Daftar Item Tersimpan</h3>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead class="bg-slate-50"><tr><th class="p-4 font-semibold text-slate-600">Deskripsi</th><th class="p-4 font-semibold text-slate-600 text-center">Aksi</th></tr></thead>
+                            <table class="w-full text-left excel-table">
+                                <thead class="bg-slate-50"><tr><th class="row-number">#</th><th class="p-4 font-semibold text-slate-600">Deskripsi</th><th class="p-4 font-semibold text-slate-600 text-center">Aksi</th></tr></thead>
                                 <tbody id="op-cost-item-table-body"></tbody>
                             </table>
                         </div>
@@ -1457,7 +1544,7 @@
                         </div>
                         <div>
                             <h3 class="text-xl font-semibold mb-4 text-slate-700">Riwayat Pembayaran</h3>
-                            <div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-slate-50"><tr class="border-b"><th class="p-3 font-semibold text-slate-600">Tanggal</th><th class="p-3 font-semibold text-slate-600">Jumlah</th><th class="p-3 font-semibold text-slate-600">Metode</th></tr></thead><tbody id="payment-history-body"></tbody></table></div>
+                            <div class="overflow-x-auto"><table class="w-full text-left excel-table"><thead class="bg-slate-50"><tr class="border-b"><th class="row-number">#</th><th class="p-3 font-semibold text-slate-600">Tanggal</th><th class="p-3 font-semibold text-slate-600">Jumlah</th><th class="p-3 font-semibold text-slate-600">Metode</th></tr></thead><tbody id="payment-history-body"></tbody></table></div>
                         </div>
                     </div>
                 </div>
@@ -1486,28 +1573,33 @@
                         <button id="generate-piutang-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                             <i class="fas fa-filter mr-2"></i>Tampilkan
                         </button>
+                        <button id="export-excel-piutang-btn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 hidden">
+                            <i class="fas fa-file-excel mr-2"></i>Export Excel
+                        </button>
                         <button id="print-piutang-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden">
                             <i class="fas fa-print mr-2"></i>Cetak PDF
                         </button>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50">
-                                <tr class="border-b">
-                                    <th class="p-4 font-semibold text-slate-600">No. Job Order</th>
-                                    <th class="p-4 font-semibold text-slate-600">Pelanggan</th>
-                                    <th class="p-4 font-semibold text-slate-600">Tanggal Invoice</th>
-                                    <th class="p-4 font-semibold text-slate-600">Total Invoice</th>
-                                    <th class="p-4 font-semibold text-slate-600">Terbayar</th>
-                                    <th class="p-4 font-semibold text-slate-600">Sisa Piutang</th>
-                                    <th class="p-4 font-semibold text-slate-600">Status</th>
+                        <table class="w-full text-left excel-table">
+                            <thead>
+                                <tr>
+                                    <th class="row-number">#</th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('piutang-list', 'id')" data-column="id">No. Job Order <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('piutang-list', 'customerName')" data-column="customerName">Pelanggan <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('piutang-list', 'createdAt')" data-column="createdAt">Tanggal Invoice <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('piutang-list', 'invoice.total')" data-column="invoice.total">Total Invoice <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th>Terbayar</th>
+                                    <th>Sisa Piutang</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody id="piutang-table-body"></tbody>
-                            <tfoot class="font-bold bg-slate-200">
+                            <tfoot>
                                 <tr>
-                                    <td class="p-4 text-slate-800" colspan="5">TOTAL PIUTANG</td>
-                                    <td id="piutang-total" class="p-4 text-slate-800" colspan="2"></td>
+                                    <td class="row-number"></td>
+                                    <td colspan="5">TOTAL PIUTANG</td>
+                                    <td id="piutang-total" colspan="2"></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -1522,7 +1614,7 @@
                     <div class="mb-6"><label for="cost-job-select" class="block font-medium mb-2 text-slate-600">Pilih Job Order:</label><select id="cost-job-select" class="w-full md:w-1/2 p-2 border rounded-md bg-white"><option value="">-- Pilih Job Order --</option></select></div>
                     <div id="costs-display-section" class="hidden mt-6">
                         <h3 class="text-xl font-semibold mb-4 text-slate-700">Rincian Biaya untuk <span id="selected-job-id" class="text-blue-600"></span></h3>
-                        <div class="overflow-x-auto mb-6"><table class="w-full text-left"><thead class="bg-slate-50"><tr class="border-b"><th class="p-4 font-semibold text-slate-600">Deskripsi</th><th class="p-4 font-semibold text-slate-600">Sopir</th><th class="p-4 font-semibold text-slate-600 text-right">Jumlah</th><th class="p-4 font-semibold text-slate-600 text-center">Aksi</th></tr></thead><tbody id="costs-table-body"></tbody></table></div>
+                        <div class="overflow-x-auto mb-6"><table class="w-full text-left excel-table"><thead class="bg-slate-50"><tr class="border-b"><th class="row-number">#</th><th class="p-4 font-semibold text-slate-600">Deskripsi</th><th class="p-4 font-semibold text-slate-600">Sopir</th><th class="p-4 font-semibold text-slate-600 text-right">Jumlah</th><th class="p-4 font-semibold text-slate-600 text-center">Aksi</th></tr></thead><tbody id="costs-table-body"></tbody></table></div>
                         <div><h4 class="text-lg font-semibold mb-2 text-slate-700">Tambah Biaya Baru</h4><form id="page-add-cost-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"><div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4"><div><label for="page-cost-desc" class="block text-sm font-medium text-slate-600">Deskripsi Biaya</label><select id="page-cost-desc" class="w-full p-2 border rounded-md bg-white" required></select></div><div><label for="page-cost-driver" class="block text-sm font-medium text-slate-600">Untuk Sopir (Opsional)</label><select id="page-cost-driver" class="w-full p-2 border rounded-md bg-white"></select></div></div><div class="flex gap-2 items-end"><div><label for="page-cost-amount" class="block text-sm font-medium text-slate-600">Jumlah</label><input type="number" id="page-cost-amount" placeholder="0" class="w-full p-2 border rounded-md" required min="0"></div><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 h-10"><i class="fas fa-plus"></i></button></div></form></div>
                     </div>
                 </div>
@@ -1532,9 +1624,28 @@
             <div id="laporan-pembayaran" class="page">
                 <h2 class="text-3xl font-bold mb-6 text-slate-800">Laporan Pembayaran</h2>
                 <div class="bg-white p-6 rounded-xl shadow-md">
-                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b"><h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3><div><label for="payment-report-month" class="block font-medium mb-1 text-slate-600">Bulan</label><select id="payment-report-month" class="p-2 border rounded-md bg-white"></select></div><div><label for="payment-report-year" class="block font-medium mb-1 text-slate-600">Tahun</label><select id="payment-report-year" class="p-2 border rounded-md bg-white"></select></div><button id="generate-payment-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-filter mr-2"></i>Tampilkan</button><button id="print-payment-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden"><i class="fas fa-print mr-2"></i>Cetak PDF</button></div>
+                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b"><h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3><div><label for="payment-report-month" class="block font-medium mb-1 text-slate-600">Bulan</label><select id="payment-report-month" class="p-2 border rounded-md bg-white"></select></div><div><label for="payment-report-year" class="block font-medium mb-1 text-slate-600">Tahun</label><select id="payment-report-year" class="p-2 border rounded-md bg-white"></select></div><button id="generate-payment-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-filter mr-2"></i>Tampilkan</button><button id="export-excel-payment-btn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 hidden"><i class="fas fa-file-excel mr-2"></i>Export Excel</button><button id="print-payment-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden"><i class="fas fa-print mr-2"></i>Cetak PDF</button></div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left"><thead class="bg-slate-50"><tr class="border-b"><th class="p-4 font-semibold text-slate-600">Tgl. Bayar</th><th class="p-4 font-semibold text-slate-600">No. Invoice</th><th class="p-4 font-semibold text-slate-600">Pelanggan</th><th class="p-4 font-semibold text-slate-600">Jumlah</th><th class="p-4 font-semibold text-slate-600">Metode</th></tr></thead><tbody id="payment-report-table-body"></tbody><tfoot class="font-bold bg-slate-200"><tr><td class="p-4 text-slate-800" colspan="3">TOTAL PEMBAYARAN DITERIMA</td><td id="payment-report-total" class="p-4 text-slate-800" colspan="2"></td></tr></tfoot></table>
+                        <table class="w-full text-left excel-table">
+                            <thead>
+                                <tr>
+                                    <th class="row-number">#</th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('laporan-pembayaran', 'date')" data-column="date">Tgl. Bayar <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('laporan-pembayaran', 'jobId')" data-column="jobId">No. Invoice <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('laporan-pembayaran', 'customerName')" data-column="customerName">Pelanggan <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('laporan-pembayaran', 'amount')" data-column="amount">Jumlah <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th>Metode</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payment-report-table-body"></tbody>
+                            <tfoot>
+                                <tr>
+                                    <td class="row-number"></td>
+                                    <td colspan="3">TOTAL PEMBAYARAN DITERIMA</td>
+                                    <td id="payment-report-total" colspan="2"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1543,8 +1654,64 @@
             <div id="laporan-sopir" class="page">
                 <h2 class="text-3xl font-bold mb-6 text-slate-800">Laporan Aktivitas Sopir</h2>
                 <div class="bg-white p-6 rounded-xl shadow-md">
-                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b"><h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3><div><label for="report-month" class="block font-medium mb-1 text-slate-600">Bulan</label><select id="report-month" class="p-2 border rounded-md bg-white"></select></div><div><label for="report-year" class="block font-medium mb-1 text-slate-600">Tahun</label><select id="report-year" class="p-2 border rounded-md bg-white"></select></div><button id="generate-driver-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-filter mr-2"></i>Tampilkan</button><button id="print-driver-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden"><i class="fas fa-print mr-2"></i>Cetak PDF</button></div>
+                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b"><h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3><div><label for="report-month" class="block font-medium mb-1 text-slate-600">Bulan</label><select id="report-month" class="p-2 border rounded-md bg-white"></select></div><div><label for="report-year" class="block font-medium mb-1 text-slate-600">Tahun</label><select id="report-year" class="p-2 border rounded-md bg-white"></select></div><button id="generate-driver-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-filter mr-2"></i>Tampilkan</button><button id="export-excel-driver-btn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 hidden"><i class="fas fa-file-excel mr-2"></i>Export Excel</button><button id="print-driver-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden"><i class="fas fa-print mr-2"></i>Cetak PDF</button></div>
                     <div id="driver-report-content" class="space-y-6"></div>
+                </div>
+            </div>
+
+            <div id="laporan-job-order-lengkap" class="page">
+                <div class="flex justify-between items-center mb-6 no-print">
+                    <h2 class="text-3xl font-bold text-slate-800">Laporan Data Job Order Lengkap</h2>
+                </div>
+
+                <div class="hidden print:block mb-6 text-center">
+                    <h1 class="text-2xl font-bold">LAPORAN DATA JOB ORDER LENGKAP</h1>
+                    <p id="full-report-period-display" class="text-slate-600"></p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b">
+                        <h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3>
+                        <div>
+                            <label for="full-report-month" class="block font-medium mb-1 text-slate-600">Bulan</label>
+                            <select id="full-report-month" class="p-2 border rounded-md bg-white"></select>
+                        </div>
+                        <div>
+                            <label for="full-report-year" class="block font-medium mb-1 text-slate-600">Tahun</label>
+                            <select id="full-report-year" class="p-2 border rounded-md bg-white"></select>
+                        </div>
+                        <button id="generate-full-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            <i class="fas fa-filter mr-2"></i>Tampilkan
+                        </button>
+                        <button id="export-excel-full-report-btn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 hidden">
+                            <i class="fas fa-file-excel mr-2"></i>Export Excel
+                        </button>
+                        <button id="print-full-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden">
+                            <i class="fas fa-print mr-2"></i>Cetak PDF
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left excel-table">
+                            <thead>
+                                <tr>
+                                    <th class="row-number">#</th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('laporan-job-order-lengkap', 'id')" data-column="id">No. Job <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('laporan-job-order-lengkap', 'createdAt')" data-column="createdAt">Tanggal <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('laporan-job-order-lengkap', 'customerName')" data-column="customerName">Pelanggan <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                    <th>Vessel</th>
+                                    <th>Voyage</th>
+                                    <th>POL</th>
+                                    <th>POD</th>
+                                    <th>No. Kontainer</th>
+                                    <th>Seal</th>
+                                    <th>Tipe</th>
+                                    <th>Sopir</th>
+                                    <th class="cursor-pointer hover:bg-slate-100" onclick="handleSort('laporan-job-order-lengkap', 'invoice.total')" data-column="invoice.total">Total Invoice <i class="fas fa-sort ml-1 text-slate-400"></i></th>
+                                </tr>
+                            </thead>
+                            <tbody id="full-report-table-body"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -1553,8 +1720,60 @@
                  <h2 class="text-3xl font-bold mb-6 text-slate-800">Laporan Laba/Rugi</h2>
                 <div class="bg-white p-6 rounded-xl shadow-md">
                     <div class="flex flex-wrap gap-4 items-end mb-6 pb-6 border-b"><h3 class="text-xl font-semibold text-slate-700 w-full mb-2">Filter Laporan</h3><div><label for="profit-loss-month" class="block font-medium mb-1 text-slate-600">Bulan</label><select id="profit-loss-month" class="p-2 border rounded-md bg-white"></select></div><div><label for="profit-loss-year" class="block font-medium mb-1 text-slate-600">Tahun</label><select id="profit-loss-year" class="p-2 border rounded-md bg-white"></select></div><button id="generate-profit-loss-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i class="fas fa-filter mr-2"></i>Tampilkan</button><button id="export-excel-profit-loss-btn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 hidden"><i class="fas fa-file-excel mr-2"></i>Export Excel</button><button id="print-profit-loss-report-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 hidden"><i class="fas fa-print mr-2"></i>Cetak PDF</button></div>
-                    <div id="report-ppn-section" class="mb-8"><h3 class="text-xl font-semibold mb-3 text-slate-700">Laporan Laba/Rugi (Dengan PPN)</h3><div class="overflow-x-auto"><table id="report-table-ppn" class="w-full text-left"><thead class="bg-slate-50"><tr><th class="p-4 font-semibold text-slate-600">No. Job Order</th><th class="p-4 font-semibold text-slate-600">Pelanggan</th><th class="p-4 font-semibold text-slate-600">Pendapatan</th><th class="p-4 font-semibold text-slate-600">Biaya</th><th class="p-4 font-semibold text-slate-600">Laba/Rugi</th></tr></thead><tbody id="report-table-body-ppn"></tbody><tfoot class="font-bold bg-slate-200"><tr><td class="p-4 text-slate-800" colspan="2">TOTAL</td><td id="report-total-revenue-ppn" class="p-4 text-slate-800"></td><td id="report-total-cost-ppn" class="p-4 text-slate-800"></td><td id="report-total-profit-ppn" class="p-4 text-slate-800"></td></tr></tfoot></table></div></div>
-                    <div id="report-np-section"><h3 class="text-xl font-semibold mb-3 text-slate-700">Laporan Laba/Rugi (Bebas PPN)</h3><div class="overflow-x-auto"><table id="report-table-np" class="w-full text-left"><thead class="bg-slate-50"><tr><th class="p-4 font-semibold text-slate-600">No. Job Order</th><th class="p-4 font-semibold text-slate-600">Pelanggan</th><th class="p-4 font-semibold text-slate-600">Pendapatan</th><th class="p-4 font-semibold text-slate-600">Biaya</th><th class="p-4 font-semibold text-slate-600">Laba/Rugi</th></tr></thead><tbody id="report-table-body-np"></tbody><tfoot class="font-bold bg-slate-200"><tr><td class="p-4 text-slate-800" colspan="2">TOTAL</td><td id="report-total-revenue-np" class="p-4 text-slate-800"></td><td id="report-total-cost-np" class="p-4 text-slate-800"></td><td id="report-total-profit-np" class="p-4 text-slate-800"></td></tr></tfoot></table></div></div>
+                    <div id="report-ppn-section" class="mb-8">
+                        <h3 class="text-xl font-semibold mb-3 text-slate-700">Laporan Laba/Rugi (Dengan PPN)</h3>
+                        <div class="overflow-x-auto">
+                            <table id="report-table-ppn" class="w-full text-left excel-table">
+                                <thead>
+                                    <tr>
+                                        <th class="row-number">#</th>
+                                        <th>No. Job Order</th>
+                                        <th>Pelanggan</th>
+                                        <th>Pendapatan</th>
+                                        <th>Biaya</th>
+                                        <th>Laba/Rugi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-table-body-ppn"></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td class="row-number"></td>
+                                        <td colspan="2">TOTAL</td>
+                                        <td id="report-total-revenue-ppn"></td>
+                                        <td id="report-total-cost-ppn"></td>
+                                        <td id="report-total-profit-ppn"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="report-np-section">
+                        <h3 class="text-xl font-semibold mb-3 text-slate-700">Laporan Laba/Rugi (Bebas PPN)</h3>
+                        <div class="overflow-x-auto">
+                            <table id="report-table-np" class="w-full text-left excel-table">
+                                <thead>
+                                    <tr>
+                                        <th class="row-number">#</th>
+                                        <th>No. Job Order</th>
+                                        <th>Pelanggan</th>
+                                        <th>Pendapatan</th>
+                                        <th>Biaya</th>
+                                        <th>Laba/Rugi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-table-body-np"></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td class="row-number"></td>
+                                        <td colspan="2">TOTAL</td>
+                                        <td id="report-total-revenue-np"></td>
+                                        <td id="report-total-cost-np"></td>
+                                        <td id="report-total-profit-np"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -1576,8 +1795,20 @@
                         </div>
                         <div>
                              <h4 class="text-lg font-semibold mb-3 text-slate-600">Daftar Rekening Tersimpan</h4>
-                             <div id="bank-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
-                                <!-- Bank list will be populated by JS -->
+                             <div class="overflow-x-auto">
+                                <table class="w-full text-left excel-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="row-number">No</th>
+                                            <th>Bank</th>
+                                            <th>Rekening</th>
+                                            <th class="text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bank-list-body">
+                                        <!-- Bank list will be populated by JS -->
+                                    </tbody>
+                                </table>
                              </div>
                         </div>
                     </div>
@@ -1687,12 +1918,6 @@ document.addEventListener('DOMContentLoaded', () => {
         mobileNav.style.display = 'none';
     }
     
-    // Check if already logged in
-    const isLoggedIn = sessionStorage.getItem('emklLoggedIn');
-    if (isLoggedIn === 'true') {
-        showMainApp();
-    }
-    
     // Login Form Handler
     document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -1709,7 +1934,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Simulate network delay for better UX
         setTimeout(() => {
             if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-                sessionStorage.setItem('emklLoggedIn', 'true');
+                localStorage.setItem('emklLoggedIn', 'true');
                 loadingDiv.classList.add('hidden');
                 showMainApp();
                 showToast('Login berhasil! Selamat datang di EMKL PILOG');
@@ -1729,7 +1954,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (mobileNav) {
                 mobileNav.style.display = 'none';
             }
-            sessionStorage.removeItem('emklLoggedIn');
+            localStorage.removeItem('emklLoggedIn');
+            localStorage.removeItem('emklActivePage');
             location.reload();
         }
     };
@@ -1768,7 +1994,15 @@ document.addEventListener('DOMContentLoaded', () => {
         invoiceItemsMaster: [],
         operationalCostItemsMaster: [],
         activePage: 'dashboard',
-        editingJobId: null
+        editingJobId: null,
+        sortConfig: {
+            'job-order-list': { column: 'createdAt', direction: 'desc' },
+            'customer-list': { column: 'name', direction: 'asc' },
+            'driver-list': { column: 'name', direction: 'asc' },
+            'piutang-list': { column: 'customerName', direction: 'asc' },
+            'laporan-pembayaran': { column: 'date', direction: 'desc' },
+            'laporan-job-order-lengkap': { column: 'createdAt', direction: 'desc' }
+        }
     };
 
     // SELECTORS
@@ -1816,6 +2050,74 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
              return { status: 'unpaid', text: 'Belum Lunas', class: 'bg-yellow-100 text-yellow-800' };
         }
+    };
+
+    const sortData = (data, pageKey) => {
+        const config = state.sortConfig[pageKey];
+        if (!config) return data;
+
+        return [...data].sort((a, b) => {
+            let valA = a[config.column];
+            let valB = b[config.column];
+
+            // Handle nested properties if needed (e.g., job.invoice.total)
+            if (config.column.includes('.')) {
+                const parts = config.column.split('.');
+                valA = parts.reduce((obj, key) => obj?.[key], a);
+                valB = parts.reduce((obj, key) => obj?.[key], b);
+            }
+
+            // Handle dates
+            if (config.column === 'createdAt' || config.column === 'date') {
+                valA = new Date(valA).getTime();
+                valB = new Date(valB).getTime();
+            }
+
+            if (valA < valB) return config.direction === 'asc' ? -1 : 1;
+            if (valA > valB) return config.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    };
+
+    window.handleSort = (pageKey, column) => {
+        const currentConfig = state.sortConfig[pageKey];
+        if (currentConfig.column === column) {
+            currentConfig.direction = currentConfig.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            state.sortConfig[pageKey] = { column, direction: 'asc' };
+        }
+        
+        // Update icons in the DOM immediately
+        updateTableSortIcons(pageKey);
+        
+        render(true);
+    };
+
+    const updateTableSortIcons = (pageKey) => {
+        const page = document.getElementById(pageKey);
+        if (!page) return;
+        
+        const headers = page.querySelectorAll('th[data-column]');
+        headers.forEach(th => {
+            const column = th.getAttribute('data-column');
+            const icon = th.querySelector('i.fas');
+            if (icon) {
+                const config = state.sortConfig[pageKey];
+                if (config.column === column) {
+                    icon.className = config.direction === 'asc' ? 'fas fa-sort-up ml-1 text-blue-600' : 'fas fa-sort-down ml-1 text-blue-600';
+                } else {
+                    icon.className = 'fas fa-sort ml-1 text-slate-400';
+                }
+            }
+        });
+    };
+
+    window.getSortIcon = (pageKey, column) => {
+        const config = state.sortConfig[pageKey];
+        if (!config || config.column !== column) return '<i class="fas fa-sort ml-1 text-slate-400"></i>';
+        return config.direction === 'asc' 
+            ? '<i class="fas fa-sort-up ml-1 text-blue-600"></i>' 
+            : '<i class="fas fa-sort-down ml-1 text-blue-600"></i>';
     };
 
     // Debounce untuk mencegah toast berulang
@@ -2013,7 +2315,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         realtimeDebounceTimeout = setTimeout(async () => {
                             await loadData();
-                            render();
+                            render(true);
                             showToast('📡 Data diperbarui');
                             realtimeDebounceTimeout = null;
                         }, 1000); // Wait 1 second after last change
@@ -2042,20 +2344,29 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${prefix}${year}${month}${day}-${newId}`;
     };
 
-    const populateDateFilters = (monthSelectId, yearSelectId) => {
+    const populateDateFilters = (monthSelectId, yearSelectId, includeAllMonths = false) => {
         const monthSelect = document.getElementById(monthSelectId);
         const yearSelect = document.getElementById(yearSelectId);
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth();
 
         if (monthSelect.options.length === 0) {
+            if (includeAllMonths) {
+                const allOption = new Option("Semua Bulan", "all");
+                monthSelect.add(allOption);
+            }
             const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
             months.forEach((month, index) => {
                 const option = new Option(month, index);
                 monthSelect.add(option);
             });
         }
-        monthSelect.value = currentMonth;
+        
+        if (includeAllMonths) {
+            monthSelect.value = "all";
+        } else {
+            monthSelect.value = currentMonth;
+        }
         
         if (yearSelect.options.length === 0) {
             for (let i = currentYear; i >= currentYear - 5; i--) {
@@ -2114,16 +2425,20 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // RENDER FUNCTIONS
-    const render = () => {
+    const render = (preserveScroll = false) => {
         pages.forEach(p => p.classList.remove('active'));
         document.getElementById(state.activePage).classList.add('active');
 
         navLinks.forEach(l => l.classList.remove('active'));
-        document.querySelector(`.sidebar-item[data-page="${state.activePage}"]`).classList.add('active');
+        const activeSidebarItem = document.querySelector(`.sidebar-item[data-page="${state.activePage}"]`);
+        if (activeSidebarItem) activeSidebarItem.classList.add('active');
+
+        // Update sort icons for the active page
+        updateTableSortIcons(state.activePage);
 
         switch (state.activePage) {
             case 'dashboard': renderDashboard(); break;
-            case 'job-order-list': renderJobOrderList(); break;
+            case 'job-order-list': renderJobOrderList(preserveScroll); break;
             case 'add-job-order': 
                 populateBankSelection();
                 populateCustomerSelection();
@@ -2131,15 +2446,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     resetJobOrderForm(); 
                 } 
                 break;
-            case 'customer-list': renderCustomerListPage(); break;
-            case 'driver-list': renderDriverListPage(); break;
-            case 'item-list': renderItemListPage(); break;
-            case 'item-biaya-list': renderItemBiayaListPage(); break;
-            case 'pembayaran-invoice': renderPembayaranInvoicePage(); break;
-            case 'piutang-list': renderPiutangListPage(); break;
-            case 'operational-costs': renderOperationalCostsPage(); break;
+            case 'customer-list': renderCustomerListPage(preserveScroll); break;
+            case 'driver-list': renderDriverListPage(preserveScroll); break;
+            case 'item-list': renderItemListPage(preserveScroll); break;
+            case 'item-biaya-list': renderItemBiayaListPage(preserveScroll); break;
+            case 'pembayaran-invoice': renderPembayaranInvoicePage(preserveScroll); break;
+            case 'piutang-list': renderPiutangListPage(preserveScroll); break;
+            case 'operational-costs': renderOperationalCostsPage(preserveScroll); break;
             case 'laporan-pembayaran': renderLaporanPembayaranPage(); break;
             case 'laporan-sopir': renderSopirReportPage(); break;
+            case 'laporan-job-order-lengkap': renderFullJobOrderReportPage(); break;
             case 'laporan': renderReportPage(); break;
             case 'pengaturan': renderPengaturanPage(); break;
         }
@@ -2205,21 +2521,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const sortedJobs = [...state.jobs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         const recentJobs = sortedJobs.slice(0, 5);
         if (recentJobs.length === 0) {
-            recentJobsTable.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">Belum ada data job order.</td></tr>`;
+            recentJobsTable.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-500">Belum ada data job order.</td></tr>`;
         } else {
-            recentJobs.forEach(job => {
+            recentJobs.forEach((job, index) => {
                 const row = document.createElement('tr');
-                row.className = 'border-b hover:bg-slate-50 cursor-pointer transition-colors';
+                row.className = 'hover:bg-slate-50 cursor-pointer';
                 row.onclick = () => {
-                    navigate('job-order-list');
+                    navigateTo('job-order-list');
                 };
                 const paymentInfo = getPaymentStatus(job);
                 row.innerHTML = `
-                    <td class="p-4">${job.id}</td>
-                    <td class="p-4">${job.customerName}</td>
-                    <td class="p-4">${new Date(job.createdAt).toLocaleDateString('id-ID')}</td>
-                    <td class="p-4">
-                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${paymentInfo.class}">
+                    <td class="row-number">${index + 1}</td>
+                    <td>${job.id}</td>
+                    <td>${job.customerName}</td>
+                    <td>${new Date(job.createdAt).toLocaleDateString('id-ID')}</td>
+                    <td>
+                        <span class="px-2 py-1 rounded-full text-[10px] font-semibold ${paymentInfo.class}">
                             ${paymentInfo.text}
                         </span>
                     </td>
@@ -2229,10 +2546,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const renderJobOrderList = () => {
-        // Simpan posisi scroll sebelum render
+    const renderJobOrderList = (preserveScroll = false) => {
+        // Simpan posisi scroll jika diminta (misal saat sorting)
         const mainContent = document.querySelector('main');
-        const scrollPos = mainContent ? mainContent.scrollTop : 0;
+        const scrollPos = (mainContent && preserveScroll) ? mainContent.scrollTop : 0;
         
         jobOrderTableBody.innerHTML = '';
         
@@ -2250,11 +2567,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             return matchesSearch && matchesStatus;
         });
+
+        // Apply sorting
+        filteredJobs = sortData(filteredJobs, 'job-order-list');
         
         if (filteredJobs.length === 0) {
             jobOrderTableBody.innerHTML = `
                 <tr>
-                    <td colspan="6" class="text-center p-12">
+                    <td colspan="7" class="text-center p-12">
                         <div class="empty-state">
                             <div class="inline-block p-6 bg-slate-100 rounded-full mb-4">
                                 <i class="fas fa-inbox text-5xl text-slate-400"></i>
@@ -2268,56 +2588,66 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        filteredJobs.forEach(job => {
+        filteredJobs.forEach((job, index) => {
             const row = document.createElement('tr');
             row.className = 'hover:bg-slate-50 cursor-pointer';
             const paymentInfo = getPaymentStatus(job);
             row.innerHTML = `
-                <td class="p-2 md:p-4"><span class="font-mono font-bold text-blue-600 text-xs md:text-base">${job.id}</span></td>
-                <td class="p-2 md:p-4"><span class="font-semibold text-slate-700 text-xs md:text-base">${job.customerName}</span></td>
-                <td class="p-2 md:p-4"><span class="text-slate-600 text-xs md:text-base"><i class="far fa-calendar-alt mr-1 md:mr-2 text-slate-400"></i>${new Date(job.createdAt).toLocaleDateString('id-ID')}</span></td>
-                <td class="p-2 md:p-4"><span class="font-bold text-green-600 text-xs md:text-base">${formatCurrency(job.invoice.total)}</span></td>
-                <td class="p-2 md:p-4">
-                    <span class="px-3 py-1.5 rounded-full text-xs font-bold ${paymentInfo.class} border-2 inline-flex items-center gap-1">
-                        <span class="w-2 h-2 rounded-full ${paymentInfo.status === 'paid' ? 'bg-green-600' : paymentInfo.status === 'partial' ? 'bg-blue-600' : 'bg-yellow-600'} animate-pulse"></span>
+                <td class="row-number">${index + 1}</td>
+                <td class="font-mono font-bold text-blue-600">${job.id}</td>
+                <td class="font-semibold text-slate-700">${job.customerName}</td>
+                <td class="whitespace-nowrap">${new Date(job.createdAt).toLocaleDateString('id-ID')}</td>
+                <td>${job.shipmentType || '-'}</td>
+                <td>${job.vesselVoyage || '-'}</td>
+                <td>${job.pol || '-'}</td>
+                <td>${job.pod || '-'}</td>
+                <td class="font-bold text-green-600">${formatCurrency(job.invoice.total)}</td>
+                <td>
+                    <span class="px-2 py-1 rounded-full text-[10px] font-bold ${paymentInfo.class} border inline-flex items-center gap-1">
                         ${paymentInfo.text}
                     </span>
                 </td>
-                <td class="p-2 md:p-4 text-center">
-                    <div class="flex gap-1 md:gap-2 justify-center flex-wrap">
-                        <button class="text-white bg-blue-500 hover:bg-blue-600 p-2 md:p-2 rounded-lg view-details-btn shadow-md min-w-[44px]" data-id="${job.id}" title="Lihat Detail"><i class="fas fa-eye"></i></button>
-                        <button class="text-white bg-orange-500 hover:bg-orange-600 p-2 md:p-2 rounded-lg edit-job-btn shadow-md min-w-[44px]" data-id="${job.id}" title="Edit"><i class="fas fa-edit"></i></button>
-                        <button class="text-white bg-red-500 hover:bg-red-600 p-2 md:p-2 rounded-lg delete-job-btn shadow-md min-w-[44px]" data-id="${job.id}" title="Hapus"><i class="fas fa-trash"></i></button>
+                <td class="text-center">
+                    <div class="flex gap-1 justify-center">
+                        <button class="text-white bg-blue-500 hover:bg-blue-600 p-1.5 rounded view-details-btn" data-id="${job.id}" title="Lihat Detail"><i class="fas fa-eye text-xs"></i></button>
+                        <button class="text-white bg-orange-500 hover:bg-orange-600 p-1.5 rounded edit-job-btn" data-id="${job.id}" title="Edit"><i class="fas fa-edit text-xs"></i></button>
+                        <button class="text-white bg-red-500 hover:bg-red-600 p-1.5 rounded delete-job-btn" data-id="${job.id}" title="Hapus"><i class="fas fa-trash text-xs"></i></button>
                     </div>
                 </td>
             `;
             jobOrderTableBody.appendChild(row);
         });
         
-        // Restore posisi scroll langsung tanpa delay
-        if (mainContent) {
+        // Restore posisi scroll jika diminta
+        if (mainContent && preserveScroll) {
             mainContent.scrollTop = scrollPos;
         }
     };
 
-    const renderCustomerListPage = () => {
+    const renderCustomerListPage = (preserveScroll = false) => {
+        const mainContent = document.querySelector('main');
+        const scrollPos = (mainContent && preserveScroll) ? mainContent.scrollTop : 0;
+        
         const tableBody = document.getElementById('customer-table-body');
         tableBody.innerHTML = '';
         if (state.customers.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">Belum ada data pelanggan.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-500">Belum ada data pelanggan.</td></tr>`;
             return;
         }
-        state.customers.forEach((customer) => {
+        
+        const sortedCustomers = sortData(state.customers, 'customer-list');
+        
+        sortedCustomers.forEach((customer, index) => {
             const row = document.createElement('tr');
-            row.className = 'border-b';
             row.innerHTML = `
-                <td class="p-4">${customer.name}</td>
-                <td class="p-4 text-sm">
+                <td class="row-number">${index + 1}</td>
+                <td>${customer.name}</td>
+                <td class="text-sm">
                     <p>${customer.phone || '-'}</p>
                     <p class="text-slate-500">NPWP: ${customer.npwp || '-'}</p>
                 </td>
-                <td class="p-4 text-sm text-slate-600">${customer.address || '-'}</td>
-                <td class="p-4 text-center">
+                <td class="text-sm text-slate-600">${customer.address || '-'}</td>
+                <td class="text-center">
                     <button class="text-red-500 hover:text-red-700 delete-customer-btn" data-id="${customer.id}" title="Hapus Pelanggan">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -2325,23 +2655,33 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             tableBody.appendChild(row);
         });
+
+        if (mainContent && preserveScroll) {
+            mainContent.scrollTop = scrollPos;
+        }
     };
     
-    const renderDriverListPage = () => {
+    const renderDriverListPage = (preserveScroll = false) => {
+        const mainContent = document.querySelector('main');
+        const scrollPos = (mainContent && preserveScroll) ? mainContent.scrollTop : 0;
+        
         const tableBody = document.getElementById('driver-table-body');
         tableBody.innerHTML = '';
         if (state.drivers.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">Belum ada data sopir.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-500">Belum ada data sopir.</td></tr>`;
             return;
         }
-        state.drivers.forEach((driver) => {
+        
+        const sortedDrivers = sortData(state.drivers, 'driver-list');
+        
+        sortedDrivers.forEach((driver, index) => {
             const row = document.createElement('tr');
-            row.className = 'border-b';
             row.innerHTML = `
-                <td class="p-4">${driver.name}</td>
-                <td class="p-4 text-sm">${driver.phone || '-'}</td>
-                <td class="p-4 text-sm text-slate-600">${driver.plate || '-'}</td>
-                <td class="p-4 text-center">
+                <td class="row-number">${index + 1}</td>
+                <td>${driver.name}</td>
+                <td class="text-sm">${driver.phone || '-'}</td>
+                <td class="text-sm text-slate-600">${driver.plate || '-'}</td>
+                <td class="text-center">
                     <button class="text-red-500 hover:text-red-700 delete-driver-btn" data-id="${driver.id}" title="Hapus Sopir">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -2349,6 +2689,10 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             tableBody.appendChild(row);
         });
+
+        if (mainContent && preserveScroll) {
+            mainContent.scrollTop = scrollPos;
+        }
     };
     
     const renderItemListPage = () => {
@@ -2363,13 +2707,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const tableBody = document.getElementById('op-cost-item-table-body');
         tableBody.innerHTML = '';
         if (!state.operationalCostItemsMaster || state.operationalCostItemsMaster.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-slate-500">Belum ada data item biaya.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-slate-500">Belum ada data item biaya.</td></tr>`;
             return;
         }
-        state.operationalCostItemsMaster.forEach((item) => {
+        state.operationalCostItemsMaster.forEach((item, index) => {
             const row = document.createElement('tr');
             row.className = 'border-b';
             row.innerHTML = `
+                <td class="row-number">${index + 1}</td>
                 <td class="p-4">${item.name}</td>
                 <td class="p-4 text-center">
                     <button class="text-red-500 hover:text-red-700 delete-op-cost-item-btn" data-id="${item.id}" title="Hapus Item Biaya">
@@ -2395,7 +2740,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     const renderPiutangListPage = () => {
-        populateDateFilters('piutang-month', 'piutang-year');
+        populateDateFilters('piutang-month', 'piutang-year', true);
         
         // Populate customer filter
         const customerSelect = document.getElementById('piutang-customer');
@@ -2416,21 +2761,33 @@ document.addEventListener('DOMContentLoaded', () => {
             customerSelect.add(option);
         });
         
-        document.getElementById('piutang-table-body').innerHTML = '<tr><td colspan="7" class="text-center p-4 text-slate-500">Pilih filter dan klik "Tampilkan" untuk melihat laporan piutang.</td></tr>';
+        document.getElementById('piutang-table-body').innerHTML = '<tr><td colspan="8" class="text-center p-4 text-slate-500">Pilih filter dan klik "Tampilkan" untuk melihat laporan piutang.</td></tr>';
         document.getElementById('piutang-total').textContent = formatCurrency(0);
         document.getElementById('print-piutang-report-btn').classList.add('hidden');
+        document.getElementById('export-excel-piutang-btn').classList.add('hidden');
+        
+        // Auto-trigger report
+        setTimeout(() => {
+            document.getElementById('generate-piutang-report-btn').click();
+        }, 100);
     };
 
     const renderLaporanPembayaranPage = () => {
-        populateDateFilters('payment-report-month', 'payment-report-year');
-        document.getElementById('payment-report-table-body').innerHTML = '<tr><td colspan="5" class="text-center p-4 text-slate-500">Pilih periode untuk menampilkan laporan pembayaran.</td></tr>';
+        populateDateFilters('payment-report-month', 'payment-report-year', true);
+        document.getElementById('payment-report-table-body').innerHTML = '<tr><td colspan="6" class="text-center p-4 text-slate-500">Pilih periode untuk menampilkan laporan pembayaran.</td></tr>';
         document.getElementById('payment-report-total').textContent = formatCurrency(0);
         document.getElementById('print-payment-report-btn').classList.add('hidden');
+        document.getElementById('export-excel-payment-btn').classList.add('hidden');
+
+        // Auto-trigger report
+        setTimeout(() => {
+            document.getElementById('generate-payment-report-btn').click();
+        }, 100);
     };
 
     const renderReportPage = () => {
-        populateDateFilters('profit-loss-month', 'profit-loss-year');
-        const initialMsg = '<tr><td colspan="5" class="text-center p-4 text-slate-500">Pilih periode untuk menampilkan laporan.</td></tr>';
+        populateDateFilters('profit-loss-month', 'profit-loss-year', true);
+        const initialMsg = '<tr><td colspan="6" class="text-center p-4 text-slate-500">Pilih periode untuk menampilkan laporan.</td></tr>';
         document.getElementById('report-table-body-ppn').innerHTML = initialMsg;
         document.getElementById('report-table-body-np').innerHTML = initialMsg;
         
@@ -2443,6 +2800,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('report-total-profit-np').textContent = formatCurrency(0);
 
         document.getElementById('print-profit-loss-report-btn').classList.add('hidden');
+        
+        // Auto-trigger report
+        setTimeout(() => {
+            document.getElementById('generate-profit-loss-report-btn').click();
+        }, 100);
     };
     
     const renderOperationalCostsPage = () => {
@@ -2460,29 +2822,133 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderSopirReportPage = () => {
-        populateDateFilters('report-month', 'report-year');
+        populateDateFilters('report-month', 'report-year', true);
         document.getElementById('driver-report-content').innerHTML = '<p class="text-slate-500">Pilih bulan dan tahun, lalu klik "Tampilkan Laporan".</p>';
         document.getElementById('print-driver-report-btn').classList.add('hidden');
+        document.getElementById('export-excel-driver-btn').classList.add('hidden');
+
+        // Auto-trigger report
+        setTimeout(() => {
+            document.getElementById('generate-driver-report-btn').click();
+        }, 100);
+    };
+
+    const renderFullJobOrderReportPage = () => {
+        populateDateFilters('full-report-month', 'full-report-year', true);
+        document.getElementById('full-report-table-body').innerHTML = '<tr><td colspan="13" class="text-center p-4 text-slate-500">Pilih periode untuk menampilkan laporan job order lengkap.</td></tr>';
+        document.getElementById('print-full-report-btn').classList.add('hidden');
+        document.getElementById('export-excel-full-report-btn').classList.add('hidden');
+
+        // Auto-trigger report
+        setTimeout(() => {
+            document.getElementById('generate-full-report-btn').click();
+        }, 100);
+    };
+
+    const renderFullJobOrderReport = () => {
+        const monthVal = document.getElementById('full-report-month').value;
+        const year = parseInt(document.getElementById('full-report-year').value);
+        const tableBody = document.getElementById('full-report-table-body');
+        const printBtn = document.getElementById('print-full-report-btn');
+        const periodDisplay = document.getElementById('full-report-period-display');
+
+        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const monthText = monthVal === 'all' ? 'Semua Bulan' : months[parseInt(monthVal)];
+        if (periodDisplay) periodDisplay.textContent = `Periode: ${monthText} ${year}`;
+
+        const filteredJobs = state.jobs.filter(job => {
+            const jobDate = new Date(job.createdAt);
+            const monthMatch = monthVal === 'all' || jobDate.getMonth() === parseInt(monthVal);
+            return monthMatch && jobDate.getFullYear() === year;
+        });
+
+        // Apply sorting
+        const sortedJobs = sortData(filteredJobs, 'laporan-job-order-lengkap');
+
+        if (sortedJobs.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="13" class="text-center p-4 text-slate-500">Tidak ada data untuk periode ini.</td></tr>';
+            printBtn.classList.add('hidden');
+            document.getElementById('export-excel-full-report-btn').classList.add('hidden');
+            return;
+        }
+
+        tableBody.innerHTML = '';
+        let rowIndex = 1;
+
+        sortedJobs.forEach(job => {
+            const totalInvoice = formatCurrency(job.invoice.total);
+            
+            if (job.containers && job.containers.length > 0) {
+                job.containers.forEach((container, cIndex) => {
+                    const driver = state.drivers.find(d => d.id === container.driverId);
+                    const tr = document.createElement('tr');
+                    
+                    // Only show job-level info on the first container row of the job
+                    const isFirst = cIndex === 0;
+                    
+                    tr.innerHTML = `
+                        <td class="row-number">${rowIndex++}</td>
+                        <td>${isFirst ? job.id : ''}</td>
+                        <td>${isFirst ? new Date(job.createdAt).toLocaleDateString('id-ID') : ''}</td>
+                        <td>${isFirst ? job.customerName : ''}</td>
+                        <td>${isFirst ? (job.vessel || '-') : ''}</td>
+                        <td>${isFirst ? (job.voyage || '-') : ''}</td>
+                        <td>${isFirst ? (job.pol || '-') : ''}</td>
+                        <td>${isFirst ? (job.pod || '-') : ''}</td>
+                        <td>${container.number || '-'}</td>
+                        <td>${container.seal || '-'}</td>
+                        <td>${container.type || '-'}</td>
+                        <td>${driver ? driver.name : '-'}</td>
+                        <td class="font-semibold">${isFirst ? totalInvoice : ''}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } else {
+                // Job without containers
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="row-number">${rowIndex++}</td>
+                    <td>${job.id}</td>
+                    <td>${new Date(job.createdAt).toLocaleDateString('id-ID')}</td>
+                    <td>${job.customerName}</td>
+                    <td>${job.vessel || '-'}</td>
+                    <td>${job.voyage || '-'}</td>
+                    <td>${job.pol || '-'}</td>
+                    <td>${job.pod || '-'}</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td class="font-semibold">${totalInvoice}</td>
+                `;
+                tableBody.appendChild(tr);
+            }
+        });
+
+        printBtn.classList.remove('hidden');
+        document.getElementById('export-excel-full-report-btn').classList.remove('hidden');
     };
     
     const renderPengaturanPage = () => {
-        const bankList = document.getElementById('bank-list');
-        bankList.innerHTML = '';
+        const bankListBody = document.getElementById('bank-list-body');
+        bankListBody.innerHTML = '';
         if (state.banks.length === 0) {
-            bankList.innerHTML = '<p class="text-slate-500 text-center">Belum ada data bank.</p>';
+            bankListBody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">Belum ada data bank.</td></tr>';
             return;
         }
         state.banks.forEach((bank, index) => {
-            const div = document.createElement('div');
-            div.className = 'bg-slate-50 p-3 rounded-lg flex justify-between items-center';
-            div.innerHTML = `
-                <div>
-                    <p class="font-semibold text-slate-700">${bank.name}</p>
-                    <p class="text-sm text-slate-600">${bank.number} (a.n. ${bank.holder})</p>
-                </div>
-                <button class="text-red-500 hover:text-red-700 delete-bank-btn" data-index="${index}" title="Hapus Bank"><i class="fas fa-trash"></i></button>
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="row-number">${index + 1}</td>
+                <td class="font-semibold text-slate-700">${bank.name}</td>
+                <td class="text-sm text-slate-600">${bank.number} (a.n. ${bank.holder})</td>
+                <td class="text-center">
+                    <button class="text-red-500 hover:text-red-700 delete-bank-btn" data-index="${index}" title="Hapus Bank">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
             `;
-            bankList.appendChild(div);
+            bankListBody.appendChild(tr);
         });
     };
 
@@ -2812,7 +3278,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // NAVIGATION
     const navigateTo = (pageId) => {
         state.activePage = pageId;
-        render();
+        localStorage.setItem('emklActivePage', pageId);
+        
+        // Reset scroll position BEFORE render to avoid flicker
+        const mainContent = document.querySelector('main');
+        if (mainContent) {
+            mainContent.style.scrollBehavior = 'auto';
+            mainContent.scrollTop = 0;
+        }
+        window.scrollTo(0, 0);
+        
+        render(false); // false means don't preserve scroll
+        
+        // Reset scroll position AFTER render to ensure it sticks
+        const resetScroll = () => {
+            if (mainContent) {
+                mainContent.scrollTop = 0;
+            }
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        };
+
+        resetScroll();
+        // Multiple timeouts to catch any late-rendering content
+        setTimeout(resetScroll, 10);
+        setTimeout(resetScroll, 100);
+        
         if (window.updateMobileNavState) {
             window.updateMobileNavState();
         }
@@ -2853,7 +3345,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 state.jobs = state.jobs.filter(job => job.id !== jobId);
                 saveData();
                 showToast(`Job Order ${jobId} telah dihapus.`);
-                render();
+                render(true);
             }
         }
         if (e.target.closest('.page-delete-cost-btn')) {
@@ -2949,14 +3441,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p><strong>Kapal/Voyage:</strong> ${job.vesselVoyage || 'N/A'}</p>
                     <p><strong>Rute:</strong> ${job.pol || 'N/A'} - ${job.pod || 'N/A'}</p>
                     <h4 class="text-xl font-bold border-b pb-2 mt-4">Kontainer & Sopir</h4>
-                    <div class="text-sm space-y-2">
-                        ${job.containers.map(c => `
-                            <div class="p-2 bg-slate-50 rounded">
-                                <p><strong>Kontainer:</strong> ${c.number} (${c.type || 'N/A'})</p>
-                                <p><strong>Seal:</strong> ${c.seal || 'N/A'}</p>
-                                <p><strong>Sopir:</strong> ${c.driverName || 'N/A'}</p>
-                            </div>
-                        `).join('')}
+                    <div class="overflow-x-auto">
+                        <table class="w-full mt-2 text-sm excel-table">
+                            <thead>
+                                <tr>
+                                    <th class="row-number">No</th>
+                                    <th class="p-2 text-left">Kontainer</th>
+                                    <th class="p-2 text-left">Seal</th>
+                                    <th class="p-2 text-left">Sopir</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${job.containers.map((c, index) => `
+                                    <tr>
+                                        <td class="row-number">${index + 1}</td>
+                                        <td class="p-2">${c.number} (${c.type || 'N/A'})</td>
+                                        <td class="p-2">${c.seal || 'N/A'}</td>
+                                        <td class="p-2">${c.driverName || 'N/A'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -2965,7 +3470,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="flex justify-between items-center mb-3">
                         <h4 class="text-xl font-bold border-b pb-2">Detail Invoice</h4>
                         <button id="print-invoice-btn" class="bg-slate-600 text-white px-3 py-1 rounded-md text-sm hover:bg-slate-700" data-id="${job.id}">
-                            <i class="fas fa-print mr-2"></i>Cetak
+                            <i class="fas fa-eye mr-2"></i>Preview / Cetak
                         </button>
                     </div>
                     
@@ -2983,22 +3488,31 @@ document.addEventListener('DOMContentLoaded', () => {
                             Tanggal ini akan muncul di invoice saat dicetak
                         </p>
                     </div>
-                    <table class="w-full mt-2 text-sm">
-                        <thead class="bg-slate-50"><tr><th class="p-2 text-left">Deskripsi</th><th class="p-2 text-right">Jumlah</th></tr></thead>
-                        <tbody>
-                        ${job.invoice.items.map(item => `
-                            <tr class="border-b">
-                                <td class="p-2">${item.description} ${item.ppnStatus === 'ppn_dibebaskan' ? `<div class="text-xs text-slate-500">(${getPPNStatusText(item.ppnStatus)})</div>` : ''}</td>
-                                <td class="p-2 text-right">${formatCurrency(item.total)}</td>
-                            </tr>
-                        `).join('')}
-                        </tbody>
-                        <tfoot class="font-semibold">
-                            <tr class="border-t"><td class="p-2">Subtotal</td><td class="p-2 text-right">${formatCurrency(job.invoice.subtotal)}</td></tr>
-                            <tr><td class="p-2">PPN 11%</td><td class="p-2 text-right">${formatCurrency(job.invoice.ppn)}</td></tr>
-                            <tr class="bg-slate-200 text-base"><td class="p-2">Grand Total</td><td class="p-2 text-right">${formatCurrency(job.invoice.total)}</td></tr>
-                        </tfoot>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full mt-2 text-sm excel-table">
+                            <thead>
+                                <tr>
+                                    <th class="row-number">No</th>
+                                    <th class="p-2 text-left">Deskripsi</th>
+                                    <th class="p-2 text-right">Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            ${job.invoice.items.map((item, index) => `
+                                <tr>
+                                    <td class="row-number">${index + 1}</td>
+                                    <td class="p-2">${item.description} ${item.ppnStatus === 'ppn_dibebaskan' ? `<div class="text-xs text-slate-500">(${getPPNStatusText(item.ppnStatus)})</div>` : ''}</td>
+                                    <td class="p-2 text-right">${formatCurrency(item.total)}</td>
+                                </tr>
+                            `).join('')}
+                            </tbody>
+                            <tfoot class="font-semibold">
+                                <tr><td class="row-number"></td><td class="p-2">Subtotal</td><td class="p-2 text-right">${formatCurrency(job.invoice.subtotal)}</td></tr>
+                                <tr><td class="row-number"></td><td class="p-2">PPN 11%</td><td class="p-2 text-right">${formatCurrency(job.invoice.ppn)}</td></tr>
+                                <tr class="bg-slate-200 text-base"><td class="row-number"></td><td class="p-2">Grand Total</td><td class="p-2 text-right">${formatCurrency(job.invoice.total)}</td></tr>
+                            </tfoot>
+                        </table>
+                    </div>
                     <div class="mt-4">
                         <strong>Status Pembayaran:</strong>
                         <span class="ml-2 px-2 py-1 rounded-full text-xs font-semibold ${paymentInfo.class}">
@@ -3011,15 +3525,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 <!-- Operational Costs -->
                 <div class="md:col-span-2">
                     <h4 class="text-xl font-bold border-b pb-2">Biaya Operasional</h4>
-                     <table class="w-full mt-2 text-sm">
-                        <thead class="bg-slate-50"><tr><th class="p-2 text-left">Deskripsi</th><th class="p-2 text-left">Sopir</th><th class="p-2 text-right">Jumlah</th><th class="p-2 text-center">Aksi</th></tr></thead>
-                        <tbody id="op-costs-body">
-                        ${job.operationalCosts.map((cost, index) => `
-                            <tr class="border-b"><td class="p-2">${cost.description}</td><td class="p-2">${cost.driverName || 'N/A'}</td><td class="p-2 text-right">${formatCurrency(cost.amount)}</td><td class="text-center"><button class="text-red-500 hover:text-red-700 delete-cost-btn" data-job-id="${job.id}" data-cost-index="${index}" title="Hapus Biaya"><i class="fas fa-times-circle"></i></button></td></tr>
-                        `).join('')}
-                        </tbody>
-                        <tfoot class="font-semibold"><tr><td class="p-2" colspan="2">Total Biaya</td><td class="p-2 text-right">${formatCurrency(costsTotal)}</td><td></td></tr></tfoot>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full mt-2 text-sm excel-table">
+                            <thead>
+                                <tr>
+                                    <th class="row-number">No</th>
+                                    <th class="p-2 text-left">Deskripsi</th>
+                                    <th class="p-2 text-left">Sopir</th>
+                                    <th class="p-2 text-right">Jumlah</th>
+                                    <th class="p-2 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="op-costs-body">
+                            ${job.operationalCosts.map((cost, index) => `
+                                <tr>
+                                    <td class="row-number">${index + 1}</td>
+                                    <td class="p-2">${cost.description}</td>
+                                    <td class="p-2">${cost.driverName || 'N/A'}</td>
+                                    <td class="p-2 text-right">${formatCurrency(cost.amount)}</td>
+                                    <td class="text-center">
+                                        <button class="text-red-500 hover:text-red-700 delete-cost-btn" data-job-id="${job.id}" data-cost-index="${index}" title="Hapus Biaya">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                            </tbody>
+                            <tfoot class="font-semibold">
+                                <tr>
+                                    <td class="row-number"></td>
+                                    <td class="p-2" colspan="2">Total Biaya</td>
+                                    <td class="p-2 text-right">${formatCurrency(costsTotal)}</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                     <form id="add-cost-form" class="mt-4 space-y-2" data-id="${job.id}">
                          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                             <div>
@@ -3123,7 +3664,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         showToast('Sedang membuat PDF...');
 
-        setTimeout(() => {
         const { jsPDF } = window.jspdf;
         
         // Support berbagai ukuran kertas (A4 default, bisa diganti: 'letter', 'legal', dll)
@@ -3212,9 +3752,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // ========================================
         // HEADER (CENTER ALIGNED)
         // ========================================
-        y += 2; // Extra top margin
+        y += 4; // Extra top margin
         addLine('PT. PASIR INDAH LOGISTIK', 'center', true, 30);
-        y += 2;
+        y += 14;
         
         // ========================================
         // INVOICE INFO (LEFT ALIGNED)
@@ -3371,9 +3911,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentDate = new Date().toLocaleString('id-ID');
         addLine(`Dicetak: ${currentDate}`, 'right', false, 8);
         
-        doc.save(`Invoice-${job.id}.pdf`);
-        showToast('Invoice berhasil diunduh!');
-        }, 100);
+        // Buka di tab baru untuk preview sebelum diunduh/dicetak
+        const pdfBlob = doc.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        window.open(pdfUrl, '_blank');
+        
+        showToast('Invoice terbuka di tab baru untuk preview/cetak');
     };
 
     // OPERATIONAL COSTS PAGE LOGIC
@@ -3393,12 +3936,13 @@ document.addEventListener('DOMContentLoaded', () => {
         populateDriverDropdown(document.getElementById('page-cost-driver'));
         
         if (job.operationalCosts.length === 0) {
-            costsTableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">Belum ada biaya operasional untuk job ini.</td></tr>`;
+            costsTableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-500">Belum ada biaya operasional untuk job ini.</td></tr>`;
         } else {
             job.operationalCosts.forEach((cost, index) => {
                 const row = document.createElement('tr');
                 row.className = 'border-b';
                 row.innerHTML = `
+                    <td class="row-number">${index + 1}</td>
                     <td class="p-4">${cost.description}</td>
                     <td class="p-4">${cost.driverName || 'N/A'}</td>
                     <td class="p-4 text-right">${formatCurrency(cost.amount)}</td>
@@ -3438,12 +3982,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         historyBody.innerHTML = '';
         if (job.invoice.payments.length === 0) {
-            historyBody.innerHTML = `<tr><td colspan="3" class="p-3 text-center text-slate-500">Belum ada riwayat pembayaran.</td></tr>`;
+            historyBody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-500">Belum ada riwayat pembayaran.</td></tr>`;
         } else {
-            job.invoice.payments.forEach(p => {
+            job.invoice.payments.forEach((p, index) => {
                 const row = document.createElement('tr');
                 row.className = 'border-b';
                 row.innerHTML = `
+                    <td class="row-number">${index + 1}</td>
                     <td class="p-3">${new Date(p.date).toLocaleDateString('id-ID')}</td>
                     <td class="p-3">${formatCurrency(p.amount)}</td>
                     <td class="p-3">${p.method}</td>
@@ -3945,15 +4490,21 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Piutang Report Page Listeners
         document.getElementById('generate-piutang-report-btn').addEventListener('click', () => {
-            const month = parseInt(document.getElementById('piutang-month').value);
+            const monthVal = document.getElementById('piutang-month').value;
             const year = parseInt(document.getElementById('piutang-year').value);
             const selectedCustomer = document.getElementById('piutang-customer').value;
             const piutangTableBody = document.getElementById('piutang-table-body');
             const printBtn = document.getElementById('print-piutang-report-btn');
+            const excelBtn = document.getElementById('export-excel-piutang-btn');
             piutangTableBody.innerHTML = '';
 
-            // Create end date for the selected period (last day of selected month/year)
-            const endDate = new Date(year, month + 1, 0, 23, 59, 59);
+            // Create end date for the selected period
+            let endDate;
+            if (monthVal === 'all') {
+                endDate = new Date(year, 11, 31, 23, 59, 59);
+            } else {
+                endDate = new Date(year, parseInt(monthVal) + 1, 0, 23, 59, 59);
+            }
 
             const unpaidJobs = state.jobs.filter(job => {
                 const jobDate = new Date(job.createdAt);
@@ -3971,37 +4522,88 @@ document.addEventListener('DOMContentLoaded', () => {
                 return isUnpaid && matchesDate && matchesCustomer;
             });
 
+            // Apply sorting
+            const sortedUnpaidJobs = sortData(unpaidJobs, 'piutang-list');
+
             let totalPiutang = 0;
 
-            if (unpaidJobs.length === 0) {
-                piutangTableBody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-slate-500">Tidak ada piutang untuk filter yang dipilih.</td></tr>`;
+            if (sortedUnpaidJobs.length === 0) {
+                piutangTableBody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-slate-500">Tidak ada piutang untuk filter yang dipilih.</td></tr>`;
                 printBtn.classList.add('hidden');
+                excelBtn.classList.add('hidden');
             } else {
-                unpaidJobs.forEach(job => {
-                    const totalPaid = job.invoice.payments.reduce((sum, p) => sum + p.amount, 0);
-                    const remaining = job.invoice.total - totalPaid;
-                    totalPiutang += remaining;
-                    
-                    const paymentInfo = getPaymentStatus(job);
-                    
-                    const row = document.createElement('tr');
-                    row.className = 'border-b hover:bg-slate-50';
-                    row.innerHTML = `
-                        <td class="p-4">${job.id}</td>
-                        <td class="p-4">${job.customerName}</td>
-                        <td class="p-4">${new Date(job.createdAt).toLocaleDateString('id-ID')}</td>
-                        <td class="p-4">${formatCurrency(job.invoice.total)}</td>
-                        <td class="p-4">${formatCurrency(totalPaid)}</td>
-                        <td class="p-4 font-semibold text-red-600">${formatCurrency(remaining)}</td>
-                        <td class="p-4">
-                            <span class="px-2 py-1 rounded-full text-xs font-semibold ${paymentInfo.class}">
-                                ${paymentInfo.text}
-                            </span>
-                        </td>
-                    `;
-                    piutangTableBody.appendChild(row);
+                // Group by customer - preserve order from sortedUnpaidJobs
+                const groupedJobs = sortedUnpaidJobs.reduce((acc, job) => {
+                    if (!acc[job.customerName]) {
+                        acc[job.customerName] = [];
+                    }
+                    acc[job.customerName].push(job);
+                    return acc;
+                }, {});
+
+                let rowIndex = 1;
+                // If sorting by customerName, the keys will already be in order if we iterate through sortedUnpaidJobs
+                const customerOrder = [];
+                sortedUnpaidJobs.forEach(job => {
+                    if (!customerOrder.includes(job.customerName)) {
+                        customerOrder.push(job.customerName);
+                    }
                 });
+
+                customerOrder.forEach(customerName => {
+                    const jobs = groupedJobs[customerName];
+                    let customerSubtotal = 0;
+
+                    // Add Customer Header Row
+                    const headerRow = document.createElement('tr');
+                    headerRow.className = 'bg-slate-100 font-bold';
+                    headerRow.innerHTML = `
+                        <td class="row-number"></td>
+                        <td colspan="7" class="text-blue-700 uppercase tracking-wider">${customerName}</td>
+                    `;
+                    piutangTableBody.appendChild(headerRow);
+
+                    jobs.forEach(job => {
+                        const totalPaid = job.invoice.payments.reduce((sum, p) => sum + p.amount, 0);
+                        const remaining = job.invoice.total - totalPaid;
+                        customerSubtotal += remaining;
+                        totalPiutang += remaining;
+                        
+                        const paymentInfo = getPaymentStatus(job);
+                        
+                        const row = document.createElement('tr');
+                        row.className = 'border-b hover:bg-slate-50';
+                        row.innerHTML = `
+                            <td class="row-number">${rowIndex++}</td>
+                            <td>${job.id}</td>
+                            <td>${job.customerName}</td>
+                            <td>${new Date(job.createdAt).toLocaleDateString('id-ID')}</td>
+                            <td>${formatCurrency(job.invoice.total)}</td>
+                            <td>${formatCurrency(totalPaid)}</td>
+                            <td class="font-semibold text-red-600">${formatCurrency(remaining)}</td>
+                            <td>
+                                <span class="px-2 py-1 rounded-full text-[10px] font-semibold ${paymentInfo.class}">
+                                    ${paymentInfo.text}
+                                </span>
+                            </td>
+                        `;
+                        piutangTableBody.appendChild(row);
+                    });
+
+                    // Add Customer Subtotal Row
+                    const subtotalRow = document.createElement('tr');
+                    subtotalRow.className = 'bg-blue-50 font-semibold italic';
+                    subtotalRow.innerHTML = `
+                        <td class="row-number"></td>
+                        <td colspan="5" class="text-right">Subtotal ${customerName}:</td>
+                        <td class="text-red-700">${formatCurrency(customerSubtotal)}</td>
+                        <td></td>
+                    `;
+                    piutangTableBody.appendChild(subtotalRow);
+                });
+
                 printBtn.classList.remove('hidden');
+                excelBtn.classList.remove('hidden');
             }
             document.getElementById('piutang-total').textContent = formatCurrency(totalPiutang);
         });
@@ -4009,13 +4611,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('print-piutang-report-btn').addEventListener('click', () => {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const month = parseInt(document.getElementById('piutang-month').value);
+            const monthVal = document.getElementById('piutang-month').value;
             const year = parseInt(document.getElementById('piutang-year').value);
             const selectedCustomer = document.getElementById('piutang-customer').value;
-            const monthName = document.getElementById('piutang-month').options[month].text;
+            
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const monthName = monthVal === 'all' ? 'Semua Bulan' : months[parseInt(monthVal)];
 
-            // Create end date for the selected period (last day of selected month/year)
-            const endDate = new Date(year, month + 1, 0, 23, 59, 59);
+            // Create end date for the selected period
+            let endDate;
+            if (monthVal === 'all') {
+                endDate = new Date(year, 11, 31, 23, 59, 59);
+            } else {
+                endDate = new Date(year, parseInt(monthVal) + 1, 0, 23, 59, 59);
+            }
 
             const unpaidJobs = state.jobs.filter(job => {
                 const jobDate = new Date(job.createdAt);
@@ -4027,19 +4636,49 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             let totalPiutang = 0;
-            const tableData = unpaidJobs.map(job => {
-                 const totalPaid = job.invoice.payments.reduce((sum, p) => sum + p.amount, 0);
-                 const remaining = job.invoice.total - totalPaid;
-                 totalPiutang += remaining;
-                 return [
-                    job.id,
-                    job.customerName,
-                    new Date(job.createdAt).toLocaleDateString('id-ID'),
-                    formatCurrency(job.invoice.total),
-                    formatCurrency(totalPaid),
-                    formatCurrency(remaining),
-                    getPaymentStatus(job).text
-                 ]
+            const tableData = [];
+            
+            // Group by customer for PDF
+            const groupedJobs = unpaidJobs.reduce((acc, job) => {
+                if (!acc[job.customerName]) {
+                    acc[job.customerName] = [];
+                }
+                acc[job.customerName].push(job);
+                return acc;
+            }, {});
+
+            Object.keys(groupedJobs).sort().forEach(customerName => {
+                const jobs = groupedJobs[customerName];
+                let customerSubtotal = 0;
+
+                // Add Customer Header Row to PDF data
+                tableData.push([
+                    { content: customerName, colSpan: 7, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }
+                ]);
+
+                jobs.forEach(job => {
+                    const totalPaid = job.invoice.payments.reduce((sum, p) => sum + p.amount, 0);
+                    const remaining = job.invoice.total - totalPaid;
+                    customerSubtotal += remaining;
+                    totalPiutang += remaining;
+                    
+                    tableData.push([
+                        job.id,
+                        job.customerName,
+                        new Date(job.createdAt).toLocaleDateString('id-ID'),
+                        formatCurrency(job.invoice.total),
+                        formatCurrency(totalPaid),
+                        formatCurrency(remaining),
+                        getPaymentStatus(job).text
+                    ]);
+                });
+
+                // Add Customer Subtotal Row to PDF data
+                tableData.push([
+                    { content: `Subtotal ${customerName}`, colSpan: 5, styles: { fontStyle: 'italic', halign: 'right' } },
+                    { content: formatCurrency(customerSubtotal), styles: { fontStyle: 'bold', textColor: [200, 0, 0] } },
+                    ''
+                ]);
             });
 
             doc.setFontSize(18);
@@ -4073,10 +4712,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Laporan Pembayaran Listeners
         document.getElementById('generate-payment-report-btn').addEventListener('click', () => {
-            const month = parseInt(document.getElementById('payment-report-month').value);
+            const monthVal = document.getElementById('payment-report-month').value;
             const year = parseInt(document.getElementById('payment-report-year').value);
             const reportBody = document.getElementById('payment-report-table-body');
             const printBtn = document.getElementById('print-payment-report-btn');
+            const excelBtn = document.getElementById('export-excel-payment-btn');
             reportBody.innerHTML = '';
 
             let allPayments = [];
@@ -4088,28 +4728,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const filteredPayments = allPayments.filter(p => {
                 const paymentDate = new Date(p.date);
-                return paymentDate.getMonth() === month && paymentDate.getFullYear() === year;
+                const matchesMonth = monthVal === 'all' || paymentDate.getMonth() === parseInt(monthVal);
+                return matchesMonth && paymentDate.getFullYear() === year;
             });
 
+            // Apply sorting
+            const sortedPayments = sortData(filteredPayments, 'laporan-pembayaran');
+
             let totalPaid = 0;
-            if (filteredPayments.length === 0) {
-                reportBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-500">Tidak ada data pembayaran untuk periode ini.</td></tr>`;
+            if (sortedPayments.length === 0) {
+                reportBody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-500">Tidak ada data pembayaran untuk periode ini.</td></tr>`;
                 printBtn.classList.add('hidden');
+                excelBtn.classList.add('hidden');
             } else {
-                filteredPayments.forEach(p => {
+                sortedPayments.forEach((p, index) => {
+                    totalPaid += p.amount;
                     const row = document.createElement('tr');
-                    row.className = 'border-b';
                     row.innerHTML = `
-                        <td class="p-4">${new Date(p.date).toLocaleDateString('id-ID')}</td>
-                        <td class="p-4">${p.jobId}</td>
-                        <td class="p-4">${p.customerName}</td>
-                        <td class="p-4">${formatCurrency(p.amount)}</td>
-                        <td class="p-4">${p.method}</td>
+                        <td class="row-number">${index + 1}</td>
+                        <td>${new Date(p.date).toLocaleDateString('id-ID')}</td>
+                        <td>${p.jobId}</td>
+                        <td>${p.customerName}</td>
+                        <td class="font-bold text-green-600">${formatCurrency(p.amount)}</td>
+                        <td>${p.method === 'transfer' ? 'Transfer' : 'Tunai'}</td>
                     `;
                     reportBody.appendChild(row);
-                    totalPaid += p.amount;
                 });
                 printBtn.classList.remove('hidden');
+                excelBtn.classList.remove('hidden');
             }
             document.getElementById('payment-report-total').textContent = formatCurrency(totalPaid);
         });
@@ -4117,9 +4763,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('print-payment-report-btn').addEventListener('click', () => {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const month = parseInt(document.getElementById('payment-report-month').value);
+            const monthVal = document.getElementById('payment-report-month').value;
             const year = parseInt(document.getElementById('payment-report-year').value);
-            const monthName = document.getElementById('payment-report-month').options[month].text;
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const monthName = monthVal === 'all' ? 'Semua Bulan' : months[parseInt(monthVal)];
 
             let allPayments = [];
             state.jobs.forEach(job => {
@@ -4129,7 +4776,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const filteredPayments = allPayments.filter(p => {
                 const paymentDate = new Date(p.date);
-                return paymentDate.getMonth() === month && paymentDate.getFullYear() === year;
+                const matchesMonth = monthVal === 'all' || paymentDate.getMonth() === parseInt(monthVal);
+                return matchesMonth && paymentDate.getFullYear() === year;
             });
             const totalPaid = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
 
@@ -4166,13 +4814,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Profit Loss Report Page Listeners
         document.getElementById('generate-profit-loss-report-btn').addEventListener('click', () => {
-            const month = parseInt(document.getElementById('profit-loss-month').value);
+            const monthVal = document.getElementById('profit-loss-month').value;
             const year = parseInt(document.getElementById('profit-loss-year').value);
             const printBtn = document.getElementById('print-profit-loss-report-btn');
 
             const filteredJobs = state.jobs.filter(job => {
                 const jobDate = new Date(job.createdAt);
-                return jobDate.getMonth() === month && jobDate.getFullYear() === year;
+                const matchesMonth = monthVal === 'all' || jobDate.getMonth() === parseInt(monthVal);
+                return matchesMonth && jobDate.getFullYear() === year;
             });
             
             const ppnJobs = filteredJobs.filter(job => !job.invoice.items.every(item => item.ppnStatus === 'bebas_ppn'));
@@ -4184,9 +4833,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 let totalRevenue = 0, totalCost = 0, totalProfit = 0;
 
                 if (jobs.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-500">Tidak ada data untuk kategori ini.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-500">Tidak ada data untuk kategori ini.</td></tr>`;
                 } else {
-                    jobs.forEach(job => {
+                    jobs.forEach((job, index) => {
                         const revenue = job.invoice.total;
                         const cost = job.operationalCosts.reduce((sum, c) => sum + c.amount, 0);
                         const profit = revenue - cost;
@@ -4196,13 +4845,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         totalProfit += profit;
 
                         const row = document.createElement('tr');
-                        row.className = 'border-b';
                         row.innerHTML = `
-                            <td class="p-4">${job.id}</td>
-                            <td class="p-4">${job.customerName}</td>
-                            <td class="p-4">${formatCurrency(revenue)}</td>
-                            <td class="p-4">${formatCurrency(cost)}</td>
-                            <td class="p-4 ${profit >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(profit)}</td>
+                            <td class="row-number">${index + 1}</td>
+                            <td>${job.id}</td>
+                            <td>${job.customerName}</td>
+                            <td>${formatCurrency(revenue)}</td>
+                            <td>${formatCurrency(cost)}</td>
+                            <td class="${profit >= 0 ? 'text-green-600' : 'text-red-600'}">${formatCurrency(profit)}</td>
                         `;
                         tbody.appendChild(row);
                     });
@@ -4228,13 +4877,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('print-profit-loss-report-btn').addEventListener('click', () => {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const month = parseInt(document.getElementById('profit-loss-month').value);
+            const monthVal = document.getElementById('profit-loss-month').value;
             const year = parseInt(document.getElementById('profit-loss-year').value);
-            const monthName = document.getElementById('profit-loss-month').options[month].text;
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const monthName = monthVal === 'all' ? 'Semua Bulan' : months[parseInt(monthVal)];
 
             const filteredJobs = state.jobs.filter(job => {
                 const jobDate = new Date(job.createdAt);
-                return jobDate.getMonth() === month && jobDate.getFullYear() === year;
+                const matchesMonth = monthVal === 'all' || jobDate.getMonth() === parseInt(monthVal);
+                return matchesMonth && jobDate.getFullYear() === year;
             });
             const ppnJobs = filteredJobs.filter(job => !job.invoice.items.every(item => item.ppnStatus === 'bebas_ppn'));
             const npJobs = filteredJobs.filter(job => job.invoice.items.every(item => item.ppnStatus === 'bebas_ppn'));
@@ -4289,13 +4940,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Export to Excel Listener for Profit Loss Report
         document.getElementById('export-excel-profit-loss-btn').addEventListener('click', () => {
-            const month = parseInt(document.getElementById('profit-loss-month').value);
+            const monthVal = document.getElementById('profit-loss-month').value;
             const year = parseInt(document.getElementById('profit-loss-year').value);
-            const monthName = document.getElementById('profit-loss-month').options[month].text;
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const monthName = monthVal === 'all' ? 'Semua Bulan' : months[parseInt(monthVal)];
 
             const filteredJobs = state.jobs.filter(job => {
                 const jobDate = new Date(job.createdAt);
-                return jobDate.getMonth() === month && jobDate.getFullYear() === year;
+                const matchesMonth = monthVal === 'all' || jobDate.getMonth() === parseInt(monthVal);
+                return matchesMonth && jobDate.getFullYear() === year;
             });
 
             const ppnJobs = filteredJobs.filter(job => !job.invoice.items.every(item => item.ppnStatus === 'bebas_ppn'));
@@ -4385,21 +5038,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Driver Report Page Listeners
         document.getElementById('generate-driver-report-btn').addEventListener('click', () => {
-            const month = parseInt(document.getElementById('report-month').value);
+            const monthVal = document.getElementById('report-month').value;
             const year = parseInt(document.getElementById('report-year').value);
             const reportContent = document.getElementById('driver-report-content');
             const printBtn = document.getElementById('print-driver-report-btn');
+            const excelBtn = document.getElementById('export-excel-driver-btn');
 
             const filteredJobs = state.jobs.filter(job => {
                 const jobDate = new Date(job.createdAt);
                 const hasDriver = job.containers.some(c => c.driverId);
-                return jobDate.getMonth() === month && jobDate.getFullYear() === year && hasDriver;
+                const matchesMonth = monthVal === 'all' || jobDate.getMonth() === parseInt(monthVal);
+                return matchesMonth && jobDate.getFullYear() === year && hasDriver;
             });
             
             const allCostsInPeriod = [];
             state.jobs.forEach(job => {
                 const jobDate = new Date(job.createdAt);
-                if (jobDate.getMonth() === month && jobDate.getFullYear() === year) {
+                const matchesMonth = monthVal === 'all' || jobDate.getMonth() === parseInt(monthVal);
+                if (matchesMonth && jobDate.getFullYear() === year) {
                     job.operationalCosts.forEach(cost => {
                         if (cost.driverId) {
                             allCostsInPeriod.push({
@@ -4443,6 +5099,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (allDriverNames.size === 0) {
                 reportContent.innerHTML = '<p class="text-center text-slate-500">Tidak ada data aktivitas sopir untuk periode yang dipilih.</p>';
                 printBtn.classList.add('hidden');
+                excelBtn.classList.add('hidden');
                 return;
             }
 
@@ -4461,24 +5118,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     tableHTML += `
                         <h4 class="text-lg font-medium mb-2 text-slate-600">Aktivitas Job</h4>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm">
-                                <thead class="bg-slate-200">
+                            <table class="w-full text-left text-sm excel-table">
+                                <thead>
                                     <tr>
-                                        <th class="p-3 font-semibold text-slate-600">No. Job</th>
-                                        <th class="p-3 font-semibold text-slate-600">Tanggal</th>
-                                        <th class="p-3 font-semibold text-slate-600">Pelanggan</th>
-                                        <th class="p-3 font-semibold text-slate-600">Tujuan (POD)</th>
+                                        <th class="row-number">#</th>
+                                        <th>No. Job</th>
+                                        <th>Tanggal</th>
+                                        <th>Pelanggan</th>
+                                        <th>Tujuan (POD)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                     `;
-                    jobs.forEach(job => {
+                    jobs.forEach((job, index) => {
                         tableHTML += `
-                            <tr class="border-b">
-                                <td class="p-3">${job.id}</td>
-                                <td class="p-3">${new Date(job.createdAt).toLocaleDateString('id-ID')}</td>
-                                <td class="p-3">${job.customerName}</td>
-                                <td class="p-3">${job.pod}</td>
+                            <tr>
+                                <td class="row-number">${index + 1}</td>
+                                <td>${job.id}</td>
+                                <td>${new Date(job.createdAt).toLocaleDateString('id-ID')}</td>
+                                <td>${job.customerName}</td>
+                                <td>${job.pod}</td>
                             </tr>
                         `;
                     });
@@ -4495,33 +5154,35 @@ document.addEventListener('DOMContentLoaded', () => {
                     let totalCost = 0;
                     tableHTML += `<h4 class="text-lg font-medium mt-4 mb-2 text-slate-600">Biaya Operasional Terkait</h4>
                                   <div class="overflow-x-auto">
-                                    <table class="w-full text-left text-sm">
-                                      <thead class="bg-slate-200">
+                                    <table class="w-full text-left text-sm excel-table">
+                                      <thead>
                                         <tr>
-                                          <th class="p-3 font-semibold text-slate-600">Tgl. Job</th>
-                                          <th class="p-3 font-semibold text-slate-600">No. Job</th>
-                                          <th class="p-3 font-semibold text-slate-600">Deskripsi Biaya</th>
-                                          <th class="p-3 font-semibold text-slate-600 text-right">Jumlah</th>
+                                          <th class="row-number">#</th>
+                                          <th>Tgl. Job</th>
+                                          <th>No. Job</th>
+                                          <th>Deskripsi Biaya</th>
+                                          <th class="text-right">Jumlah</th>
                                         </tr>
                                       </thead>
                                       <tbody>`;
-                    costs.forEach(cost => {
+                    costs.forEach((cost, index) => {
                         tableHTML += `
-                            <tr class="border-b">
-                                <td class="p-3">${new Date(cost.jobDate).toLocaleDateString('id-ID')}</td>
-                                <td class="p-3">${cost.jobId}</td>
-                                <td class="p-3">${cost.description}</td>
-                                <td class="p-3 text-right">${formatCurrency(cost.amount)}</td>
+                            <tr>
+                                <td class="row-number">${index + 1}</td>
+                                <td>${new Date(cost.jobDate).toLocaleDateString('id-ID')}</td>
+                                <td>${cost.jobId}</td>
+                                <td>${cost.description}</td>
+                                <td class="text-right">${formatCurrency(cost.amount)}</td>
                             </tr>
                         `;
                         totalCost += cost.amount;
                     });
                     tableHTML += `
                                       </tbody>
-                                      <tfoot class="font-bold bg-slate-200">
+                                      <tfoot>
                                         <tr>
-                                            <td colspan="3" class="p-3 text-right">Total Biaya:</td>
-                                            <td class="p-3 text-right">${formatCurrency(totalCost)}</td>
+                                            <td colspan="4" class="text-right">Total Biaya:</td>
+                                            <td class="text-right">${formatCurrency(totalCost)}</td>
                                         </tr>
                                       </tfoot>
                                     </table>
@@ -4533,19 +5194,309 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             printBtn.classList.remove('hidden');
+            excelBtn.classList.remove('hidden');
         });
 
         document.getElementById('print-driver-report-btn').addEventListener('click', handlePrintDriverReport);
 
+        // Laporan Job Order Lengkap Listeners
+        document.getElementById('generate-full-report-btn').addEventListener('click', renderFullJobOrderReport);
+        document.getElementById('print-full-report-btn').addEventListener('click', () => {
+            window.print();
+        });
+
+        // Export to Excel for Piutang
+        document.getElementById('export-excel-piutang-btn').addEventListener('click', () => {
+            const monthVal = document.getElementById('piutang-month').value;
+            const year = parseInt(document.getElementById('piutang-year').value);
+            const selectedCustomer = document.getElementById('piutang-customer').value;
+            
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const monthName = monthVal === 'all' ? 'Semua Bulan' : months[parseInt(monthVal)];
+            
+            let endDate;
+            if (monthVal === 'all') {
+                endDate = new Date(year, 11, 31, 23, 59, 59);
+            } else {
+                endDate = new Date(year, parseInt(monthVal) + 1, 0, 23, 59, 59);
+            }
+
+            const unpaidJobs = state.jobs.filter(job => {
+                const jobDate = new Date(job.createdAt);
+                const paymentInfo = getPaymentStatus(job);
+                return paymentInfo.status !== 'paid' && jobDate <= endDate && (!selectedCustomer || job.customerName === selectedCustomer);
+            });
+
+            const data = [
+                ['LAPORAN PIUTANG PELANGGAN'],
+                [`Periode: s/d ${monthName} ${year}`],
+                [`Pelanggan: ${selectedCustomer || 'Semua Pelanggan'}`],
+                [],
+                ['No. Job Order', 'Pelanggan', 'Tanggal Invoice', 'Total Invoice', 'Terbayar', 'Sisa Piutang', 'Status']
+            ];
+
+            let totalPiutang = 0;
+            
+            // Group by customer for Excel
+            const groupedJobs = unpaidJobs.reduce((acc, job) => {
+                if (!acc[job.customerName]) {
+                    acc[job.customerName] = [];
+                }
+                acc[job.customerName].push(job);
+                return acc;
+            }, {});
+
+            Object.keys(groupedJobs).sort().forEach(customerName => {
+                const jobs = groupedJobs[customerName];
+                let customerSubtotal = 0;
+
+                // Add Customer Header Row to Excel
+                data.push([customerName.toUpperCase(), '', '', '', '', '', '']);
+
+                jobs.forEach(job => {
+                    const totalPaid = job.invoice.payments.reduce((sum, p) => sum + p.amount, 0);
+                    const remaining = job.invoice.total - totalPaid;
+                    customerSubtotal += remaining;
+                    totalPiutang += remaining;
+                    const paymentInfo = getPaymentStatus(job);
+                    
+                    data.push([
+                        job.id,
+                        job.customerName,
+                        new Date(job.createdAt).toLocaleDateString('id-ID'),
+                        job.invoice.total,
+                        totalPaid,
+                        remaining,
+                        paymentInfo.text
+                    ]);
+                });
+
+                // Add Customer Subtotal Row to Excel
+                data.push(['', `SUBTOTAL ${customerName}`, '', '', '', customerSubtotal, '']);
+                data.push([]); // Empty row for spacing
+            });
+
+            data.push(['', 'TOTAL PIUTANG KESELURUHAN', '', '', '', totalPiutang, '']);
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [{wch:15}, {wch:25}, {wch:15}, {wch:15}, {wch:15}, {wch:15}, {wch:15}];
+            XLSX.utils.book_append_sheet(wb, ws, 'Piutang');
+            XLSX.writeFile(wb, `laporan-piutang-${monthName}-${year}.xlsx`);
+        });
+
+        // Export to Excel for Payment Report
+        document.getElementById('export-excel-payment-btn').addEventListener('click', () => {
+            const monthVal = document.getElementById('payment-report-month').value;
+            const year = parseInt(document.getElementById('payment-report-year').value);
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const monthName = monthVal === 'all' ? 'Semua Bulan' : months[parseInt(monthVal)];
+
+            let allPayments = [];
+            state.jobs.forEach(job => {
+                job.invoice.payments.forEach(p => {
+                    allPayments.push({ ...p, jobId: job.id, customerName: job.customerName });
+                });
+            });
+
+            const filteredPayments = allPayments.filter(p => {
+                const paymentDate = new Date(p.date);
+                const matchesMonth = monthVal === 'all' || paymentDate.getMonth() === parseInt(monthVal);
+                return matchesMonth && paymentDate.getFullYear() === year;
+            });
+
+            const data = [
+                ['LAPORAN PEMBAYARAN DITERIMA'],
+                [`Periode: ${monthName} ${year}`],
+                [],
+                ['Tgl. Bayar', 'No. Invoice', 'Pelanggan', 'Jumlah', 'Metode']
+            ];
+
+            let totalPaid = 0;
+            filteredPayments.forEach(p => {
+                data.push([
+                    new Date(p.date).toLocaleDateString('id-ID'),
+                    p.jobId,
+                    p.customerName,
+                    p.amount,
+                    p.method
+                ]);
+                totalPaid += p.amount;
+            });
+
+            data.push([]);
+            data.push(['', '', 'TOTAL PEMBAYARAN', totalPaid, '']);
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [{wch:15}, {wch:15}, {wch:25}, {wch:15}, {wch:15}];
+            XLSX.utils.book_append_sheet(wb, ws, 'Pembayaran');
+            XLSX.writeFile(wb, `laporan-pembayaran-${monthName}-${year}.xlsx`);
+        });
+
+        // Export to Excel for Driver Report
+        document.getElementById('export-excel-driver-btn').addEventListener('click', () => {
+            const monthVal = document.getElementById('report-month').value;
+            const year = parseInt(document.getElementById('report-year').value);
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const monthName = monthVal === 'all' ? 'Semua Bulan' : months[parseInt(monthVal)];
+
+            const filteredJobs = state.jobs.filter(job => {
+                const jobDate = new Date(job.createdAt);
+                const matchesMonth = monthVal === 'all' || jobDate.getMonth() === parseInt(monthVal);
+                return matchesMonth && jobDate.getFullYear() === year && job.containers.some(c => c.driverId);
+            });
+
+            const allCostsInPeriod = [];
+            state.jobs.forEach(job => {
+                const jobDate = new Date(job.createdAt);
+                const matchesMonth = monthVal === 'all' || jobDate.getMonth() === parseInt(monthVal);
+                if (matchesMonth && jobDate.getFullYear() === year) {
+                    job.operationalCosts.forEach(cost => {
+                        if (cost.driverId) allCostsInPeriod.push({ ...cost, jobId: job.id, jobDate: job.createdAt });
+                    });
+                }
+            });
+
+            const jobsByDriver = filteredJobs.reduce((acc, job) => {
+                job.containers.forEach(container => {
+                    if (container.driverId) {
+                        const driver = state.drivers.find(d => d.id === container.driverId);
+                        if(driver){
+                            if (!acc[driver.name]) acc[driver.name] = [];
+                            if (!acc[driver.name].some(j => j.id === job.id)) acc[driver.name].push(job);
+                        }
+                    }
+                });
+                return acc;
+            }, {});
+
+            const costsByDriver = allCostsInPeriod.reduce((acc, cost) => {
+                const driver = state.drivers.find(d => d.id === cost.driverId);
+                const driverName = driver ? driver.name : 'Unknown';
+                if (!acc[driverName]) acc[driverName] = [];
+                acc[driverName].push(cost);
+                return acc;
+            }, {});
+
+            const wb = XLSX.utils.book_new();
+            const allDriverNames = new Set([...Object.keys(jobsByDriver), ...Object.keys(costsByDriver)]);
+
+            allDriverNames.forEach(driverName => {
+                const data = [['LAPORAN AKTIVITAS SOPIR'], [`Sopir: ${driverName}`], [`Periode: ${monthName} ${year}`], []];
+                
+                const jobs = jobsByDriver[driverName] || [];
+                if (jobs.length > 0) {
+                    data.push(['AKTIVITAS JOB']);
+                    data.push(['No. Job', 'Tanggal', 'Pelanggan', 'Tujuan (POD)']);
+                    jobs.forEach(j => data.push([j.id, new Date(j.createdAt).toLocaleDateString('id-ID'), j.customerName, j.pod]));
+                    data.push([]);
+                }
+
+                const costs = costsByDriver[driverName] || [];
+                if (costs.length > 0) {
+                    data.push(['BIAYA OPERASIONAL']);
+                    data.push(['Tanggal', 'No. Job', 'Keterangan', 'Jumlah']);
+                    costs.forEach(c => data.push([new Date(c.jobDate).toLocaleDateString('id-ID'), c.jobId, c.description, c.amount]));
+                }
+
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                ws['!cols'] = [{wch:15}, {wch:15}, {wch:25}, {wch:25}];
+                XLSX.utils.book_append_sheet(wb, ws, driverName.substring(0, 31));
+            });
+
+            XLSX.writeFile(wb, `laporan-aktivitas-sopir-${monthName}-${year}.xlsx`);
+        });
+
+        // Export to Excel for Full Job Order Report
+        document.getElementById('export-excel-full-report-btn').addEventListener('click', () => {
+            const monthVal = document.getElementById('full-report-month').value;
+            const year = parseInt(document.getElementById('full-report-year').value);
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const monthText = monthVal === 'all' ? 'Semua Bulan' : months[parseInt(monthVal)];
+
+            const filteredJobs = state.jobs.filter(job => {
+                const jobDate = new Date(job.createdAt);
+                const monthMatch = monthVal === 'all' || jobDate.getMonth() === parseInt(monthVal);
+                return monthMatch && jobDate.getFullYear() === year;
+            });
+
+            const data = [
+                ['LAPORAN DATA JOB ORDER LENGKAP'],
+                [`Periode: ${monthText} ${year}`],
+                [],
+                ['No. Job', 'Tanggal', 'Pelanggan', 'Vessel', 'Voyage', 'POL', 'POD', 'No. Kontainer', 'Seal', 'Tipe', 'Sopir', 'Total Invoice']
+            ];
+
+            filteredJobs.forEach(job => {
+                if (job.containers && job.containers.length > 0) {
+                    job.containers.forEach((container, cIndex) => {
+                        const driver = state.drivers.find(d => d.id === container.driverId);
+                        data.push([
+                            cIndex === 0 ? job.id : '',
+                            cIndex === 0 ? new Date(job.createdAt).toLocaleDateString('id-ID') : '',
+                            cIndex === 0 ? job.customerName : '',
+                            cIndex === 0 ? (job.vessel || '-') : '',
+                            cIndex === 0 ? (job.voyage || '-') : '',
+                            cIndex === 0 ? (job.pol || '-') : '',
+                            cIndex === 0 ? (job.pod || '-') : '',
+                            container.number || '-',
+                            container.seal || '-',
+                            container.type || '-',
+                            driver ? driver.name : '-',
+                            cIndex === 0 ? job.invoice.total : ''
+                        ]);
+                    });
+                } else {
+                    data.push([
+                        job.id,
+                        new Date(job.createdAt).toLocaleDateString('id-ID'),
+                        job.customerName,
+                        job.vessel || '-',
+                        job.voyage || '-',
+                        job.pol || '-',
+                        job.pod || '-',
+                        '-', '-', '-', '-',
+                        job.invoice.total
+                    ]);
+                }
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [{wch:15}, {wch:15}, {wch:25}, {wch:15}, {wch:15}, {wch:10}, {wch:10}, {wch:15}, {wch:15}, {wch:10}, {wch:20}, {wch:15}];
+            XLSX.utils.book_append_sheet(wb, ws, 'Job Order Lengkap');
+            XLSX.writeFile(wb, `laporan-job-order-lengkap-${monthText}-${year}.xlsx`);
+        });
+
         // Load data and setup real-time sync
         loadData().then(() => {
-            navigateTo('dashboard');
+            const savedPage = localStorage.getItem('emklActivePage');
+            navigateTo(savedPage || 'dashboard');
             setupRealtimeSubscriptions();
         });
+
+        // Refresh App Button Handler
+        const handleRefresh = () => {
+            showToast('Menyegarkan data...');
+            loadData().then(() => {
+                render(true);
+                showToast('Data berhasil diperbarui');
+            });
+        };
+
+        document.getElementById('refresh-app-btn').addEventListener('click', handleRefresh);
+        document.getElementById('refresh-btn-mobile')?.addEventListener('click', handleRefresh);
     };
 
     // Only call initializeApp from showMainApp after login
     // initializeApp() is called from showMainApp()
+    
+    // Check if already logged in - moved to end of DOMContentLoaded to ensure all functions are defined
+    const isLoggedIn = localStorage.getItem('emklLoggedIn');
+    if (isLoggedIn === 'true') {
+        showMainApp();
+    }
 });
 
 // ==========================================
@@ -4662,6 +5613,8 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
 </script>
 </body>
 </html>
+index.html
+Menampilkan index.html.
 
 
 
