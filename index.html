@@ -2966,6 +2966,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <input type="text" class="p-2 border rounded-md container-number" placeholder="Nomor Kontainer" value="${containerData.number || ''}" required>
             <input type="text" class="p-2 border rounded-md container-seal" placeholder="Nomor Seal" value="${containerData.seal || ''}">
             <select class="p-2 border rounded-md bg-white container-type">
+                <option value="-" ${containerData.type === '-' ? 'selected' : ''}>-</option>
                 <option value="20FT" ${containerData.type === '20FT' ? 'selected' : ''}>20FT</option>
                 <option value="40FT" ${containerData.type === '40FT' ? 'selected' : ''}>40FT</option>
                 <option value="45FT" ${containerData.type === '45FT' ? 'selected' : ''}>45FT</option>
@@ -5615,7 +5616,6 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
 </html>
 index.html
 Menampilkan index.html.
-
 
 
 
