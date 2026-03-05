@@ -1794,50 +1794,107 @@
                 </div>
 
                 <!-- PAGE: Pembayaran Invoice -->
+                <!-- PAGE: Pembayaran Invoice -->
                 <div id="pembayaran-invoice" class="page">
                     <h2 class="text-3xl font-bold mb-6 text-slate-800">Pembayaran Invoice</h2>
                     <div class="bg-white p-6 rounded-xl shadow-md">
-                        <div class="mb-6"><label for="payment-job-select"
-                                class="block font-medium mb-2 text-slate-600">Pilih Invoice (Belum Lunas / Lunas
-                                Sebagian):</label><select id="payment-job-select"
-                                class="w-full md:w-1/2 p-2 border rounded-md bg-white">
-                                <option value="">-- Pilih Job Order --</option>
+                        <div class="mb-6"><label for="payment-customer-select"
+                                class="block font-medium mb-2 text-slate-600">Pilih Pelanggan:</label><select
+                                id="payment-customer-select" class="w-full md:w-1/2 p-2 border rounded-md bg-white">
+                                <option value="">-- Pilih Pelanggan --</option>
                             </select></div>
-                        <div id="payment-details-section" class="hidden mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div>
-                                <h3 class="text-xl font-semibold mb-4 text-slate-700">Detail Tagihan</h3>
-                                <div id="payment-invoice-summary" class="space-y-2 text-slate-600"></div>
-                                <h4 class="text-lg font-semibold mb-2 mt-6 text-slate-700">Input Pembayaran Baru</h4>
-                                <form id="payment-form" class="space-y-4">
-                                    <div><label for="payment-date" class="block font-medium mb-1">Tanggal
-                                            Bayar</label><input type="date" id="payment-date"
-                                            class="w-full p-2 border rounded-md" required></div>
-                                    <div><label for="payment-amount" class="block font-medium mb-1">Jumlah
-                                            Bayar</label><input type="number" id="payment-amount" placeholder="0"
-                                            class="w-full p-2 border rounded-md" required min="1"></div>
-                                    <div><label for="payment-method" class="block font-medium mb-1">Metode
-                                            Bayar</label><select id="payment-method"
-                                            class="w-full p-2 border rounded-md bg-white">
-                                            <option>Transfer</option>
-                                            <option>Tunai</option>
-                                            <option>DP / Uang Muka</option>
-                                            <option>Lainnya</option>
-                                        </select></div>
-                                    <div class="text-right pt-2"><button type="submit"
-                                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i
-                                                class="fas fa-save mr-2"></i>Simpan Pembayaran</button></div>
-                                </form>
+                        <div id="payment-details-section" class="hidden mt-6 grid grid-cols-1 gap-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-4 text-slate-700">Pilih Invoice</h3>
+                                    <div class="overflow-y-auto max-h-64 border rounded-lg">
+                                        <table class="w-full text-left bg-white">
+                                            <thead class="bg-slate-50 sticky top-0 shadow-sm z-10">
+                                                <tr>
+                                                    <th class="p-3 text-center"><input type="checkbox"
+                                                            id="payment-select-all"
+                                                            class="w-4 h-4 text-blue-600 cursor-pointer"></th>
+                                                    <th class="p-3 font-semibold text-slate-600">No. Job</th>
+                                                    <th class="p-3 font-semibold text-slate-600 text-right">Sisa Tagihan
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="payment-invoices-body"></tbody>
+                                        </table>
+                                    </div>
+                                    <div
+                                        class="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center text-lg">
+                                        <span class="font-semibold text-slate-700">Total Tagihan Terpilih:</span>
+                                        <span id="payment-selected-total" class="font-bold text-red-600">Rp 0</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-2 text-slate-700">Input Pembayaran Baru</h4>
+                                    <form id="payment-form" class="space-y-4">
+                                        <div><label for="payment-date" class="block font-medium mb-1">Tanggal
+                                                Bayar</label><input type="date" id="payment-date"
+                                                class="w-full p-2 border rounded-md" required></div>
+                                        <div><label for="payment-amount" class="block font-medium mb-1">Jumlah
+                                                Bayar</label><input type="number" id="payment-amount" placeholder="0"
+                                                class="w-full p-2 border rounded-md" required min="1"></div>
+                                        <div>
+                                            <label for="payment-pph23" class="block font-medium mb-1">Potongan PPh23
+                                                (2%)</label>
+                                            <div class="flex gap-2">
+                                                <input type="number" id="payment-pph23" placeholder="0"
+                                                    class="w-full p-2 border rounded-md" min="0">
+                                                <button type="button" id="btn-calc-pph23"
+                                                    class="bg-slate-200 text-slate-700 font-medium px-4 rounded-md hover:bg-slate-300 transition-colors whitespace-nowrap text-sm"><i
+                                                        class="fas fa-calculator mr-1"></i> Hitung 2%</button>
+                                            </div>
+                                        </div>
+                                        <div><label for="payment-method" class="block font-medium mb-1">Metode
+                                                Bayar</label><select id="payment-method"
+                                                class="w-full p-2 border rounded-md bg-white">
+                                                <option>Transfer</option>
+                                                <option>Tunai</option>
+                                                <option>DP / Uang Muka</option>
+                                                <option>Lainnya</option>
+                                            </select></div>
+
+                                        <!-- Ringkasan Pembayaran -->
+                                        <div id="payment-summary-box"
+                                            class="p-4 bg-blue-50 border border-blue-100 rounded-md space-y-2 mt-4">
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="text-slate-600">Total Tagihan Dibayar:</span>
+                                                <span id="summary-total-input" class="font-medium text-slate-800">Rp
+                                                    0</span>
+                                            </div>
+                                            <div class="flex justify-between items-center text-sm text-red-600">
+                                                <span>Potongan PPh23 (2%):</span>
+                                                <span id="summary-total-pph23">- Rp 0</span>
+                                            </div>
+                                            <div
+                                                class="flex justify-between items-center text-base pt-2 border-t border-blue-200 font-bold text-blue-800">
+                                                <span>Total Yang Dibayar (Nett):</span>
+                                                <span id="summary-total-net">Rp 0</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right pt-2"><button type="submit"
+                                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"><i
+                                                    class="fas fa-save mr-2"></i>Simpan Pembayaran</button></div>
+                                    </form>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="text-xl font-semibold mb-4 text-slate-700">Riwayat Pembayaran</h3>
+
+                            <div class="mt-8 border-t pt-8">
+                                <h3 class="text-xl font-semibold mb-4 text-slate-700">Riwayat Pembayaran <span
+                                        id="payment-history-customer-name" class="text-blue-600"></span></h3>
                                 <div class="overflow-x-auto">
                                     <table class="w-full text-left excel-table">
                                         <thead class="bg-slate-50">
                                             <tr class="border-b">
                                                 <th class="row-number">#</th>
+                                                <th class="p-3 font-semibold text-slate-600">No. Invoice</th>
                                                 <th class="p-3 font-semibold text-slate-600">Tanggal</th>
-                                                <th class="p-3 font-semibold text-slate-600">Jumlah</th>
+                                                <th class="p-3 font-semibold text-slate-600 text-right">Jumlah</th>
                                                 <th class="p-3 font-semibold text-slate-600">Metode</th>
+                                                <th class="text-center p-3 font-semibold text-slate-600">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody id="payment-history-body"></tbody>
@@ -2014,6 +2071,7 @@
                                             onclick="handleSort('laporan-pembayaran', 'amount')" data-column="amount">
                                             Jumlah <i class="fas fa-sort ml-1 text-slate-400"></i></th>
                                         <th>Metode</th>
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="payment-report-table-body"></tbody>
@@ -2021,7 +2079,7 @@
                                     <tr>
                                         <td class="row-number"></td>
                                         <td colspan="3">TOTAL PEMBAYARAN DITERIMA</td>
-                                        <td id="payment-report-total" colspan="2"></td>
+                                        <td id="payment-report-total" colspan="3"></td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -3203,14 +3261,17 @@
             };
 
             const renderPembayaranInvoicePage = () => {
-                const select = document.getElementById('payment-job-select');
-                select.innerHTML = '<option value="">-- Pilih Job Order --</option>';
-                state.jobs
-                    .filter(job => getPaymentStatus(job).status !== 'paid')
-                    .forEach(job => {
-                        const option = new Option(`${job.id} - ${job.customerName}`, job.id);
-                        select.add(option);
-                    });
+                const select = document.getElementById('payment-customer-select');
+                select.innerHTML = '<option value="">-- Pilih Pelanggan --</option>';
+                const customersWithUnpaidJobs = new Set();
+                state.jobs.forEach(job => {
+                    if (getPaymentStatus(job).status !== 'paid') {
+                        customersWithUnpaidJobs.add(job.customerName);
+                    }
+                });
+                Array.from(customersWithUnpaidJobs).sort().forEach(customer => {
+                    select.add(new Option(customer, customer));
+                });
                 select.value = '';
                 document.getElementById('payment-details-section').classList.add('hidden');
             };
@@ -4133,12 +4194,38 @@
                 document.getElementById('add-cost-form')?.addEventListener('submit', handleAddCost);
                 document.getElementById('go-to-payment-btn')?.addEventListener('click', (e) => {
                     const jobId = e.target.dataset.id;
-                    navigateTo('pembayaran-invoice');
-                    setTimeout(() => {
-                        document.getElementById('payment-job-select').value = jobId;
-                        displayPaymentDetails(jobId);
-                    }, 100);
-                    closeModalBtn.click();
+                    const job = state.jobs.find(j => j.id === jobId);
+                    if (job) {
+                        navigateTo('pembayaran-invoice');
+                        setTimeout(() => {
+                            const customerSelect = document.getElementById('payment-customer-select');
+                            customerSelect.value = job.customerName;
+                            displayPaymentDetails(job.customerName);
+                            // Optionally automatically check only this job
+                            setTimeout(() => {
+                                document.querySelectorAll('.payment-invoice-cb').forEach(cb => {
+                                    cb.checked = (cb.dataset.jobId === jobId);
+                                });
+                                // trigger total calculation manually or via event
+                                const e = new Event('change');
+                                document.querySelector('.payment-invoice-cb.checked')?.dispatchEvent(e);
+
+                                // Call calculate total if possible.. this is tricky without exposing that internal array manually
+                                const calculateSelectedTotal = () => {
+                                    let total = 0;
+                                    document.querySelectorAll('.payment-invoice-cb:checked').forEach(cb => {
+                                        total += parseFloat(cb.dataset.remaining);
+                                    });
+                                    document.getElementById('payment-selected-total').textContent = formatCurrency(total);
+                                    document.getElementById('payment-amount').value = total || '';
+                                    document.getElementById('payment-amount').max = total || '';
+                                };
+                                calculateSelectedTotal();
+
+                            }, 50);
+                        }, 100);
+                        closeModalBtn.click();
+                    }
                 });
                 document.getElementById('print-invoice-btn')?.addEventListener('click', handlePrintDotMatrixInvoice);
                 document.querySelectorAll('.delete-cost-btn').forEach(btn => btn.addEventListener('click', handleDeleteCost));
@@ -4503,47 +4590,140 @@
             };
 
             // PAYMENT PAGE LOGIC
-            const displayPaymentDetails = (jobId) => {
+            const displayPaymentDetails = (customerName) => {
                 const detailsSection = document.getElementById('payment-details-section');
-                const summaryDiv = document.getElementById('payment-invoice-summary');
                 const historyBody = document.getElementById('payment-history-body');
+                const invoicesBody = document.getElementById('payment-invoices-body');
+                const selectedTotalEl = document.getElementById('payment-selected-total');
 
-                const job = state.jobs.find(j => j.id === jobId);
-                if (!job) {
+                if (!customerName) {
                     detailsSection.classList.add('hidden');
                     return;
                 }
 
-                const totalPaid = job.invoice.payments.reduce((sum, p) => sum + p.amount, 0);
-                const remaining = job.invoice.total - totalPaid;
+                // Render Invoices Checkbox List
+                const unpaidJobs = state.jobs.filter(j => j.customerName === customerName && getPaymentStatus(j).status !== 'paid');
+                invoicesBody.innerHTML = '';
+                unpaidJobs.forEach(job => {
+                    const totalPaid = job.invoice.payments ? job.invoice.payments.reduce((sum, p) => sum + p.amount, 0) : 0;
+                    const remaining = job.invoice.total - totalPaid;
+                    const row = document.createElement('tr');
+                    row.className = 'border-b hover:bg-slate-50 transition-colors';
+                    row.innerHTML = `
+                        <td class="p-3 text-center">
+                            <input type="checkbox" class="w-4 h-4 text-blue-600 cursor-pointer form-checkbox payment-invoice-cb" data-job-id="${job.id}" data-remaining="${remaining}" data-dpp="${job.invoice.dpp || 0}">
+                        </td>
+                        <td class="p-3 font-medium text-slate-700">${job.id}</td>
+                        <td class="p-3 text-right font-bold ${remaining > 0 ? 'text-red-600' : 'text-green-600'}">${formatCurrency(remaining)}</td>
+                    `;
+                    invoicesBody.appendChild(row);
+                });
 
-                summaryDiv.innerHTML = `
-            <p><strong>Pelanggan:</strong> ${job.customerName}</p>
-            <p><strong>Total Tagihan:</strong> ${formatCurrency(job.invoice.total)}</p>
-            <p class="text-green-600"><strong>Sudah Dibayar:</strong> ${formatCurrency(totalPaid)}</p>
-            <p class="font-bold ${remaining > 0 ? 'text-red-600' : 'text-green-600'}"><strong>Sisa Tagihan:</strong> ${formatCurrency(remaining)}</p>
-        `;
+                // Summary Updater
+                const updateSummaryBox = () => {
+                    let amountToDistribute = parseFloat(document.getElementById('payment-amount').value) || 0;
+                    let pph23ToDistribute = parseFloat(document.getElementById('payment-pph23').value) || 0;
 
-                historyBody.innerHTML = '';
-                if (job.invoice.payments.length === 0) {
-                    historyBody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-500">Belum ada riwayat pembayaran.</td></tr>`;
-                } else {
-                    job.invoice.payments.forEach((p, index) => {
-                        const row = document.createElement('tr');
-                        row.className = 'border-b';
-                        row.innerHTML = `
-                    <td class="row-number">${index + 1}</td>
-                    <td class="p-3">${new Date(p.date).toLocaleDateString('id-ID')}</td>
-                    <td class="p-3">${formatCurrency(p.amount)}</td>
-                    <td class="p-3">${p.method}</td>
-                `;
-                        historyBody.appendChild(row);
+                    document.getElementById('summary-total-input').textContent = formatCurrency(amountToDistribute + pph23ToDistribute);
+                    document.getElementById('summary-total-pph23').textContent = '- ' + formatCurrency(pph23ToDistribute);
+                    document.getElementById('summary-total-net').textContent = formatCurrency(amountToDistribute);
+                };
+
+                const amountInputEl = document.getElementById('payment-amount');
+                const pph23InputEl = document.getElementById('payment-pph23');
+
+                // Clear and reattach to avoid duplicates
+                const setupInputListeners = () => {
+                    amountInputEl.removeEventListener('input', updateSummaryBox);
+                    pph23InputEl.removeEventListener('input', updateSummaryBox);
+                    amountInputEl.addEventListener('input', updateSummaryBox);
+                    pph23InputEl.addEventListener('input', updateSummaryBox);
+                };
+                setupInputListeners();
+
+                // Attach checkbox listeners
+                const calculateSelectedTotal = () => {
+                    let total = 0;
+                    document.querySelectorAll('.payment-invoice-cb:checked').forEach(cb => {
+                        total += parseFloat(cb.dataset.remaining);
                     });
+                    selectedTotalEl.textContent = formatCurrency(total);
+                    amountInputEl.value = total || '';
+                    pph23InputEl.value = '';
+                    updateSummaryBox();
+                };
+
+                const btnCalcPph23 = document.getElementById('btn-calc-pph23');
+                if (btnCalcPph23) {
+                    btnCalcPph23.onclick = () => {
+                        let totalDpp = 0;
+                        let selectedRemaining = 0;
+                        document.querySelectorAll('.payment-invoice-cb:checked').forEach(cb => {
+                            totalDpp += parseFloat(cb.dataset.dpp) || 0;
+                            selectedRemaining += parseFloat(cb.dataset.remaining) || 0;
+                        });
+                        const pph23 = totalDpp * 0.02;
+                        if (pph23 > 0) {
+                            pph23InputEl.value = pph23;
+                            const currentAmount = Math.max(0, selectedRemaining - pph23);
+                            amountInputEl.value = currentAmount;
+                            updateSummaryBox();
+                        } else {
+                            alert('Dasar Pengenaan Pajak (DPP) pada invoice yang dipilih adalah 0 atau tidak valid.');
+                        }
+                    };
                 }
 
-                document.getElementById('payment-form').dataset.jobId = jobId;
-                document.getElementById('payment-amount').max = remaining;
-                document.getElementById('payment-amount').value = remaining;
+                document.querySelectorAll('.payment-invoice-cb').forEach(cb => {
+                    cb.addEventListener('change', calculateSelectedTotal);
+                });
+
+                const selectAllCb = document.getElementById('payment-select-all');
+                if (selectAllCb) {
+                    selectAllCb.checked = false;
+                    selectAllCb.onchange = (e) => {
+                        document.querySelectorAll('.payment-invoice-cb').forEach(cb => {
+                            cb.checked = e.target.checked;
+                        });
+                        calculateSelectedTotal();
+                    };
+                }
+
+                calculateSelectedTotal();
+
+
+                // Render History for this customer
+                document.getElementById('payment-history-customer-name').textContent = `- ${customerName}`;
+                historyBody.innerHTML = '';
+
+                let hasHistory = false;
+                state.jobs.filter(j => j.customerName === customerName).forEach(job => {
+                    if (job.invoice && job.invoice.payments && job.invoice.payments.length > 0) {
+                        job.invoice.payments.forEach((p, index) => {
+                            hasHistory = true;
+                            const row = document.createElement('tr');
+                            row.className = 'border-b';
+                            row.innerHTML = `
+                        <td class="row-number">-</td>
+                        <td class="p-3 font-medium">${job.id}</td>
+                        <td class="p-3">${new Date(p.date).toLocaleDateString('id-ID')}</td>
+                        <td class="p-3 text-right text-green-600 font-bold">${formatCurrency(p.amount)}</td>
+                        <td class="p-3">${p.method}</td>
+                        <td class="actions justify-center space-x-2">
+                            <button onclick="editPaymentHistory('${job.id}', ${index})" class="bg-blue-100 text-blue-600 hover:bg-blue-200 p-1.5 rounded-lg shadow-sm transition-colors text-xs" title="Edit Pembayaran"><i class="fas fa-edit"></i></button>
+                            <button onclick="deletePaymentHistory('${job.id}', ${index})" class="bg-red-100 text-red-600 hover:bg-red-200 p-1.5 rounded-lg shadow-sm transition-colors text-xs" title="Hapus Pembayaran"><i class="fas fa-trash"></i></button>
+                        </td>
+                    `;
+                            historyBody.appendChild(row);
+                        });
+                    }
+                });
+
+                if (!hasHistory) {
+                    historyBody.innerHTML = `<tr><td colspan="6" class="p-3 text-center text-slate-500">Belum ada riwayat pembayaran untuk pelanggan ini.</td></tr>`;
+                }
+
+                document.getElementById('payment-form').dataset.customerName = customerName;
 
                 // Auto-fill tanggal hari ini
                 const today = new Date().toISOString().split('T')[0];
@@ -4940,18 +5120,26 @@
                 }
 
                 // Payment Page Listeners
-                document.getElementById('payment-job-select').addEventListener('change', (e) => {
+                document.getElementById('payment-customer-select').addEventListener('change', (e) => {
                     displayPaymentDetails(e.target.value);
                 });
 
                 document.getElementById('payment-form').addEventListener('submit', (e) => {
                     e.preventDefault();
-                    const jobId = e.target.dataset.jobId;
-                    const job = state.jobs.find(j => j.id === jobId);
-                    if (!job) return;
+                    const customerName = e.target.dataset.customerName;
+                    if (!customerName) return;
+
+                    const checkedCbs = document.querySelectorAll('.payment-invoice-cb:checked');
+                    if (checkedCbs.length === 0) {
+                        alert('Pilih minimal satu invoice untuk dibayar!');
+                        return;
+                    }
 
                     const paymentDate = document.getElementById('payment-date').value;
-                    const paymentAmount = parseFloat(document.getElementById('payment-amount').value);
+                    let amountToDistribute = parseFloat(document.getElementById('payment-amount').value);
+                    if (isNaN(amountToDistribute)) amountToDistribute = 0;
+                    let pph23ToDistribute = parseFloat(document.getElementById('payment-pph23').value);
+                    if (isNaN(pph23ToDistribute)) pph23ToDistribute = 0;
                     const paymentMethod = document.getElementById('payment-method').value;
 
                     if (!paymentDate) {
@@ -4959,34 +5147,76 @@
                         return;
                     }
 
-                    if (!paymentAmount || paymentAmount <= 0) {
-                        alert('Jumlah pembayaran harus lebih dari 0!');
+                    if (amountToDistribute <= 0 && pph23ToDistribute <= 0) {
+                        alert('Jumlah pembayaran atau Potongan PPh23 harus lebih dari 0!');
                         return;
                     }
 
-                    const totalPaid = job.invoice.payments.reduce((sum, p) => sum + p.amount, 0);
-                    const remaining = job.invoice.total - totalPaid;
+                    let totalPaymentInput = amountToDistribute + pph23ToDistribute;
 
-                    if (paymentAmount > remaining + 0.01) {
-                        alert(`Jumlah pembayaran melebihi sisa tagihan!\nSisa tagihan: ${formatCurrency(remaining)}`);
+                    // Calculate selected total
+                    let selectedTotalDebt = 0;
+                    const jobsToPay = [];
+                    checkedCbs.forEach(cb => {
+                        const jobId = cb.dataset.jobId;
+                        const remaining = parseFloat(cb.dataset.remaining);
+                        selectedTotalDebt += remaining;
+                        jobsToPay.push({ jobId, remaining });
+                    });
+
+                    if (totalPaymentInput > selectedTotalDebt + 0.01) {
+                        alert(`Jumlah pembayaran dan potongan PPh23 melebihi total sisa tagihan dari invoice yang dipilih!\nSisa Tagihan Terpilih: ${formatCurrency(selectedTotalDebt)}`);
                         return;
                     }
 
-                    const payment = {
-                        date: paymentDate,
-                        amount: paymentAmount,
-                        method: paymentMethod
-                    };
+                    // Distribute sequentially
+                    for (const item of jobsToPay) {
+                        if (amountToDistribute <= 0 && pph23ToDistribute <= 0) break;
 
-                    if (!job.invoice.payments) {
-                        job.invoice.payments = [];
+                        const job = state.jobs.find(j => j.id === item.jobId);
+                        if (!job) continue;
+
+                        const payCapacity = item.remaining;
+                        let jobPph23 = 0;
+                        let jobTransfer = 0;
+
+                        // Allocate PPh23 first
+                        jobPph23 = Math.min(payCapacity, pph23ToDistribute);
+                        pph23ToDistribute -= jobPph23;
+
+                        const remainingCapacity = payCapacity - jobPph23;
+
+                        jobTransfer = Math.min(remainingCapacity, amountToDistribute);
+                        amountToDistribute -= jobTransfer;
+
+                        if (!job.invoice.payments) job.invoice.payments = [];
+
+                        if (jobPph23 > 0) {
+                            job.invoice.payments.push({
+                                date: paymentDate,
+                                amount: jobPph23,
+                                method: 'Potongan PPh23 (2%)'
+                            });
+                        }
+
+                        if (jobTransfer > 0) {
+                            job.invoice.payments.push({
+                                date: paymentDate,
+                                amount: jobTransfer,
+                                method: paymentMethod
+                            });
+                        }
                     }
 
-                    job.invoice.payments.push(payment);
                     saveData();
                     showToast('Pembayaran berhasil disimpan.');
-                    displayPaymentDetails(jobId); // Refresh details
-                    renderPembayaranInvoicePage(); // Refresh dropdown
+
+                    const customerHasUnpaid = state.jobs.some(j => j.customerName === customerName && getPaymentStatus(j).status !== 'paid');
+                    if (!customerHasUnpaid) {
+                        renderPembayaranInvoicePage();
+                    } else {
+                        displayPaymentDetails(customerName);
+                    }
                 });
 
 
@@ -5265,8 +5495,8 @@
 
                     let allPayments = [];
                     state.jobs.forEach(job => {
-                        job.invoice.payments.forEach(p => {
-                            allPayments.push({ ...p, jobId: job.id, customerName: job.customerName });
+                        job.invoice.payments.forEach((p, idx) => {
+                            allPayments.push({ ...p, jobId: job.id, customerName: job.customerName, paymentIndex: idx });
                         });
                     });
 
@@ -5281,7 +5511,7 @@
 
                     let totalPaid = 0;
                     if (sortedPayments.length === 0) {
-                        reportBody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-500">Tidak ada data pembayaran untuk periode ini.</td></tr>`;
+                        reportBody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-slate-500">Tidak ada data pembayaran untuk periode ini.</td></tr>`;
                         printBtn.classList.add('hidden');
                         excelBtn.classList.add('hidden');
                     } else {
@@ -5295,6 +5525,10 @@
                         <td>${p.customerName}</td>
                         <td class="font-bold text-green-600">${formatCurrency(p.amount)}</td>
                         <td>${p.method}</td>
+                        <td class="actions justify-center space-x-2">
+                            <button onclick="editPaymentHistory('${p.jobId}', ${p.paymentIndex})" class="bg-blue-100 text-blue-600 hover:bg-blue-200 p-1.5 rounded-lg shadow-sm text-sm transition-colors" title="Edit Pembayaran"><i class="fas fa-edit"></i> Edit</button>
+                            <button onclick="deletePaymentHistory('${p.jobId}', ${p.paymentIndex})" class="bg-red-100 text-red-600 hover:bg-red-200 p-1.5 rounded-lg shadow-sm text-sm transition-colors" title="Hapus Pembayaran"><i class="fas fa-trash"></i> Hapus</button>
+                        </td>
                     `;
                             reportBody.appendChild(row);
                         });
@@ -6045,10 +6279,77 @@
             // initializeApp() is called from showMainApp()
 
             // Check if already logged in - moved to end of DOMContentLoaded to ensure all functions are defined
+            // Function for editing payment history
+            window.editPaymentHistory = (jobId, paymentIndex) => {
+                const job = state.jobs.find(j => j.id === jobId);
+                if (!job || !job.invoice || !job.invoice.payments || typeof job.invoice.payments[paymentIndex] === 'undefined') return;
+                const payment = job.invoice.payments[paymentIndex];
+
+                const newAmountStr = prompt(`Edit Jumlah Pembayaran untuk Invoice ${jobId}:`, payment.amount);
+                if (newAmountStr === null) return;
+                const newAmount = parseFloat(newAmountStr);
+
+                if (isNaN(newAmount) || newAmount <= 0) {
+                    alert('Jumlah pembayaran tidak valid!');
+                    return;
+                }
+
+                const totalPaidWithoutThis = job.invoice.payments.reduce((sum, p, i) => i === paymentIndex ? sum : sum + p.amount, 0);
+                const remaining = job.invoice.total - totalPaidWithoutThis;
+
+                if (newAmount > remaining + 0.01) {
+                    alert(`Jumlah pembayaran melebihi sisa tagihan!\nSisa tagihan maksimal: ${formatCurrency(remaining)}`);
+                    return;
+                }
+
+                payment.amount = newAmount;
+
+                const newDateStr = prompt(`Edit Tanggal Pembayaran (YYYY-MM-DD):`, payment.date.substring(0, 10));
+                if (newDateStr !== null && newDateStr.trim() !== '') {
+                    payment.date = newDateStr;
+                }
+
+                saveData();
+                showToast('Data pembayaran berhasil diubah.');
+
+                if (state.activePage === 'laporan-pembayaran') {
+                    document.getElementById('generate-payment-report-btn').click();
+                } else if (state.activePage === 'pembayaran-invoice') {
+                    displayPaymentDetails(jobId);
+                    // Also trigger render to update the dropdown if necessary
+                    if (typeof renderPembayaranInvoicePage === 'function') {
+                        renderPembayaranInvoicePage();
+                    }
+                }
+            };
+
+            // Function for deleting payment history
+            window.deletePaymentHistory = (jobId, paymentIndex) => {
+                if (confirm('Apakah Anda yakin ingin menghapus data pembayaran ini?')) {
+                    const job = state.jobs.find(j => j.id === jobId);
+                    if (job && job.invoice && job.invoice.payments) {
+                        job.invoice.payments.splice(paymentIndex, 1);
+                        saveData();
+                        showToast('Data pembayaran berhasil dihapus.');
+
+                        if (state.activePage === 'laporan-pembayaran') {
+                            document.getElementById('generate-payment-report-btn').click();
+                        } else if (state.activePage === 'pembayaran-invoice') {
+                            displayPaymentDetails(jobId);
+                            if (typeof renderPembayaranInvoicePage === 'function') {
+                                renderPembayaranInvoicePage();
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Check if already logged in - moved to end of DOMContentLoaded to ensure all functions are defined
             const isLoggedIn = localStorage.getItem('emklLoggedIn');
             if (isLoggedIn === 'true') {
                 showMainApp();
             }
+
         });
 
         // ==========================================
