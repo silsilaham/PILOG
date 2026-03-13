@@ -1602,6 +1602,12 @@
                                 <div><label for="pod" class="block font-medium mb-1 text-slate-600">Port of Discharge
                                         (POD)</label><input type="text" id="pod" class="w-full p-2 border rounded-md">
                                 </div>
+                                <div class="md:col-span-2"><label for="keterangan"
+                                        class="block font-medium mb-1 text-slate-600">Keterangan
+                                        (Opsional)</label><textarea id="keterangan" class="w-full p-2 border rounded-md"
+                                        rows="2"
+                                        placeholder="Tambahkan keterangan untuk ditampilkan di invoice..."></textarea>
+                                </div>
                                 <div class="md:col-span-2"><label for="bank-selection"
                                         class="block font-medium mb-1 text-slate-600">Rekening Bank untuk
                                         Invoice</label><select id="bank-selection"
@@ -3693,6 +3699,7 @@
                     document.getElementById('vessel-voyage').value = jobToEdit.vesselVoyage || '';
                     document.getElementById('pol').value = jobToEdit.pol || '';
                     document.getElementById('pod').value = jobToEdit.pod || '';
+                    document.getElementById('keterangan').value = jobToEdit.keterangan || '';
 
                     populateBankSelection();
                     document.getElementById('bank-selection').value = jobToEdit.selectedBankId || 'all';
@@ -3794,6 +3801,7 @@
                         job.vesselVoyage = document.getElementById('vessel-voyage').value;
                         job.pol = document.getElementById('pol').value;
                         job.pod = document.getElementById('pod').value;
+                        job.keterangan = document.getElementById('keterangan').value;
                         job.selectedBankId = document.getElementById('bank-selection').value;
                         job.containers = containers;
                         job.invoice.items = invoiceItems;
@@ -3847,6 +3855,7 @@
                         vesselVoyage: document.getElementById('vessel-voyage').value,
                         pol: document.getElementById('pol').value,
                         pod: document.getElementById('pod').value,
+                        keterangan: document.getElementById('keterangan').value,
                         selectedBankId: document.getElementById('bank-selection').value,
                         createdAt: new Date().toISOString(),
                         containers: containers,
@@ -4033,6 +4042,7 @@
                     <p><strong>Pelanggan:</strong> ${job.customerName}</p>
                     <p><strong>Kapal/Voyage:</strong> ${job.vesselVoyage || 'N/A'}</p>
                     <p><strong>Rute:</strong> ${job.pol || 'N/A'} - ${job.pod || 'N/A'}</p>
+                    ${job.keterangan ? `<p><strong>Keterangan:</strong> <br/>${job.keterangan.replace(/\\n/g, '<br/>')}</p>` : ''}
                     <h4 class="text-xl font-bold border-b pb-2 mt-4">Kontainer & Sopir</h4>
                     <div class="overflow-x-auto">
                         <table class="w-full mt-2 text-sm excel-table">
@@ -4502,6 +4512,19 @@
 
                 doc.setFont('Courier', 'normal');
                 y += 1;
+
+                if (job.keterangan && job.keterangan.trim() !== '') {
+                    addSeparator('-');
+                    y += 1;
+                    addLine('KETERANGAN:', 'left', true);
+                    y += 0.5;
+
+                    const ketLines = doc.splitTextToSize(job.keterangan, contentWidth - 8);
+                    ketLines.forEach(line => {
+                        addLine(`  ${line.trim()}`, 'left', false, 9);
+                    });
+                    y += 1;
+                }
 
                 // ========================================
                 // INFORMASI PEMBAYARAN (LEFT ALIGNED)
